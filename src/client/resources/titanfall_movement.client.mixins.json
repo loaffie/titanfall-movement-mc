@@ -1,0 +1,18 @@
+{
+	"required": true,
+	"package": "com.loaffie.titanfall.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"CameraMixin",
+		"EntityServerVelocityMixin",
+		"GameRendererMixin",
+		"LivingEntityJumpMixin",
+		"LivingEntityTravelMixin",
+		"ParticleManagerMixin",
+		"PlayerEntityModelMixin",
+		"PlayerEntityRendererMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

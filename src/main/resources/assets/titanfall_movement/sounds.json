@@ -1,0 +1,50 @@
+{
+	"wallrun_start": {
+		"sounds": [
+			"titanfall_movement:movement/wallrun_start"
+		]
+	},
+	"wallrun_loop": {
+		"sounds": [
+			"titanfall_movement:movement/wallrun_loop"
+		]
+	},
+	"walljump": {
+		"sounds": [
+			"titanfall_movement:movement/walljump_1",
+			"titanfall_movement:movement/walljump_2",
+			"titanfall_movement:movement/walljump_3"
+		]
+	},
+	"slide_start": {
+		"sounds": [
+			"titanfall_movement:movement/slide_start"
+		]
+	},
+	"slide_loop": {
+		"sounds": [
+			"titanfall_movement:movement/slide_loop"
+		]
+	},
+	"jump": {
+		"sounds": [
+			"titanfall_movement:movement/jump_1",
+			"titanfall_movement:movement/jump_2",
+			"titanfall_movement:movement/jump_3"
+		]
+	},
+	"double_jump": {
+		"sounds": [
+			"titanfall_movement:movement/double_jump_1",
+			"titanfall_movement:movement/double_jump_2",
+			"titanfall_movement:movement/double_jump_3"
+		]
+	},
+	"land": {
+		"sounds": [
+			"titanfall_movement:movement/land_1",
+			"titanfall_movement:movement/land_2",
+			"titanfall_movement:movement/land_3"
+		]
+	}
+}

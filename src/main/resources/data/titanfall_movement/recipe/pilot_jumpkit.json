@@ -1,0 +1,33 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"pattern": [
+		"INI",
+		"RER",
+		"FCF"
+	],
+	"key": {
+		"I": {
+			"item": "minecraft:iron_ingot"
+		},
+		"N": {
+			"item": "minecraft:netherite_scrap"
+		},
+		"R": {
+			"item": "minecraft:redstone"
+		},
+		"E": {
+			"item": "minecraft:elytra"
+		},
+		"F": {
+			"item": "minecraft:firework_rocket"
+		},
+		"C": {
+			"item": "minecraft:copper_ingot"
+		}
+	},
+	"result": {
+		"id": "titanfall_movement:pilot_jumpkit",
+		"count": 1
+	}
+}

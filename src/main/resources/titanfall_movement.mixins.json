@@ -1,0 +1,13 @@
+{
+	"required": true,
+	"package": "com.loaffie.titanfall.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"PlayerEntityFallDamageMixin",
+		"PlayerEntityLedgeMixin",
+		"PlayerEntitySlidePoseMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

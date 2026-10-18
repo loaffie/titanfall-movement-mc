@@ -1,0 +1,43 @@
+{
+	"schemaVersion": 1,
+	"id": "titanfall_movement",
+	"version": "${version}",
+	"name": "Titanfall Movement",
+	"description": "Titanfall 2 pilot movement with Source-engine physics, powered by a wearable Pilot Jumpkit: air strafing, slide hopping, wall running, wall jumps and double jumps. Install on client and server.",
+	"authors": [
+		"loaffie"
+	],
+	"contact": {
+		"sources": "https://github.com/loaffie/titanfall-movement"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/titanfall_movement/icon.png",
+	"environment": "*",
+	"mixins": [
+		"titanfall_movement.mixins.json",
+		{
+			"config": "titanfall_movement.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"entrypoints": {
+		"main": [
+			"com.loaffie.titanfall.TitanfallMovement"
+		],
+		"client": [
+			"com.loaffie.titanfall.client.TitanfallMovementClient"
+		],
+		"modmenu": [
+			"com.loaffie.titanfall.client.TitanfallModMenu"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"minecraft": "1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"recommends": {
+		"modmenu": ">=11.0.0"
+	}
+}
