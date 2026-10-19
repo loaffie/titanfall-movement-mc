@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.item;
 
 import com.loaffie.titanfall.TitanfallMovement;
+import com.loaffie.titanfall.grapple.PilotGrappleItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -36,6 +37,13 @@ public final class TitanfallItems {
 	public static final Item PILOT_JUMPKIT = register("pilot_jumpkit",
 			new PilotJumpkitItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof().attributeModifiers(jumpkitAttributes())));
 
+	/**
+	 * The Grapple: worn on the forearm (a Trinkets glove slot, or the off hand without Trinkets) and fired
+	 * with the Grapple key. It works on its own; the jumpkit is not needed to grapple.
+	 */
+	public static final Item PILOT_GRAPPLE = register("pilot_grapple",
+			new PilotGrappleItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
+
 	private TitanfallItems() {
 	}
 
@@ -57,11 +65,14 @@ public final class TitanfallItems {
 	}
 
 	/**
-	 * Forces class loading (and so registration) from the mod initializer, and lists the kit in the Combat
-	 * tab. The crafting recipe is data-driven: {@code data/titanfall_movement/recipe/pilot_jumpkit.json}
-	 * resolves its result by this item's registry id, {@code titanfall_movement:pilot_jumpkit}.
+	 * Forces class loading (and so registration) from the mod initializer, and lists the kit and the Grapple
+	 * in the Combat tab. The crafting recipes are data-driven ({@code data/titanfall_movement/recipe/}) and
+	 * resolve their results by these items' registry ids.
 	 */
 	public static void register() {
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> entries.add(PILOT_JUMPKIT));
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
+			entries.add(PILOT_JUMPKIT);
+			entries.add(PILOT_GRAPPLE);
+		});
 	}
 }

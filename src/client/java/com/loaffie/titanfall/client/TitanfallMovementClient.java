@@ -1,26 +1,49 @@
 package com.loaffie.titanfall.client;
 
 import com.loaffie.titanfall.client.anim.PilotAnimations;
+import com.loaffie.titanfall.client.grapple.GrappleFeatureRenderer;
+import com.loaffie.titanfall.client.grapple.GrappleHud;
+import com.loaffie.titanfall.client.grapple.GrappleItemRenderer;
+import com.loaffie.titanfall.client.grapple.GrappleLines;
+import com.loaffie.titanfall.client.grapple.GrappleModel;
+import com.loaffie.titanfall.client.grapple.GrappleRenderer;
 import com.loaffie.titanfall.client.particle.PilotParticle;
 import com.loaffie.titanfall.client.particle.ThrusterFlameParticle;
 import com.loaffie.titanfall.client.render.JumpkitFeatureRenderer;
 import com.loaffie.titanfall.client.render.JumpkitItemRenderer;
-import com.loaffie.titanfall.item.TitanfallItems;
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import com.loaffie.titanfall.client.render.JumpkitMesh;
 import com.loaffie.titanfall.client.render.JumpkitModel;
+import com.loaffie.titanfall.config.TitanfallConfig;
+import com.loaffie.titanfall.grapple.GrappleSyncPayload;
+import com.loaffie.titanfall.item.TitanfallItems;
+import com.loaffie.titanfall.movement.GrappleController;
 import com.loaffie.titanfall.movement.TitanfallController;
+import com.loaffie.titanfall.particle.TitanfallParticles;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
-import com.loaffie.titanfall.particle.TitanfallParticles;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.util.TypedActionResult;
+import org.lwjgl.glfw.GLFW;
 
 public class TitanfallMovementClient implements ClientModInitializer {
+	/** Fires the Grapple (and lets go of it). Titanfall's tactical key is Q, which Minecraft uses to drop items. */
+	public static final KeyBinding GRAPPLE_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			"key.titanfall_movement.grapple", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, "key.categories.titanfall_movement"));
+
 	@Override
 	public void onInitializeClient() {
 		// The movement itself runs from the travel mixin; the tick event only clears state between worlds.
@@ -28,7 +51,32 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		// Pose targets for every visible pilot (the local one from the controller, others inferred).
 		ClientTickEvents.END_CLIENT_TICK.register(PilotAnimations::tick);
 
+		// Grapple: the key is read at the start of the tick, so a shot is fired in that tick's movement.
+		ClientTickEvents.START_CLIENT_TICK.register(client -> {
+			while (GRAPPLE_KEY.wasPressed()) {
+				GrappleController.onKeyPressed(client);
+			}
+
+			GrappleController.preClientTick(client);
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(GrappleController::clientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(GrappleLines::tick);
+		ClientPlayNetworking.registerGlobalReceiver(GrappleSyncPayload.ID, (payload, context) -> GrappleLines.receive(payload));
+		WorldRenderEvents.START.register(GrappleRenderer::startFrame);
+		WorldRenderEvents.AFTER_ENTITIES.register(GrappleRenderer::render);
+		HudRenderCallback.EVENT.register(GrappleHud::render);
+		// Pilots cannot fire weapons while the line is pulling them in (melee still works).
+		UseItemCallback.EVENT.register((player, world, hand) -> {
+			if (world.isClient() && player instanceof ClientPlayerEntity local && TitanfallConfig.get().grappleBlocksItemUse
+					&& GrappleController.isAttached(local)) {
+				return TypedActionResult.fail(player.getStackInHand(hand));
+			}
+
+			return TypedActionResult.pass(player.getStackInHand(hand));
+		});
+
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(JumpkitMesh.reloadListener());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(GrappleModel.reloadListener());
 		ParticleFactoryRegistry particles = ParticleFactoryRegistry.getInstance();
 		particles.register(TitanfallParticles.THRUSTER_JET, sprites -> new PilotParticle.Factory(sprites, PilotParticle.JET));
 		particles.register(TitanfallParticles.THRUSTER_SPARK, sprites -> new PilotParticle.Factory(sprites, PilotParticle.SPARK));
@@ -37,14 +85,19 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		particles.register(TitanfallParticles.IGNITION, sprites -> new PilotParticle.Factory(sprites, PilotParticle.IGNITION));
 		particles.register(TitanfallParticles.EXHAUST_RING, sprites -> new PilotParticle.Factory(sprites, PilotParticle.EXHAUST_RING));
 		particles.register(TitanfallParticles.THRUSTER_FLAME, ThrusterFlameParticle.Factory::new);
+		particles.register(TitanfallParticles.GRAPPLE_FLASH, sprites -> new PilotParticle.Factory(sprites, PilotParticle.GRAPPLE_FLASH));
+		particles.register(TitanfallParticles.GRAPPLE_RING, sprites -> new PilotParticle.Factory(sprites, PilotParticle.GRAPPLE_RING));
+		particles.register(TitanfallParticles.GRAPPLE_TRAIL, sprites -> new PilotParticle.Factory(sprites, PilotParticle.GRAPPLE_TRAIL));
 
 		// The jumpkit item is drawn with the same OBJ mesh as the worn kit (inventory, hands, ground, frames).
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_JUMPKIT, new JumpkitItemRenderer());
+		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_GRAPPLE, new GrappleItemRenderer());
 
 		EntityModelLayerRegistry.registerModelLayer(JumpkitModel.LAYER, JumpkitModel::getTexturedModelData);
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityRenderer instanceof PlayerEntityRenderer playerRenderer) {
 				registrationHelper.register(new JumpkitFeatureRenderer(playerRenderer, context.getModelLoader()));
+				registrationHelper.register(new GrappleFeatureRenderer(playerRenderer));
 			}
 		});
 	}

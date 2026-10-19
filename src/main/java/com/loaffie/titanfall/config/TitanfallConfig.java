@@ -25,7 +25,10 @@ import java.nio.file.StandardCopyOption;
  * and sprints at 6.60.
  */
 public class TitanfallConfig {
-	/** Bumped whenever field meanings change, so an old file is backed up instead of misread. */
+	/**
+	 * Bumped whenever field meanings change, so an old file is backed up instead of misread. Fields that are
+	 * only added (like the grapple's) keep their defaults when an older file is read, so they need no bump.
+	 */
 	public static final int CURRENT_VERSION = 7;
 
 	public int configVersion = CURRENT_VERSION;
@@ -175,6 +178,65 @@ public class TitanfallConfig {
 	/** Ticks before the same wall plane can be latched again (landing resets it). */
 	public int sameWallCooldownTicks = 20;
 
+	// --- grapple ---
+	// Titanfall 2's Grapple, from the game's own files: the ability itself ({@code mp_ability_grapple.txt}) and
+	// the pilot's grapple settings ({@code pilot_base.set}, {@code pilot_mp.set}). The pull strength is set by
+	// the engine, not by those files, and is matched to measured in-game speeds instead.
+	/** Hook range, blocks ({@code grapple_maxLength} 1100 u = 27.94). */
+	public double grappleRange = 27.94;
+	/** Hook flight speed, b/s. 4400 u/s reaches full range in 0.25 s, the measured flight time. */
+	public double grappleHookSpeed = 111.76;
+	/**
+	 * Closing speed the line reels the pilot in at, b/s, at point-blank range; it rises to
+	 * {@link #grapplePullSpeedFar} for a hook at full range. Measured in game: about 40 km/h on a short pull
+	 * and 45 km/h or more from full range (11.1 and 12.5 b/s). Estimated: the pull is engine code.
+	 */
+	public double grapplePullSpeed = 11.1;
+	public double grapplePullSpeedFar = 12.5;
+	/** How hard the line accelerates the pilot toward the hook until that speed, b/s^2. Estimated. */
+	public double grapplePullAccel = 30.0;
+	/** Air control while hooked: wish-speed cap, b/s ({@code grapple_airSpeedMax} 420 u = 10.67). */
+	public double grappleAirSpeed = 10.67;
+	/** Air control while hooked: acceleration, b/s^2 ({@code grapple_airAccel} 650 u = 16.51). */
+	public double grappleAirAccel = 16.51;
+	/**
+	 * Fraction of gravity felt while hooked ({@code grapple_gravityFracMin} 0.25, {@code grapple_gravityFracMax}
+	 * 0.7): the least with the hook straight overhead, the most with it level or below.
+	 */
+	public double grappleGravityFracMin = 0.25;
+	public double grappleGravityFracMax = 0.7;
+	/** Upward kick when the hook bites, b/s, never lifting past the same speed ({@code grapple_impactVerticalBoost} 300 u = 7.62). */
+	public double grappleImpactBoost = 7.62;
+	/** Upward kick on letting go, b/s, capped the same way ({@code grapple_detachVerticalBoost} 200 u = 5.08). */
+	public double grappleDetachBoost = 5.08;
+	/** Speed shed on letting go, b/s ({@code grapple_detachSpeedLoss} 300 u = 7.62)... */
+	public double grappleDetachSpeedLoss = 7.62;
+	/** ...but never below this, b/s ({@code grapple_detachSpeedLossMin} 460 u = 11.68 in multiplayer). */
+	public double grappleDetachSpeedLossMin = 11.68;
+	/** The line lets go this close to the hook, blocks: slow arrivals at the near value, fast ones at the far
+	 * ({@code grapple_detachLengthMin} / {@code Max} 33 / 50 u = 0.84 / 1.27). */
+	public double grappleDetachLengthMin = 0.84;
+	public double grappleDetachLengthMax = 1.27;
+	/** Moving away from the hook faster than this snaps the line, b/s ({@code grapple_detachAwaySpeed} 500 u = 12.7). */
+	public double grappleDetachAwaySpeed = 12.7;
+	/** Slower than this for too long and the line lets go, b/s ({@code grapple_detachLowSpeedThreshold} 250 u = 6.35). */
+	public double grappleLowSpeed = 6.35;
+	/** How long the pilot may be that slow in the air, on a wall and on the ground, seconds
+	 * ({@code grapple_detachLowSpeedTime} 1.5, {@code WallTime} 1.2, {@code GroundTime} 0.7). */
+	public double grappleLowSpeedAirTime = 1.5;
+	public double grappleLowSpeedWallTime = 1.2;
+	public double grappleLowSpeedGroundTime = 0.7;
+	/** Grapple charges. Titanfall 2 launched with two; its October 2017 update settled on one. */
+	public int grappleCharges = 1;
+	/** Seconds to recharge one charge (10 s since the 2017 update). */
+	public double grappleCooldownSeconds = 10.0;
+	/** Seconds after the line lets go before the meter starts refilling ({@code grapple_power_regen_delay} 3). */
+	public double grappleRegenDelaySeconds = 3.0;
+	/** Pilots cannot fire weapons while being pulled (melee still works): item use is blocked while hooked. */
+	public boolean grappleBlocksItemUse = true;
+	/** Grapple meter and range marker beside the crosshair. */
+	public boolean grappleHud = true;
+
 	// --- camera ---
 	/**
 	 * Camera roll while wall running, degrees, scaled by how side-on the wall is to the view. Positive banks the
@@ -220,10 +282,16 @@ public class TitanfallConfig {
 
 	private static TitanfallConfig load() {
 		if (Files.exists(PATH)) {
-			try (Reader reader = Files.newBufferedReader(PATH)) {
-				TitanfallConfig config = GSON.fromJson(reader, TitanfallConfig.class);
+			try {
+				TitanfallConfig config;
+				try (Reader reader = Files.newBufferedReader(PATH)) {
+					config = GSON.fromJson(reader, TitanfallConfig.class);
+				}
+
 				if (config != null && config.configVersion == CURRENT_VERSION) {
 					config.sanitize();
+					// Rewritten so settings added since the file was saved show up in it with their defaults.
+					config.save();
 					return config;
 				}
 
@@ -252,6 +320,12 @@ public class TitanfallConfig {
 		wallRunGravityRampTicks = Math.max(1, wallRunGravityRampTicks);
 		slideDecay = Math.max(0.0, Math.min(slideDecay, 1.0));
 		movementVolume = Math.max(0.0, Math.min(movementVolume, 1.0));
+		grappleRange = Math.max(2.0, Math.min(grappleRange, 128.0));
+		grappleHookSpeed = Math.max(5.0, grappleHookSpeed);
+		grappleCharges = Math.max(1, Math.min(grappleCharges, 5));
+		grappleCooldownSeconds = Math.max(0.0, grappleCooldownSeconds);
+		grappleRegenDelaySeconds = Math.max(0.0, grappleRegenDelaySeconds);
+		grappleDetachLengthMax = Math.max(grappleDetachLengthMin, grappleDetachLengthMax);
 	}
 
 	public void save() {

@@ -1,5 +1,6 @@
 package com.loaffie.titanfall.movement;
 
+import com.loaffie.titanfall.client.grapple.GrappleLines;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.item.Jumpkit;
 import com.loaffie.titanfall.movement.physics.HVec;
@@ -76,7 +77,13 @@ public final class TitanfallController {
 		/** Sliding: momentum kept, low slide friction. */
 		SLIDE,
 		/** On the ground faster than vanilla walks, without a slide: Source ground friction until normal speed. */
-		SKID
+		SKID,
+		/**
+		 * Reeled in by the Grapple. The controller owns the full 3D velocity: the line pulls toward the hook,
+		 * the pilot steers with strong air control, and gravity is partly carried by the line. Works with or
+		 * without the jumpkit - the Grapple is its own piece of kit.
+		 */
+		GRAPPLE
 	}
 
 	private static ClientPlayerEntity trackedPlayer;
@@ -205,6 +212,31 @@ public final class TitanfallController {
 		vanillaJumped = false;
 
 		tickCooldowns();
+
+		if (GrappleController.tick(player) && !teleported) {
+			if (mode == Mode.NONE) {
+				momentum = displacement;
+			} else {
+				adoptExternalImpulse(player);
+			}
+
+			grappleTick(player, config, input, jumpPressed, previousYaw, yaw);
+			if (mode == Mode.NONE) {
+				return movementInput;
+			}
+
+			ownedThisTick = true;
+			Vec3d written = player.getVelocity();
+			writtenX = written.x;
+			writtenZ = written.z;
+			return Vec3d.ZERO;
+		} else if (mode == Mode.GRAPPLE) {
+			// The line went without the controller letting go (a teleport, or it was dropped elsewhere).
+			mode = Mode.AIR;
+			if (teleported) {
+				GrappleController.letGo(player, GrappleLines.of(player));
+			}
+		}
 
 		if (!pilotActive(player) || teleported) {
 			release(player);
@@ -857,6 +889,126 @@ public final class TitanfallController {
 		wallTicks = 0;
 		wallCooldown = TitanfallConfig.get().wallCooldownTicks;
 		sameWallCooldown = TitanfallConfig.get().sameWallCooldownTicks;
+	}
+
+	// ------------------------------------------------------------------------------------------------
+	// Grapple
+	// ------------------------------------------------------------------------------------------------
+
+	/**
+	 * One tick on the Grapple line, in blocks per second throughout.
+	 *
+	 * <ol>
+	 *   <li>The tick the hook bites, the pilot is kicked upward ({@code grapple_impactVerticalBoost}), which
+	 *   pops them off the ground.</li>
+	 *   <li>The line reels in: velocity toward the hook is built up at {@code grapplePullAccel} until the
+	 *   closing speed reaches the pull speed, which is a little higher for a hook fired from further away.
+	 *   Speed the pilot already has beyond that is never taken away, so swinging and air strafing keep
+	 *   working, and the line never lets the pilot drift further from the hook than it already is.</li>
+	 *   <li>Air control is much stronger than in free flight ({@code grapple_airSpeedMax} /
+	 *   {@code grapple_airAccel}), so the pilot can swing round the hook.</li>
+	 *   <li>The line carries part of the pilot's weight: gravity is scaled from 0.7 with the hook level or
+	 *   below to 0.25 with it straight overhead ({@code grapple_gravityFracMax} / {@code Min}).</li>
+	 * </ol>
+	 *
+	 * The line lets go on arrival, a jump or a second key press - all with the release kick - or, with no
+	 * kick, when it is flung away from the hook or stays too slow ({@link GrappleController} handles losing
+	 * sight of the hook).
+	 */
+	private static void grappleTick(ClientPlayerEntity player, TitanfallConfig config, Input input, boolean jumpPressed,
+			float previousYaw, float yaw) {
+		if (mode == Mode.WALL) {
+			endWallRun();
+		} else if (mode == Mode.SLIDE) {
+			MovementSounds.stopSlide();
+		}
+
+		mode = Mode.GRAPPLE;
+		slideHopAir = false;
+		lurchTicksLeft = 0;
+
+		Vec3d anchor = GrappleController.anchor(player);
+		Vec3d centre = player.getPos().add(0.0, player.getHeight() * 0.5, 0.0);
+		Vec3d toAnchor = anchor.subtract(centre);
+		double distance = toAnchor.length();
+		Vec3d toward = distance > 1.0E-4 ? toAnchor.multiply(1.0 / distance) : new Vec3d(0.0, 1.0, 0.0);
+		Vec3d velocity = new Vec3d(momentum.x(), player.getVelocity().y * TICKS_PER_SECOND, momentum.z());
+
+		if (GrappleController.consumeJustAttached() && anchor.y > player.getY()) {
+			velocity = new Vec3d(velocity.x, verticalKick(velocity.y, config.grappleImpactBoost), velocity.z);
+		}
+
+		double speed = velocity.length();
+		double arrive = clamp(speed / config.grapplePullSpeedFar, 0.0, 1.0);
+		double detachLength = config.grappleDetachLengthMin + (config.grappleDetachLengthMax - config.grappleDetachLengthMin) * arrive;
+		GrappleController.Release release = GrappleController.pendingRelease;
+		if (release == GrappleController.Release.NONE) {
+			if (jumpPressed || distance <= detachLength) {
+				release = GrappleController.Release.LET_GO;
+			} else if (-velocity.dotProduct(toward) > config.grappleDetachAwaySpeed || GrappleController.tooSlow(player, speed, config)) {
+				release = GrappleController.Release.SNAP;
+			}
+		}
+
+		if (release != GrappleController.Release.NONE) {
+			if (release == GrappleController.Release.LET_GO) {
+				// Titanfall's release: the speed is trimmed (never below the floor) and the pilot is kicked upward,
+				// which is what pops a grappling pilot up and over the ledge they were reeled to.
+				double trimmed = Math.max(speed - config.grappleDetachSpeedLoss, Math.min(speed, config.grappleDetachSpeedLossMin));
+				velocity = speed > 1.0E-6 ? velocity.multiply(trimmed / speed) : velocity;
+				velocity = new Vec3d(velocity.x, verticalKick(velocity.y, config.grappleDetachBoost), velocity.z);
+			}
+
+			GrappleController.letGo(player, GrappleLines.of(player));
+			momentum = SourceMovement.clampLength(new HVec(velocity.x, velocity.z), config.maxVelocity);
+			player.setVelocity(momentum.x() * DT, velocity.y * DT, momentum.z() * DT);
+			peakY = player.getY();
+			airTicks = MIN_AIR_TICKS_TO_LATCH;
+			mode = Mode.AIR;
+			if (!pilotActive(player)) {
+				release(player);
+			}
+
+			return;
+		}
+
+		// Reel in toward the hook.
+		double reach = clamp(GrappleController.attachDistance() / config.grappleRange, 0.0, 1.0);
+		double pullSpeed = config.grapplePullSpeed + (config.grapplePullSpeedFar - config.grapplePullSpeed) * reach;
+		double closing = velocity.dotProduct(toward);
+		if (closing < pullSpeed) {
+			velocity = velocity.add(toward.multiply(Math.min(config.grapplePullAccel * DT, pullSpeed - closing)));
+		}
+
+		// Strong air control round the hook (horizontal, sub-stepped like free flight).
+		HVec horizontal = new HVec(velocity.x, velocity.z);
+		int steps = Math.max(1, config.airSubsteps);
+		for (int step = 1; step <= steps; step++) {
+			double stepYaw = previousYaw + (yaw - previousYaw) * step / (double) steps;
+			horizontal = SourceMovement.airAccelerate(horizontal, wishDirection(stepYaw, input), config.grappleAirSpeed, config.grappleAirAccel, DT / steps);
+		}
+
+		velocity = new Vec3d(horizontal.x(), velocity.y, horizontal.z());
+		// The line never pays out: no motion away from the hook survives.
+		double away = velocity.dotProduct(toward);
+		if (away < 0.0) {
+			velocity = velocity.subtract(toward.multiply(away));
+		}
+
+		momentum = SourceMovement.clampLength(new HVec(velocity.x, velocity.z), config.maxVelocity);
+		// Vanilla subtracts the full gravity after the move; the line holds up the rest of it.
+		double overhead = clamp(toward.y, 0.0, 1.0);
+		double gravityFrac = config.grappleGravityFracMax + (config.grappleGravityFracMin - config.grappleGravityFracMax) * overhead;
+		double held = (1.0 - gravityFrac) * player.getFinalGravity();
+		player.setVelocity(momentum.x() * DT, velocity.y * DT + held, momentum.z() * DT);
+		player.fallDistance = 0.0F;
+		peakY = player.getY();
+		GrappleLines.of(player).pull = (float) velocity.dotProduct(toward);
+	}
+
+	/** Titanfall's capped vertical kick: add {@code boost} upward, but never lift past {@code boost} by it. */
+	private static double verticalKick(double vertical, double boost) {
+		return Math.max(vertical, Math.min(vertical + boost, boost));
 	}
 
 	// ------------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 package com.loaffie.titanfall;
 
 import com.loaffie.titanfall.config.TitanfallConfig;
+import com.loaffie.titanfall.grapple.GrappleServer;
 import com.loaffie.titanfall.item.TitanfallItems;
 import com.loaffie.titanfall.movement.TitanfallSounds;
 import com.loaffie.titanfall.particle.TitanfallParticles;
@@ -24,6 +25,7 @@ public class TitanfallMovement implements ModInitializer {
 		TitanfallSounds.register();
 		TitanfallItems.register();
 		SlidePayload.register();
+		GrappleServer.register();
 		TitanfallParticles.register();
 		LOGGER.info("Initializing Titanfall Movement");
 	}

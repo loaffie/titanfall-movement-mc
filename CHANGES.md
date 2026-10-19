@@ -1,3 +1,89 @@
+# 2.1 (Minecraft 1.21.1)
+
+## The Grapple
+
+Titanfall 2's Grapple Pilot tactical, as a new item worn on the forearm.
+
+- **Equipping.**
+  - With [Trinkets](https://modrinth.com/mod/trinkets) installed it goes in a glove slot: off hand (as
+    in Titanfall, keeping the weapon hand free) or main hand. Without Trinkets it is held in the off hand.
+    Right-clicking it equips it either way. Trinkets is optional.
+  - Curios API was the request, but on 1.21.1 it only exists for NeoForge/Forge. Trinkets is the Fabric
+    equivalent, and the Accessories mod loads Trinkets items through its compatibility layer.
+- **Behaviour from the game's own files** (`mp_ability_grapple.txt`, `pilot_base.set`, `pilot_mp.set`):
+  - 1100 u (28-block) range, hook flight of 0.25 s, and a miss costs nothing.
+  - Upward kick when the hook bites.
+  - Reel speed of 40-45 km/h, matched to measured in-game speeds (the pull is engine code, not in the
+    files).
+  - Strong air control while hooked, and partial gravity (×0.25-0.7 depending on where the hook is).
+  - Release kick (upward boost, speed trimmed to a floor) when you arrive, jump or press the key again.
+  - Lets go if the hook leaves your line of sight, you're flung away from it, or you're too slow for too
+    long.
+  - One charge with a 10 s recharge after a 3 s delay, the October 2017 numbers. Configurable, including
+    the launch version's two charges.
+  - Hooking a creature or player pulls you to them, and reels them in too if they're airborne
+    (server-side).
+  - No item use while being pulled (melee still works).
+  - A fall caught by the line doesn't count as a fall.
+- **Works without the jumpkit.** It is its own movement mode in the controller, which owns the full 3D
+  velocity while hooked. With the jumpkit it chains into everything else: let go next to a wall and the
+  wall run picks up straight away.
+- **Model** (new `tools/generate-grapple-model.py`): an armoured bracer with the launcher along the top of
+  the forearm, barrel over the back of the hand, cable spool, actuator rod and the three-clawed hook in
+  the muzzle. Built from bevelled boxes and real cylinders (about 1500 triangles) in the jumpkit's
+  Grapple-pilot palette.
+  - The status light is cyan when ready, pulses amber while refilling, and goes white with the line out.
+  - It fits wide and slim arms, mirrors onto either arm, and is drawn on every player.
+  - The item is the same 3D model in the inventory, on the ground and in frames; the tool also renders the
+    16×16 sprite from the mesh.
+- **Animation.**
+  - First person: the launcher arm comes up when you fire, follows the hook while you're pulled, and
+    drops away afterwards. The cable leaves the muzzle exactly where it is on screen, whatever the FOV.
+  - Third person: the arm points at the hook.
+  - The cable whips out in flight, goes taut when the hook bites, hums under load, and snakes home
+    behind the hook.
+- **Effects**:
+  - muzzle flash and sparks;
+  - a tracer behind the hook in flight;
+  - a flash, an impact ring, chips of the block that was hit and sparks where the hook bites;
+  - crit sparks on a creature.
+- **Sounds** (synthesised, no game audio): the launch, the bite, a winch loop whose pitch follows the
+  reel speed, the reel-in and latch, a charge-ready chime and an empty-meter beep. Other players see and
+  hear all of it.
+- **HUD**: a charge arc under the crosshair and in-range brackets either side of it.
+- **Controls**: the Grapple key (default `G`, rebindable). Recipe:
+
+  ```
+  Iron Ingot   Tripwire Hook   Iron Ingot
+  Chain        Sticky Piston   Chain
+  Leather      Redstone        Leather
+  ```
+- **Config / Mod Menu**: range, pull speeds and acceleration, charges, cooldown, HUD and the item-use
+  block.
+
+## Fixes
+
+- **Config loading on Windows.** The loader moved the config file while it still had it open. On Windows
+  that fails, and the old file was then overwritten without a backup. The file is now closed first.
+  Settings added in a new version are written into an existing file instead of needing a version bump,
+  so 2.1 keeps your 2.0 settings.
+- **First-person hands.** A Grapple in Trinkets' main-hand glove slot would have drawn a second empty
+  arm in first person; vanilla's arm now gives way to the Grapple arm.
+
+## Testing
+
+Unlike every earlier version, this one was built and run in the real game (Minecraft 1.21.1, headless
+software rendering) with a scripted test world, both with and without Trinkets.
+
+- Grapple:
+  - hook flight, range and misses;
+  - block and entity hooks;
+  - pull speeds against the measured values;
+  - release on arrival and on jump;
+  - cooldown and the denied beep.
+- Rendering in first and third person, and on wide and slim arms.
+- The 2.0 moves: the wall run (holds the 10.67 b/s cap), the slide and the double jump.
+
 # 2.0 (Minecraft 1.21.1)
 
 ## Wall running on diagonal walls

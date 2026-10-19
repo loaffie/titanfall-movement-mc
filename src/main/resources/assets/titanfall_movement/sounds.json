@@ -46,5 +46,49 @@
 			"titanfall_movement:movement/land_2",
 			"titanfall_movement:movement/land_3"
 		]
+	},
+	"grapple_fire": {
+		"sounds": [
+			"titanfall_movement:grapple/fire_1",
+			"titanfall_movement:grapple/fire_2",
+			"titanfall_movement:grapple/fire_3"
+		]
+	},
+	"grapple_impact": {
+		"sounds": [
+			{
+				"name": "titanfall_movement:grapple/impact_1",
+				"attenuation_distance": 40
+			},
+			{
+				"name": "titanfall_movement:grapple/impact_2",
+				"attenuation_distance": 40
+			},
+			{
+				"name": "titanfall_movement:grapple/impact_3",
+				"attenuation_distance": 40
+			}
+		]
+	},
+	"grapple_reel": {
+		"sounds": [
+			"titanfall_movement:grapple/reel_loop"
+		]
+	},
+	"grapple_release": {
+		"sounds": [
+			"titanfall_movement:grapple/release_1",
+			"titanfall_movement:grapple/release_2"
+		]
+	},
+	"grapple_ready": {
+		"sounds": [
+			"titanfall_movement:grapple/ready"
+		]
+	},
+	"grapple_denied": {
+		"sounds": [
+			"titanfall_movement:grapple/denied"
+		]
 	}
 }

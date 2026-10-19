@@ -1,5 +1,11 @@
 {
 	"item.titanfall_movement.pilot_jumpkit": "Pilot Jumpkit",
 	"item.titanfall_movement.pilot_jumpkit.tooltip.slot": "Worn in the chest slot",
-	"item.titanfall_movement.pilot_jumpkit.tooltip.abilities": "Wall run, double jump, slide hop, air strafe"
+	"item.titanfall_movement.pilot_jumpkit.tooltip.abilities": "Wall run, double jump, slide hop, air strafe",
+	"item.titanfall_movement.pilot_grapple": "Grapple",
+	"item.titanfall_movement.pilot_grapple.tooltip.slot.trinkets": "Worn on the forearm (glove slot)",
+	"item.titanfall_movement.pilot_grapple.tooltip.slot.offhand": "Worn on the forearm (off hand)",
+	"item.titanfall_movement.pilot_grapple.tooltip.use": "Press Grapple to fire the hook and reel in",
+	"key.categories.titanfall_movement": "Titanfall Movement",
+	"key.titanfall_movement.grapple": "Grapple"
 }

@@ -1,8 +1,9 @@
-# Titanfall Movement 2.0 (Fabric 1.21.1)
+# Titanfall Movement 2.1 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
-powered by a wearable **Pilot Jumpkit**. Install it on **both client and server**: the jumpkit is a
-registered item, so a server without the mod would reject it.
+powered by a wearable **Pilot Jumpkit**, plus the Grapple Pilot's **Grapple**. Install it on **both
+client and server**: the jumpkit and the Grapple are registered items, so a server without the mod would
+reject them.
 
 ## Pilot Jumpkit
 
@@ -34,6 +35,69 @@ registered item, so a server without the mod would reject it.
   height, so you hang in the air about 50% longer (18 ticks against vanilla's 12), and falls are slower.
   The double jump uses the same impulse. Titanfall's datamined wall-jump speeds now give their real
   heights, because the gravity matches.
+
+## Grapple
+
+Titanfall 2's Grapple tactical: a hook fired from a launcher built into the forearm of the pilot's
+gauntlet, which reels you in.
+
+- Item id `titanfall_movement:pilot_grapple`, in the Combat creative tab. Craftable; the recipe unlocks
+  once you pick up a tripwire hook or a sticky piston.
+
+  ```
+  Iron Ingot   Tripwire Hook   Iron Ingot
+  Chain        Sticky Piston   Chain
+  Leather      Redstone        Leather
+  ```
+- **Where it goes.** With [Trinkets](https://modrinth.com/mod/trinkets) installed it is worn in a
+  **glove slot**: the off-hand glove (Titanfall's pilots wear it on the off-hand forearm, keeping the
+  weapon hand free) or the main-hand glove. Right-click it to equip it. Without Trinkets it is worn by
+  holding it in the **off hand** (right-clicking it in the main hand moves it there). Trinkets is optional.
+
+  Curios API, which was the first choice, only exists for NeoForge/Forge on 1.21.1; Trinkets is
+  the Fabric equivalent, and the Accessories mod also loads Trinkets items through its compatibility layer.
+- **Drawn on the forearm** that wears it, on every player: an armoured bracer with the launcher along the
+  top of the forearm, the barrel over the back of the hand, a cable spool on the side and the
+  three-clawed hook seated in the muzzle. A status light on the launcher is cyan when a charge is ready,
+  pulses amber while it refills and burns white while the line is out. In the inventory and on the
+  ground the item is the same 3D model; held in a hand it is drawn on the arm instead of as an item.
+- **Using it.** Press **Grapple** (default `G`; rebind it under Controls > Titanfall Movement; Titanfall's
+  own key, Q, is Minecraft's drop key). Press it again, or jump, to let go. It works with or without the
+  jumpkit.
+- **Works like Titanfall 2's** (values from the game's `mp_ability_grapple.txt` and `pilot_base.set`):
+  - The hook flies at 4400 u/s and reaches its full range of 1100 u (**28 blocks**) in 0.25 s. A shot
+    that hits nothing reels back in and **costs nothing**.
+  - When it bites, a charge is spent, you're kicked upward (300 u/s, so it pops you off the ground) and
+    the line reels you in at about 40-45 km/h (**11-12.5 b/s**, faster for longer shots). Speed you
+    already have is kept, and the line never pays out.
+  - While hooked you have strong air control (`grapple_airSpeedMax` 420, `grapple_airAccel` 650), so you
+    can swing round the hook. The line carries part of your weight: gravity is ×0.7 with the hook level,
+    down to ×0.25 with it overhead.
+  - It lets go when you arrive (33-50 u), jump, or press the key again. All of these give the release kick:
+    a 200 u/s upward boost that pops you over the ledge, and the speed trimmed by 300 u/s (never below
+    460). It also lets go, with no kick, if you lose sight of the hook, are flung away from it faster
+    than 500 u/s, or stay slower than 250 u/s for 1.5 s in the air (1.2 s on a wall, 0.7 s on the
+    ground).
+  - **One charge, 10 s to recharge**, starting 3 s after the line lets go: the October 2017 update's
+    numbers. The game launched with two charges; `grappleCharges` brings that back.
+  - **Hooking a creature or player** reels you to them. If they're in mid-air, the server reels them
+    toward you at the same time. You can't use items such as bows while being pulled, but you can melee
+    (`grappleBlocksItemUse`).
+  - A fall caught by the line doesn't count as a fall (server side).
+  - Barriers can't be hooked; add blocks to the `titanfall_movement:grapple_disallowed` block tag to
+    rule out more.
+- **HUD**: an arc under the crosshair shows the charge, amber while refilling and cyan when ready. Brackets
+  either side of the crosshair light up when something hookable is in range (`grappleHud`).
+- **Looks and sound.** In first person the launcher arm comes up when you fire, stays raised toward the
+  hook while you're pulled, and drops away once the hook is home. In third person the arm points at the
+  hook. The cable whips out in flight, snaps taut when the hook bites, hums under load and snakes home
+  behind the hook when it reels in. Effects:
+  - a muzzle flash and sparks when it fires;
+  - a tracer behind the hook in flight;
+  - where it bites, a flash, a ring, chips of the block it hit and sparks (crit sparks on a creature).
+  Sounds: the pneumatic launch with the line paying out, the metallic bite, a winch whose pitch climbs
+  with your speed, the zip and latch of the hook coming home, the charge-ready chime and an empty-meter
+  beep. Other players see and hear all of it.
 
 ## Movement
 
@@ -150,7 +214,7 @@ Requires JDK 25 to run Gradle (the mod itself targets Java 21):
 The jar ends up in `build/libs/`. The included GitHub Actions workflow builds the jar on every push.
 
 Versions: Minecraft 1.21.1, Yarn 1.21.1+build.3, Fabric Loader 0.19.5 (the mod runs on 0.16+),
-Fabric API 0.116.17+1.21.1, Loom 1.18, Mod Menu 11.0.3 (optional).
+Fabric API 0.116.17+1.21.1, Loom 1.18, Mod Menu 11.0.3 (optional), Trinkets 3.10.0 (optional).
 
 ## Sounds and textures
 
@@ -158,7 +222,8 @@ The movement sounds are synthesised by `tools/generate-audio.py` in the style of
 a pneumatic "fwump" and jet roar for the double jump, quick footsteps over a thruster hiss on the wall,
 a gritty slide scrape and a rattly landing. Each one-shot has three variants. They contain no game
 audio. See [SOUNDS.md](SOUNDS.md) for the full list and how to replace them, or use a
-resource pack. The jumpkit textures are generated by `tools/generate-jumpkit-textures.py`.
+resource pack. The jumpkit textures are generated by `tools/generate-jumpkit-textures.py`. The
+Grapple's mesh, texture atlas and item sprite are generated by `tools/generate-grapple-model.py`.
 
 ## License
 

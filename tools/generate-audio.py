@@ -4,15 +4,19 @@
 Every sound is built here from oscillators, filtered noise and envelopes - nothing is sampled or derived
 from Titanfall 2 or any other game. The aim is the *feel* of the jumpkit: a hard pneumatic "fwump" with
 a valve click and a jet hiss for the double jump, quick light footsteps over a thin thruster hiss on a wall
-run, a gritty scrape for the slide, and a weighty, rattly landing.
+run, a gritty scrape for the slide, and a weighty, rattly landing. The Grapple gets the same treatment: a
+pneumatic launch with the line whipping out, a hard metallic bite, a straining winch while it reels the
+pilot in, and the quick zip and latch of the hook coming home.
 
 Usage (from the repository root):
 
-    python3 tools/generate-audio.py
+    python3 tools/generate-audio.py            # everything
+    python3 tools/generate-audio.py grapple_   # only the sounds whose names start with grapple_
 
 Requires numpy, scipy and ffmpeg (with libvorbis) on the PATH. Output, as mono 44.1 kHz Ogg Vorbis:
 
     src/main/resources/assets/titanfall_movement/sounds/movement/<name>.ogg
+    src/main/resources/assets/titanfall_movement/sounds/grapple/<name>.ogg   (the grapple_* sounds)
 
 The one-shots come in variants (jump_1..3, double_jump_1..3, walljump_1..3, land_1..3) that
 sounds.json picks between at random, so repeated moves do not sound like a loop of one sample. The
@@ -23,6 +27,7 @@ from __future__ import annotations
 import os
 import pathlib
 import subprocess
+import sys
 import tempfile
 
 import numpy as np
@@ -30,7 +35,8 @@ from scipy import signal
 from scipy.io import wavfile
 
 RATE = 44100
-OUT = pathlib.Path(__file__).resolve().parent.parent / "src/main/resources/assets/titanfall_movement/sounds/movement"
+SOUNDS_DIR = pathlib.Path(__file__).resolve().parent.parent / "src/main/resources/assets/titanfall_movement/sounds"
+OUT = SOUNDS_DIR / "movement"
 
 
 # ------------------------------------------------------------------------------------------------
@@ -303,6 +309,127 @@ def slide_loop(seed=22):
     return normalize(seamless(soft_clip(out, 1.2), loop, cross), 0.75)
 
 
+# ------------------------------------------------------------------------------------------------
+# grapple
+# ------------------------------------------------------------------------------------------------
+
+def tail(x, fade=0.02):
+    """Fades a part's end to silence, so cutting it to length never clicks."""
+    return fade_edges(x, 0.0005, fade)
+
+
+def metal_ring(rng, seconds, partials, decay):
+    """A struck metal part: a few inharmonic partials, each decaying at its own rate."""
+    t = t_axis(seconds)
+    out = np.zeros_like(t)
+    for f, gain, tau in partials:
+        f = f * rng.uniform(0.985, 1.015)
+        out += np.sin(2 * np.pi * f * t + rng.uniform(0, 2 * np.pi)) * np.exp(-t / (decay * tau)) * gain
+    return tail(out, seconds * 0.3)
+
+
+def zip_line(rng, seconds, start, end, rough=0.5):
+    """Cable running through the launcher: a fast whir whose pitch sweeps, with a rough braided buzz."""
+    t = t_axis(seconds)
+    whir = tone([start, (start + end) / 2, end], seconds, "saw")
+    whir = bandpass(whir, 300, 6500, order=2)
+    buzz = sweep_bandpass(noise(rng, seconds), [start * 3, end * 3], q=2.5)
+    flutter = 0.7 + 0.3 * np.sin(2 * np.pi * np.interp(t, [0, seconds], [start / 6, end / 6]) * t)
+    return tail((whir * 0.35 + buzz * rough) * flutter, seconds * 0.25)
+
+
+def grapple_fire(seed):
+    """The launch: a pneumatic punch with a hard mechanical clack, then the line whipping out of the spool."""
+    rng = np.random.default_rng(seed)
+    d = 0.7
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.95, 1.05)
+    place(out, click(rng, 0.015, 7000), 0.0, 1.0)
+    # Pneumatic punch: a low thump and a short, sharp air burst.
+    place(out, tail(tone([150 * p, 60 * p], 0.16) * env_ad(0.16, 0.001, 0.035)), 0.002, 1.2)
+    place(out, jet(rng, 0.18, [5200 * p, 2600 * p], q=1.4, decay=0.03, attack=0.001), 0.002, 0.9)
+    # Mechanical clack of the breech and a short metallic ring.
+    place(out, metal_ring(rng, 0.25, [(1850 * p, 0.5, 1.0), (3120 * p, 0.35, 0.7), (5230 * p, 0.25, 0.45)], 0.05), 0.004, 0.55)
+    # Line paying out: a whir that starts high and drops as the spool winds down.
+    place(out, zip_line(rng, 0.42, 900 * p, 380 * p) * env_ad(0.42, 0.01, 0.2), 0.03, 0.8)
+    return fade_edges(normalize(soft_clip(out, 1.5)))
+
+
+def grapple_impact(seed):
+    """The hook biting: a bright metallic strike, a heavy thunk and grit from the surface."""
+    rng = np.random.default_rng(seed)
+    d = 0.6
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.94, 1.06)
+    place(out, click(rng, 0.01, 9000), 0.0, 1.0)
+    place(out, metal_ring(rng, 0.5, [(1420 * p, 0.6, 1.0), (2380 * p, 0.45, 0.8), (3990 * p, 0.35, 0.55), (6100 * p, 0.2, 0.35)], 0.09), 0.0, 0.7)
+    place(out, tail(thud(rng, 0.22, 85 * p, 1.1)), 0.0)
+    place(out, bandpass(noise(rng, 0.2), 1500, 7000) * env_ad(0.2, 0.001, 0.03), 0.002, 0.6)
+    place(out, rattle(rng, 0.3, 6), 0.02, 0.45)
+    # The line snapping taut behind the hook: a short, low twang.
+    place(out, tone([210 * p, 160 * p], 0.25, "saw") * env_ad(0.25, 0.004, 0.06), 0.03, 0.18)
+    return fade_edges(normalize(soft_clip(out, 1.4)))
+
+
+def grapple_reel_loop(seed=61):
+    """The winch reeling the pilot in: a straining motor whine with gear chatter and the line hissing through."""
+    rng = np.random.default_rng(seed)
+    loop, cross = 1.2, 0.1
+    d = loop + cross + 0.1
+    t = t_axis(d)
+    # Motor: fundamental and harmonics, with a slow wobble so it strains rather than drones.
+    wobble = 1.0 + 0.012 * np.sin(2 * np.pi * (2.5 / loop) * t)
+    motor = sum(np.sin(2 * np.pi * f * wobble * t) * g for f, g in ((235, 0.5), (470, 0.35), (705, 0.18), (1410, 0.1)))
+    # Gear chatter: a fast train of small ticks (an exact number per loop, so it loops cleanly).
+    chatter = np.zeros_like(t)
+    rate = round(36 * loop) / loop
+    for k in range(int(d * rate) + 1):
+        place(chatter, bandpass(noise(rng, 0.01), 2500, 6000, order=2) * env_ad(0.01, 0.0003, 0.002), k / rate, rng.uniform(0.5, 1.0))
+    hiss = bandpass(noise(rng, d), 2000, 7000, order=3) * (0.75 + 0.25 * np.sin(2 * np.pi * (5 / loop) * t))
+    rumble = lowpass(noise(rng, d), 180)
+    out = motor * 0.32 + chatter * 0.3 + hiss * 0.22 + rumble * 0.25
+    return normalize(seamless(soft_clip(out, 1.3), loop, cross), 0.78)
+
+
+def grapple_release(seed):
+    """Letting go: the hook ripping free, the line zipping back in and the hook seating with a latch."""
+    rng = np.random.default_rng(seed)
+    d = 0.5
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.95, 1.05)
+    place(out, bandpass(noise(rng, 0.08), 1200, 6000) * env_ad(0.08, 0.001, 0.015), 0.0, 0.5)
+    place(out, zip_line(rng, 0.26, 420 * p, 1300 * p, 0.6) * env_ad(0.26, 0.02, 0.12), 0.0, 0.8)
+    # Hook seating in the muzzle: click-clack.
+    place(out, click(rng, 0.012, 6500), 0.27, 0.9)
+    place(out, metal_ring(rng, 0.15, [(2600 * p, 0.4, 1.0), (4400 * p, 0.25, 0.6)], 0.03), 0.27, 0.5)
+    place(out, click(rng, 0.012, 5000), 0.31, 0.6)
+    place(out, thud(rng, 0.08, 140 * p, 0.35), 0.27)
+    return fade_edges(normalize(soft_clip(out, 1.3)))
+
+
+def grapple_ready():
+    """Meter refilled: a soft rising two-note chime with a little digital shimmer."""
+    d = 0.55
+    out = np.zeros(int(RATE * d))
+    for at, f in ((0.0, 1318.5), (0.085, 1975.5)):
+        note = tone([f, f], 0.4) * env_ad(0.4, 0.004, 0.12)
+        note += tone([f * 2, f * 2], 0.4) * env_ad(0.4, 0.002, 0.05) * 0.25
+        place(out, tail(note, 0.1), at, 0.5)
+    t = t_axis(d)
+    out += np.sin(2 * np.pi * 3950 * t) * env_ad(d, 0.1, 0.1) * 0.04
+    return fade_edges(normalize(out, 0.6), 0.002, 0.08)
+
+
+def grapple_denied():
+    """Key pressed with no charge: two short, flat low beeps."""
+    d = 0.32
+    out = np.zeros(int(RATE * d))
+    for at in (0.0, 0.14):
+        beep = lowpass(np.sign(tone([330, 330], 0.1)), 2400) * env_ad(0.1, 0.003, 0.05)
+        place(out, tail(beep, 0.02), at, 0.5)
+    return fade_edges(normalize(out, 0.55))
+
+
 SOUNDS = {
     "double_jump_1": lambda: double_jump(101),
     "double_jump_2": lambda: double_jump(102),
@@ -320,26 +447,43 @@ SOUNDS = {
     "wallrun_loop": wallrun_loop,
     "slide_start": slide_start,
     "slide_loop": slide_loop,
+    "grapple_fire_1": lambda: grapple_fire(501),
+    "grapple_fire_2": lambda: grapple_fire(502),
+    "grapple_fire_3": lambda: grapple_fire(503),
+    "grapple_impact_1": lambda: grapple_impact(601),
+    "grapple_impact_2": lambda: grapple_impact(602),
+    "grapple_impact_3": lambda: grapple_impact(603),
+    "grapple_reel_loop": grapple_reel_loop,
+    "grapple_release_1": lambda: grapple_release(701),
+    "grapple_release_2": lambda: grapple_release(702),
+    "grapple_ready": grapple_ready,
+    "grapple_denied": grapple_denied,
 }
 
 
 def write_ogg(name, samples):
-    OUT.mkdir(parents=True, exist_ok=True)
+    # grapple_* sounds go to sounds/grapple/ without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
+    out_dir = SOUNDS_DIR / "grapple" if name.startswith("grapple_") else OUT
+    file = name[len("grapple_"):] if name.startswith("grapple_") else name
+    out_dir.mkdir(parents=True, exist_ok=True)
     pcm = (np.clip(samples, -1.0, 1.0) * 32767).astype(np.int16)
     with tempfile.TemporaryDirectory() as tmp:
         wav = os.path.join(tmp, name + ".wav")
         wavfile.write(wav, RATE, pcm)
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-ac", "1", "-c:a", "libvorbis", "-q:a", "6",
-                        str(OUT / (name + ".ogg"))], check=True)
+                        str(out_dir / (file + ".ogg"))], check=True)
 
 
 def main():
+    prefix = sys.argv[1] if len(sys.argv) > 1 else ""
     # Old single-file names are replaced by the variants above.
     for old in ("jump", "double_jump", "walljump", "land"):
         path = OUT / (old + ".ogg")
         if path.exists():
             path.unlink()
     for name, make in SOUNDS.items():
+        if not name.startswith(prefix):
+            continue
         samples = make()
         write_ogg(name, samples)
         print(f"{name}.ogg  {len(samples) / RATE:.2f} s")

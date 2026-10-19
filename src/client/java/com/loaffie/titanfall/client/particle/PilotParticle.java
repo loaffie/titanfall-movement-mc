@@ -50,6 +50,16 @@ public class PilotParticle extends SpriteBillboardParticle {
 	public static final Style IGNITION = new Style(Shape.BILLBOARD, 4, 5, 0.45F, 0.15F, 0.0F,
 			rgb(0xFFFFFF), rgb(0xA8F4FF), rgb(0x2C8CFF), 1.0F, 1.0F, 0.0F, false);
 
+	/** Grapple muzzle flash and hook bite: hot white, cooling to a pale cyan, gone in a few frames. */
+	public static final Style GRAPPLE_FLASH = new Style(Shape.BILLBOARD, 3, 4, 0.34F, 0.08F, 0.0F,
+			rgb(0xFFFFFF), rgb(0xFFF1D6), rgb(0x7FD8FF), 1.0F, 1.0F, 0.0F, false);
+	/** Ring punched out round the hook as it bites, lying on the surface. */
+	public static final Style GRAPPLE_RING = new Style(Shape.RING, 6, 7, 0.06F, 0.62F, 0.0F,
+			rgb(0xFFFFFF), rgb(0xBFEFFF), rgb(0x2C7CFF), 0.8F, 1.0F, 0.0F, false);
+	/** Thin tracer the hook leaves in flight. */
+	public static final Style GRAPPLE_TRAIL = new Style(Shape.STREAK, 4, 6, 0.022F, 0.012F, 1.6F,
+			rgb(0xE8FBFF), rgb(0x6FD3FF), rgb(0x1A4CFF), 0.55F, 0.6F, 0.0F, false);
+
 	private final Style style;
 	private final Vector3f ringNormal;
 	private final float spin;

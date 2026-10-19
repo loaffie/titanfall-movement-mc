@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.mixin.client;
 
 import com.loaffie.titanfall.client.anim.PilotPoses;
+import com.loaffie.titanfall.client.grapple.GrapplePoses;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,5 +36,6 @@ public abstract class PlayerEntityModelMixin {
 	private void titanfall$pilotLimbs(LivingEntity entity, float limbAngle, float limbDistance, float animationProgress,
 			float headYaw, float headPitch, CallbackInfo ci) {
 		PilotPoses.applyLimbs(entity, (PlayerEntityModel<?>) (Object) this);
+		GrapplePoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
 	}
 }

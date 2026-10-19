@@ -29,6 +29,12 @@ public final class TitanfallParticles {
 	public static final SimpleParticleType THRUSTER_FLAME = register("thruster_flame");
 	/** Short four-point flash at a nozzle as it fires. */
 	public static final SimpleParticleType IGNITION = register("ignition");
+	/** Grapple muzzle and hook-bite flash: a hot, short-lived four-point star. */
+	public static final SimpleParticleType GRAPPLE_FLASH = register("grapple_flash");
+	/** Small ring punched out round the hook where it bites; the spawn velocity is the surface normal. */
+	public static final SimpleParticleType GRAPPLE_RING = register("grapple_ring");
+	/** Faint cyan tracer left along the hook's flight. */
+	public static final SimpleParticleType GRAPPLE_TRAIL = register("grapple_trail");
 
 	private TitanfallParticles() {
 	}

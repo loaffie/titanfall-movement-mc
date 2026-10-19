@@ -1,4 +1,4 @@
-# Movement sounds
+# Movement and Grapple sounds
 
 The mod ships its own movement sounds, synthesised by `tools/generate-audio.py`. They are modelled on the
 *character* of Titanfall 2's pilot jumpkit, but every one is built from oscillators, filtered noise and
@@ -14,23 +14,30 @@ envelopes. Nothing is sampled from Titanfall 2 or any other game.
 | `wallrun_loop` | `wallrun_loop.ogg` | quick light footsteps (6.25 a second) over a steady, breathing thruster hiss (seamless loop) |
 | `slide_start` | `slide_start.ogg` | a whoosh of air and gear, then the scrape biting in |
 | `slide_loop` | `slide_loop.ogg` | gritty, uneven scrape with cloth friction and a low ground rumble (seamless loop) |
+| `grapple_fire` | `grapple/fire_1..3.ogg` | breech click, pneumatic punch and air burst, a short metallic ring, then the line whirring out of the spool |
+| `grapple_impact` | `grapple/impact_1..3.ogg` | the hook biting: a bright metallic strike, a heavy thunk, grit off the surface and the line twanging taut. Played at the hook |
+| `grapple_reel` | `grapple/reel_loop.ogg` | the winch: a straining motor whine with gear chatter and the line hissing through (seamless loop; pitch and volume follow how fast you're reeled in) |
+| `grapple_release` | `grapple/release_1..2.ogg` | the hook ripping free, the line zipping back in, and the hook seating with a click-clack |
+| `grapple_ready` | `grapple/ready.ogg` | soft rising two-note chime when a charge is back |
+| `grapple_denied` | `grapple/denied.ogg` | two flat, low beeps when you fire with no charge |
 
-Each one-shot has three variants that `sounds.json` picks between at random, and the game adds a ±4%
+Most one-shots have two or three variants that `sounds.json` picks between at random, and the game adds a ±4%
 pitch variation on top, so repeated moves don't sound canned.
 
 ## Regenerating
 
 ```
-python3 tools/generate-audio.py
+python3 tools/generate-audio.py            # everything
+python3 tools/generate-audio.py grapple_   # only the Grapple's
 ```
 
 Requires numpy, scipy and ffmpeg with libvorbis. It writes mono 44.1 kHz Ogg Vorbis into
-`src/main/resources/assets/titanfall_movement/sounds/movement/`.
+`src/main/resources/assets/titanfall_movement/sounds/movement/` and `.../sounds/grapple/`.
 
 ## Using other audio
 
-Any resource pack can replace the files under `assets/titanfall_movement/sounds/movement/` with the same
-names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
+Any resource pack can replace the files under `assets/titanfall_movement/sounds/movement/` and
+`sounds/grapple/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
 redistribute it.
 
 ## Adjusting

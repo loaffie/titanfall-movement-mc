@@ -13,6 +13,23 @@ repositories {
 		name = 'TerraformersMC'
 		url = 'https://maven.terraformersmc.com/releases/'
 	}
+	// Trinkets (the Fabric accessory-slot API) is published on Modrinth's Maven; the Cardinal Components
+	// API it is built on comes from Ladysnake's.
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = 'Modrinth'
+				url = 'https://api.modrinth.com/maven'
+			}
+		}
+		filter {
+			includeGroup 'maven.modrinth'
+		}
+	}
+	maven {
+		name = 'Ladysnake'
+		url = 'https://maven.ladysnake.org/releases'
+	}
 }
 
 loom {
@@ -37,6 +54,12 @@ dependencies {
 
 	// Optional: only used to open the config screen from the mod list.
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+
+	// Optional: the Grapple is worn in a Trinkets glove slot when Trinkets is installed, and held in the off
+	// hand otherwise. Only compiled against; never bundled.
+	modCompileOnly "maven.modrinth:trinkets:${project.trinkets_version}"
+	modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+	modCompileOnly "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
 }
 
 processResources {

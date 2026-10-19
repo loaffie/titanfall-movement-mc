@@ -15,6 +15,12 @@ public final class TitanfallSounds {
 	public static final SoundEvent JUMP = register("jump");
 	public static final SoundEvent DOUBLE_JUMP = register("double_jump");
 	public static final SoundEvent LAND = register("land");
+	public static final SoundEvent GRAPPLE_FIRE = register("grapple_fire");
+	public static final SoundEvent GRAPPLE_IMPACT = register("grapple_impact");
+	public static final SoundEvent GRAPPLE_REEL = register("grapple_reel");
+	public static final SoundEvent GRAPPLE_RELEASE = register("grapple_release");
+	public static final SoundEvent GRAPPLE_READY = register("grapple_ready");
+	public static final SoundEvent GRAPPLE_DENIED = register("grapple_denied");
 
 	private TitanfallSounds() {
 	}

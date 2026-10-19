@@ -85,6 +85,14 @@ public class TitanfallConfigScreen extends Screen {
 		slider("Slide Recline", 0.0, 70.0, config.slideRecline, value -> config.slideRecline = value);
 		toggle("Air Jump / Wall Run", () -> config.airJumpOnWallRun, () -> config.airJumpOnWallRun = !config.airJumpOnWallRun);
 		toggle("Air Jump / Wall Bump", () -> config.airJumpOnWallBump, () -> config.airJumpOnWallBump = !config.airJumpOnWallBump);
+		slider("Grapple Range", 8.0, 64.0, config.grappleRange, value -> config.grappleRange = value);
+		slider("Grapple Pull", 4.0, 25.0, config.grapplePullSpeed, value -> config.grapplePullSpeed = value);
+		slider("Grapple Pull Far", 4.0, 25.0, config.grapplePullSpeedFar, value -> config.grapplePullSpeedFar = value);
+		slider("Grapple Accel", 5.0, 80.0, config.grapplePullAccel, value -> config.grapplePullAccel = value);
+		whole("Grapple Charges", 1.0, 5.0, config.grappleCharges, value -> config.grappleCharges = (int) value);
+		slider("Grapple Cooldown", 0.0, 30.0, config.grappleCooldownSeconds, value -> config.grappleCooldownSeconds = value);
+		toggle("Grapple HUD", () -> config.grappleHud, () -> config.grappleHud = !config.grappleHud);
+		toggle("No Items On Line", () -> config.grappleBlocksItemUse, () -> config.grappleBlocksItemUse = !config.grappleBlocksItemUse);
 		toggle("Sounds", () -> config.soundsEnabled, () -> config.soundsEnabled = !config.soundsEnabled);
 		slider("Volume", 0.0, 1.0, config.movementVolume, value -> config.movementVolume = value);
 

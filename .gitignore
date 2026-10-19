@@ -55,3 +55,7 @@ src/main/resources/assets/titanfall_movement/sounds/movement/*.ogg
 !src/main/resources/assets/titanfall_movement/sounds/movement/wallrun_loop.ogg
 !src/main/resources/assets/titanfall_movement/sounds/movement/slide_start.ogg
 !src/main/resources/assets/titanfall_movement/sounds/movement/slide_loop.ogg
+
+# python
+
+__pycache__/

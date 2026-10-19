@@ -3,7 +3,7 @@
 	"id": "titanfall_movement",
 	"version": "${version}",
 	"name": "Titanfall Movement",
-	"description": "Titanfall 2 pilot movement with Source-engine physics, powered by a wearable Pilot Jumpkit: air strafing, slide hopping, wall running, wall jumps and double jumps. Install on client and server.",
+	"description": "Titanfall 2 pilot movement with Source-engine physics, powered by a wearable Pilot Jumpkit: air strafing, slide hopping, wall running, wall jumps and double jumps. Plus the Grapple Pilot's wrist-mounted Grapple. Install on client and server.",
 	"authors": [
 		"loaffie"
 	],
@@ -38,6 +38,7 @@
 		"fabric-api": "*"
 	},
 	"recommends": {
-		"modmenu": ">=11.0.0"
+		"modmenu": ">=11.0.0",
+		"trinkets": ">=3.10.0"
 	}
 }
