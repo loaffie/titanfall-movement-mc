@@ -8,8 +8,8 @@ import org.joml.Vector3f;
 
 /**
  * Third-person injection. The right hand drops to the holster on the hip and draws the injector; then the
- * arm becomes a forearm: its joint - normally the shoulder - moves down and forward to where the elbow
- * would be, in front of the waist, so the arm stands up in front of the body with the fist before the
+ * arm becomes a forearm: its joint - normally the shoulder - moves down to where the elbow would be, tucked
+ * in at the side just above the waist, so the forearm angles up and forward with the fist before the
  * right side of the chest, and stabs the injector straight back into it. Applied at the end of
  * {@code setAngles} for the player being drawn in the world (the same gate as the grapple pose).
  *
@@ -22,8 +22,12 @@ public final class StimPoses {
 	/** The fist before the stab, and how far the stab drives it in (the injector is about 6.6 px from fist to needle tip). */
 	private static final Vector3f FIST = new Vector3f(-2.4F, 4.8F, -8.4F);
 	private static final float STAB = 1.9F;
-	/** The elbow, from the fist: below it, a little out and a little back, so the forearm leans in. */
-	private static final Vector3f ELBOW_FROM_FIST = new Vector3f(-1.3F, 8.6F, 1.6F);
+	/**
+	 * The elbow, from the fist: tucked in at the side of the body just above the waist (y 9 of the 12 px torso),
+	 * so the forearm angles up and forward to the fist in front of the chest. 8.9 px: the fist's distance from
+	 * the joint along the arm.
+	 */
+	private static final Vector3f ELBOW_FROM_FIST = new Vector3f(-2.2F, 4.4F, 7.4F);
 	/** The shoulder joint and the hand-at-the-hip pose of the first part. */
 	private static final Vector3f SHOULDER = new Vector3f(-5.0F, 2.0F, 0.0F);
 	private static final float HIP_PITCH = -0.3F;

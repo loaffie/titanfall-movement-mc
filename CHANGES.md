@@ -1,3 +1,9 @@
+# 2.3.1 (Minecraft 1.21.1)
+
+- **Stim, third person:** the elbow of the stab pose sat far below the waist, so the arm stood straight up
+  from the hip. It's now tucked in at the side just above the waist, and the forearm angles up and forward
+  to the fist in front of the right side of the chest.
+
 # 2.3 (Minecraft 1.21.1)
 
 ## Phase Shift
