@@ -35,6 +35,10 @@ public final class TitanfallParticles {
 	public static final SimpleParticleType GRAPPLE_RING = register("grapple_ring");
 	/** Faint cyan tracer left along the hook's flight. */
 	public static final SimpleParticleType GRAPPLE_TRAIL = register("grapple_trail");
+	/** Stim trail: a glowing blue streak left hanging in the air behind a stimmed pilot. */
+	public static final SimpleParticleType STIM_TRAIL = register("stim_trail");
+	/** Stim injection: a soft blue flare where the needle goes in. */
+	public static final SimpleParticleType STIM_FLASH = register("stim_flash");
 
 	private TitanfallParticles() {
 	}

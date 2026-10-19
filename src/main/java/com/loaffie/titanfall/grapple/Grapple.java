@@ -1,8 +1,7 @@
 package com.loaffie.titanfall.grapple;
 
-import com.loaffie.titanfall.compat.TrinketsCompat;
+import com.loaffie.titanfall.item.PilotGear;
 import com.loaffie.titanfall.item.TitanfallItems;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.util.Arm;
 
@@ -16,23 +15,15 @@ import net.minecraft.util.Arm;
  * on the off-hand forearm - the weapon hand stays free - so that is the slot the item suggests.
  */
 public final class Grapple {
-	private static final boolean TRINKETS = FabricLoader.getInstance().isModLoaded("trinkets");
-
 	private Grapple() {
-	}
-
-	public static boolean trinketsLoaded() {
-		return TRINKETS;
 	}
 
 	/** The arm the Grapple is worn on, or null when the entity has none equipped. */
 	public static Arm wornArm(LivingEntity entity) {
 		Arm main = entity.getMainArm();
-		if (TRINKETS) {
-			String group = TrinketsCompat.equippedGroup(entity, TitanfallItems.PILOT_GRAPPLE);
-			if (group != null) {
-				return "hand".equals(group) ? main : main.getOpposite();
-			}
+		String group = PilotGear.trinketGroup(entity, TitanfallItems.PILOT_GRAPPLE);
+		if (group != null) {
+			return "hand".equals(group) ? main : main.getOpposite();
 		}
 
 		if (entity.getOffHandStack().isOf(TitanfallItems.PILOT_GRAPPLE)) {

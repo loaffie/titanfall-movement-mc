@@ -234,8 +234,29 @@ public class TitanfallConfig {
 	public double grappleRegenDelaySeconds = 3.0;
 	/** Pilots cannot fire weapons while being pulled (melee still works): item use is blocked while hooked. */
 	public boolean grappleBlocksItemUse = true;
-	/** Grapple meter and range marker beside the crosshair. */
+	/** Tactical ability meters (Grapple, Stim) and the Grapple's range marker round the crosshair. */
 	public boolean grappleHud = true;
+
+	// --- stim ---
+	// Titanfall 2's Stim, from the game's files: mp_ability_heal.txt, sh_stim.gnut, _health_regen.gnut and
+	// sh_consts.gnut.
+	/** How long a stim lasts, seconds ({@code fire_duration} 3.0 in multiplayer). The speed boost outlasts it by 0.5 s. */
+	public double stimDurationSeconds = 3.0;
+	/** Speed boost, fraction ({@code STIM_EFFECT_SEVERITY} 0.4: +40%). */
+	public double stimSpeedBoost = 0.4;
+	/** Seconds to recharge ({@code ammo_per_shot} 200 / {@code regen_ammo_refill_rate} 8 = 25 s, from the moment of use). */
+	public double stimCooldownSeconds = 25.0;
+	/** While stimmed, healing starts this long after the last hit, seconds ({@code ABILITY_STIM_REGEN_DELAY} 2.0). */
+	public double stimRegenDelaySeconds = 2.0;
+	/**
+	 * While stimmed, health healed per second as a fraction of max health: a pilot's 6 health per 0.1 s
+	 * regen tick out of 100, doubled ({@code ABILITY_STIM_REGEN_MOD} 2.0).
+	 */
+	public double stimHealPerSecond = 1.2;
+	/** Extra FOV while stimmed, fraction (scaled by the FOV Effects option). */
+	public double stimFovBoost = 0.06;
+	/** Screen-edge pulse and speed lines while stimmed. */
+	public boolean stimScreenEffects = true;
 
 	// --- camera ---
 	/**
@@ -326,6 +347,10 @@ public class TitanfallConfig {
 		grappleCooldownSeconds = Math.max(0.0, grappleCooldownSeconds);
 		grappleRegenDelaySeconds = Math.max(0.0, grappleRegenDelaySeconds);
 		grappleDetachLengthMax = Math.max(grappleDetachLengthMin, grappleDetachLengthMax);
+		stimDurationSeconds = Math.max(0.25, Math.min(stimDurationSeconds, 30.0));
+		stimSpeedBoost = Math.max(0.0, Math.min(stimSpeedBoost, 2.0));
+		stimCooldownSeconds = Math.max(0.0, stimCooldownSeconds);
+		stimHealPerSecond = Math.max(0.0, stimHealPerSecond);
 	}
 
 	public void save() {

@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.client.camera;
 
 import com.loaffie.titanfall.client.anim.PilotAnimations;
+import com.loaffie.titanfall.client.stim.StimStates;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.movement.TitanfallController;
 import com.loaffie.titanfall.movement.physics.HVec;
@@ -92,11 +93,18 @@ public final class PilotCamera {
 			}
 		}
 
+		float stimFov = 0.0F;
+		if (player != null) {
+			// The Stim widens the view a little for as long as it runs (Titanfall's speed-boost FOV).
+			StimStates.State stim = StimStates.of(player);
+			stimFov = stim == null ? 0.0F : (float) config.stimFovBoost * stim.intensity(0.0F);
+		}
+
 		float alpha = smoothing((float) config.cameraSmoothing, dt);
 		roll = lerp(alpha, roll, targetRoll);
 		eyeDrop = lerp(alpha, eyeDrop, targetDrop);
 		// A slide hop keeps the slide's FOV for a moment and lets it ease out through the air.
-		fovBoost = lerp(alpha, fovBoost, Math.max(targetFov, hopFov));
+		fovBoost = lerp(alpha, fovBoost, Math.max(targetFov, hopFov) + stimFov);
 		float decay = (float) Math.exp(-KICK_DECAY * dt);
 		kick *= decay;
 		hopFov *= decay;

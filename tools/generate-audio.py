@@ -6,17 +6,19 @@ from Titanfall 2 or any other game. The aim is the *feel* of the jumpkit: a hard
 a valve click and a jet hiss for the double jump, quick light footsteps over a thin thruster hiss on a wall
 run, a gritty scrape for the slide, and a weighty, rattly landing. The Grapple gets the same treatment: a
 pneumatic launch with the line whipping out, a hard metallic bite, a straining winch while it reels the
-pilot in, and the quick zip and latch of the hook coming home.
+pilot in, and the quick zip and latch of the hook coming home. And the Stim: the jab and hiss of the
+autoinjector and the rush that follows, a racing heart while it lasts, and the comedown.
 
 Usage (from the repository root):
 
     python3 tools/generate-audio.py            # everything
-    python3 tools/generate-audio.py grapple_   # only the sounds whose names start with grapple_
+    python3 tools/generate-audio.py grapple_   # only the sounds whose names start with grapple_ (or stim_, ...)
 
 Requires numpy, scipy and ffmpeg (with libvorbis) on the PATH. Output, as mono 44.1 kHz Ogg Vorbis:
 
     src/main/resources/assets/titanfall_movement/sounds/movement/<name>.ogg
     src/main/resources/assets/titanfall_movement/sounds/grapple/<name>.ogg   (the grapple_* sounds)
+    src/main/resources/assets/titanfall_movement/sounds/stim/<name>.ogg      (the stim_* sounds)
 
 The one-shots come in variants (jump_1..3, double_jump_1..3, walljump_1..3, land_1..3) that
 sounds.json picks between at random, so repeated moves do not sound like a loop of one sample. The
@@ -430,6 +432,81 @@ def grapple_denied():
     return fade_edges(normalize(out, 0.55))
 
 
+# ------------------------------------------------------------------------------------------------
+# stim
+# ------------------------------------------------------------------------------------------------
+
+def heartbeat(rng, strength=1.0):
+    """One heartbeat, lub-dub: two low, chesty thumps 0.13 s apart, the second lighter."""
+    d = 0.4
+    out = np.zeros(int(RATE * d))
+    for at, gain, pitch in ((0.0, 1.0, 58.0), (0.13, 0.7, 66.0)):
+        thump = tone([pitch * 1.4, pitch, pitch * 0.8], 0.16) * env_ad(0.16, 0.004, 0.045)
+        thump += lowpass(noise(rng, 0.16), 220) * env_ad(0.16, 0.002, 0.03) * 0.5
+        place(out, tail(thump), at, gain * strength)
+    return out
+
+
+def stim_activate(seed):
+    """The jab: the autoinjector's click, the hiss of the dose going in, then a rising rush of adrenaline -
+    a deep swell, a climbing synth tone and the first hard heartbeat."""
+    rng = np.random.default_rng(seed)
+    d = 1.3
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    place(out, click(rng, 0.012, 8000), 0.0, 1.0)
+    place(out, metal_ring(rng, 0.12, [(3300 * p, 0.4, 1.0), (5200 * p, 0.25, 0.6)], 0.025), 0.0, 0.5)
+    # The injection: a short, hard pneumatic hiss.
+    hiss = bandpass(noise(rng, 0.32), 2500, 9000, order=3) * env_ad(0.32, 0.004, 0.09)
+    place(out, tail(hiss), 0.01, 0.9)
+    # The rush: a low swell and a tone climbing an octave and a half, with a shimmer on top.
+    t = t_axis(1.1)
+    swell = np.clip(t / 0.35, 0, 1) * np.exp(-np.maximum(t - 0.45, 0) / 0.3)
+    rush = sweep_bandpass(noise(rng, 1.1), [180 * p, 900 * p, 1600 * p], q=1.3) * swell
+    climb = tone([220 * p, 420 * p, 640 * p], 1.1, "saw")
+    climb = lowpass(climb, 2400) * swell * 0.22
+    shimmer = tone([2600 * p, 3900 * p], 1.1) * swell * 0.05
+    place(out, tail(rush * 0.9 + climb + shimmer, 0.2), 0.08)
+    place(out, heartbeat(rng, 1.2), 0.18, 1.0)
+    return fade_edges(normalize(soft_clip(out, 1.4)))
+
+
+def stim_loop(seed=81):
+    """While stimmed: a racing heart (150 bpm), blood rushing in the ears and a thin ringing over it all."""
+    rng = np.random.default_rng(seed)
+    loop, cross = 1.6, 0.12
+    d = loop + cross + 0.4
+    t = t_axis(d)
+    out = np.zeros(len(t))
+    beats = 4  # 4 beats per 1.6 s loop = 150 bpm
+    for k in range(beats + 2):
+        place(out, heartbeat(rng, 0.9), k * loop / beats, 1.0)
+    # Blood rush: low filtered noise swelling with each beat.
+    pulse = 0.6 + 0.4 * np.cos(2 * np.pi * (beats / loop) * t) ** 2
+    out += lowpass(noise(rng, d), 350) * pulse * 0.35
+    out += bandpass(noise(rng, d), 600, 2200, order=2) * pulse * 0.06
+    # Tinnitus-like ringing, wavering slightly.
+    out += np.sin(2 * np.pi * 5200 * t + 0.6 * np.sin(2 * np.pi * (2 / loop) * t)) * 0.012
+    return normalize(seamless(soft_clip(out, 1.2), loop, cross), 0.75)
+
+
+def stim_deactivate(seed=91):
+    """Coming down: the rush draining away - a tone sliding down, the heart slowing, a long exhale."""
+    rng = np.random.default_rng(seed)
+    d = 1.6
+    out = np.zeros(int(RATE * d))
+    t = t_axis(1.4)
+    fall = np.exp(-t / 0.6)
+    slide = lowpass(tone([640, 380, 160], 1.4, "saw"), 1800) * fall * 0.25
+    whoosh = sweep_bandpass(noise(rng, 1.4), [1500, 700, 250], q=1.3) * fall * 0.6
+    place(out, tail(slide + whoosh, 0.3), 0.0)
+    place(out, heartbeat(rng, 0.8), 0.05, 1.0)
+    place(out, heartbeat(rng, 0.6), 0.6, 1.0)
+    breath = bandpass(noise(rng, 0.9), 400, 2500, order=2) * env_ad(0.9, 0.15, 0.3)
+    place(out, tail(breath, 0.2), 0.45, 0.35)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.7), 0.002, 0.15)
+
+
 SOUNDS = {
     "double_jump_1": lambda: double_jump(101),
     "double_jump_2": lambda: double_jump(102),
@@ -458,13 +535,18 @@ SOUNDS = {
     "grapple_release_2": lambda: grapple_release(702),
     "grapple_ready": grapple_ready,
     "grapple_denied": grapple_denied,
+    "stim_activate_1": lambda: stim_activate(801),
+    "stim_activate_2": lambda: stim_activate(802),
+    "stim_loop": stim_loop,
+    "stim_deactivate": stim_deactivate,
 }
 
 
 def write_ogg(name, samples):
-    # grapple_* sounds go to sounds/grapple/ without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
-    out_dir = SOUNDS_DIR / "grapple" if name.startswith("grapple_") else OUT
-    file = name[len("grapple_"):] if name.startswith("grapple_") else name
+    # grapple_* and stim_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
+    group = next((g for g in ("grapple", "stim") if name.startswith(g + "_")), None)
+    out_dir = SOUNDS_DIR / group if group else OUT
+    file = name[len(group) + 1:] if group else name
     out_dir.mkdir(parents=True, exist_ok=True)
     pcm = (np.clip(samples, -1.0, 1.0) * 32767).astype(np.int16)
     with tempfile.TemporaryDirectory() as tmp:

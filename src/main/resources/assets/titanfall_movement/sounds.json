@@ -90,5 +90,21 @@
 		"sounds": [
 			"titanfall_movement:grapple/denied"
 		]
+	},
+	"stim_activate": {
+		"sounds": [
+			"titanfall_movement:stim/activate_1",
+			"titanfall_movement:stim/activate_2"
+		]
+	},
+	"stim_loop": {
+		"sounds": [
+			"titanfall_movement:stim/loop"
+		]
+	},
+	"stim_deactivate": {
+		"sounds": [
+			"titanfall_movement:stim/deactivate"
+		]
 	}
 }

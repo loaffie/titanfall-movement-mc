@@ -6,6 +6,7 @@ import com.loaffie.titanfall.item.TitanfallItems;
 import com.loaffie.titanfall.movement.TitanfallSounds;
 import com.loaffie.titanfall.particle.TitanfallParticles;
 import com.loaffie.titanfall.slide.SlidePayload;
+import com.loaffie.titanfall.stim.StimServer;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class TitanfallMovement implements ModInitializer {
 		TitanfallItems.register();
 		SlidePayload.register();
 		GrappleServer.register();
+		StimServer.register();
 		TitanfallParticles.register();
 		LOGGER.info("Initializing Titanfall Movement");
 	}

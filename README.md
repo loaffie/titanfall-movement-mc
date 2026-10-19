@@ -1,9 +1,9 @@
-# Titanfall Movement 2.1 (Fabric 1.21.1)
+# Titanfall Movement 2.2 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
-powered by a wearable **Pilot Jumpkit**, plus the Grapple Pilot's **Grapple**. Install it on **both
-client and server**: the jumpkit and the Grapple are registered items, so a server without the mod would
-reject them.
+powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
+**Stim**. Install it on **both client and server**: the jumpkit, Grapple and Stim are registered items,
+so a server without the mod would reject them.
 
 ## Pilot Jumpkit
 
@@ -61,9 +61,9 @@ gauntlet, which reels you in.
   three-clawed hook seated in the muzzle. A status light on the launcher is cyan when a charge is ready,
   pulses amber while it refills and burns white while the line is out. In the inventory and on the
   ground the item is the same 3D model; held in a hand it is drawn on the arm instead of as an item.
-- **Using it.** Press **Grapple** (default `G`; rebind it under Controls > Titanfall Movement; Titanfall's
-  own key, Q, is Minecraft's drop key). Press it again, or jump, to let go. It works with or without the
-  jumpkit.
+- **Using it.** Press **Tactical Ability** (default `G`; rebind it under Controls > Titanfall Movement;
+  Titanfall's own key, Q, is Minecraft's drop key). Press it again, or jump, to let go. It works with or
+  without the jumpkit.
 - **Works like Titanfall 2's** (values from the game's `mp_ability_grapple.txt` and `pilot_base.set`):
   - The hook flies at 4400 u/s and reaches its full range of 1100 u (**28 blocks**) in 0.25 s. A shot
     that hits nothing reels back in and **costs nothing**.
@@ -98,6 +98,50 @@ gauntlet, which reels you in.
   Sounds: the pneumatic launch with the line paying out, the metallic bite, a winch whose pitch climbs
   with your speed, the zip and latch of the hook coming home, the charge-ready chime and an empty-meter
   beep. Other players see and hear all of it.
+
+## Stim
+
+Titanfall 2's Stim tactical: an autoinjector that floods the pilot's system for a burst of speed and fast
+healing.
+
+- Item id `titanfall_movement:pilot_stim`, in the Combat creative tab. Craftable; the recipe unlocks
+  once you pick up sugar or a glistering melon slice.
+
+  ```
+  Iron Nugget   Sugar                    Iron Nugget
+  Redstone      Glistering Melon Slice   Redstone
+  Iron Nugget   Glass Bottle             Iron Nugget
+  ```
+- **Worn on the right hip.** With Trinkets it goes in the **belt** slot (right-click it to equip). Without
+  Trinkets, hold it in the off hand. Either way it's drawn in a holster on the front of the right hip.
+- **Using it.** Press **Tactical Ability** (`G`). If you wear the Grapple as well, the key fires the
+  Grapple, and the Stim has its own **Stim** key (unbound by default) under Controls > Titanfall Movement.
+- **Works like Titanfall 2's** (values from the game's `mp_ability_heal.txt`, `sh_stim.gnut`,
+  `_health_regen.gnut` and `sh_consts.gnut`):
+  - **+40% speed for 3 seconds**, fading out over half a second after that. Walking and sprinting get
+    it on the server too, as a movement-speed attribute modifier. The pilot moves the mod runs itself also
+    get it: the sprint take-off, the wall run's top speed and entry speed, and the skid hand-off.
+  - **Fast healing while it runs**: double the pilot's regen rate, starting 2 seconds after your last hit
+    instead of 5. That's enough to bring a hurt pilot back to full in about a second once it kicks in.
+  - **25-second recharge**, starting the moment you use it. The meter refills steadily, as in the game.
+  - The view widens a little while it runs. Vanilla's speed-based FOV jump is taken back out so the
+    widening stays subtle.
+- **Looks.**
+  - **Model:** a gunmetal autoinjector with grip rings, an amber plunger cap, a steel needle and a caged
+    glass vial of glowing blue stim, in an olive holster with clamp bands.
+  - **The vial is a charge gauge:** it empties as the plunger goes down and refills as the stim recharges.
+  - **First person:** whatever the right hand holds drops out of view. The bare right hand comes up with
+    the injector and jabs it in, the vial draining as it goes, and the item comes back afterwards.
+  - **Third person:** the right hand reaches to the hip, swings the injector up across the body and jabs
+    it into the chest with a blue flare, then puts it back.
+  - **While it runs:**
+    - glowing blue trails stream from the pilot's shoulders and hips and hang in the air behind them;
+    - the screen edges glow blue and pulse like a racing heartbeat;
+    - speed lines stream out from the middle of the view, more of them the faster you move.
+  - Sounds: the injector's click and hiss with a rush of adrenaline, a racing heartbeat while it lasts,
+    and the comedown two seconds before it ends (Titanfall's own cue timing).
+  - Other players see the trail and the injection, and hear it.
+- **HUD**: a charge arc round the crosshair, under it or over it when the Grapple's arc is there too.
 
 ## Movement
 
@@ -218,12 +262,13 @@ Fabric API 0.116.17+1.21.1, Loom 1.18, Mod Menu 11.0.3 (optional), Trinkets 3.10
 
 ## Sounds and textures
 
-The movement sounds are synthesised by `tools/generate-audio.py` in the style of Titanfall 2's jumpkit:
+The movement, Grapple and Stim sounds are synthesised by `tools/generate-audio.py` in the style of Titanfall 2's jumpkit:
 a pneumatic "fwump" and jet roar for the double jump, quick footsteps over a thruster hiss on the wall,
 a gritty slide scrape and a rattly landing. Each one-shot has three variants. They contain no game
 audio. See [SOUNDS.md](SOUNDS.md) for the full list and how to replace them, or use a
 resource pack. The jumpkit textures are generated by `tools/generate-jumpkit-textures.py`. The
-Grapple's mesh, texture atlas and item sprite are generated by `tools/generate-grapple-model.py`.
+Grapple's and the Stim's meshes, texture atlases and item sprites are generated by
+`tools/generate-grapple-model.py` and `tools/generate-stim-model.py` (shared parts in `tools/meshkit.py`).
 
 ## License
 

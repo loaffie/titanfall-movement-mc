@@ -2,6 +2,7 @@ package com.loaffie.titanfall.item;
 
 import com.loaffie.titanfall.TitanfallMovement;
 import com.loaffie.titanfall.grapple.PilotGrappleItem;
+import com.loaffie.titanfall.stim.PilotStimItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -44,6 +45,10 @@ public final class TitanfallItems {
 	public static final Item PILOT_GRAPPLE = register("pilot_grapple",
 			new PilotGrappleItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
 
+	/** The Stim autoinjector: worn on the right hip (a Trinkets belt slot, or held without Trinkets). */
+	public static final Item PILOT_STIM = register("pilot_stim",
+			new PilotStimItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
+
 	private TitanfallItems() {
 	}
 
@@ -73,6 +78,7 @@ public final class TitanfallItems {
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.COMBAT).register(entries -> {
 			entries.add(PILOT_JUMPKIT);
 			entries.add(PILOT_GRAPPLE);
+			entries.add(PILOT_STIM);
 		});
 	}
 }

@@ -106,6 +106,13 @@ public final class TitanfallController {
 	private static double writtenZ;
 	private static boolean ownedThisTick;
 
+	/**
+	 * The Stim's speed boost for this tick (1 without one). Walking and sprinting get it from the server's
+	 * attribute modifier; the speeds this controller sets itself - take-off, the skid hand-back, the wall run's
+	 * cap and entry speed - are scaled by it here.
+	 */
+	private static double stimScale = 1.0;
+
 	private static boolean doubleJumpAvailable;
 	private static double peakY;
 
@@ -184,6 +191,7 @@ public final class TitanfallController {
 
 		TitanfallConfig config = TitanfallConfig.get();
 		ownedThisTick = false;
+		stimScale = StimController.speedScale(player);
 
 		Vec3d position = player.getPos();
 		HVec displacement = lastPosition == null
@@ -423,7 +431,7 @@ public final class TitanfallController {
 
 			if (crouching && momentum.length() >= config.slideMinSpeed) {
 				startSlide(config);
-			} else if (momentum.length() > config.skidReleaseSpeed) {
+			} else if (momentum.length() > config.skidReleaseSpeed * stimScale) {
 				mode = Mode.SKID;
 			} else {
 				release(player);
@@ -476,8 +484,8 @@ public final class TitanfallController {
 
 		if (mode == Mode.SKID) {
 			momentum = SourceMovement.friction(momentum, config.groundFriction * surface, config.stopSpeed, DT);
-			momentum = SourceMovement.groundAccelerate(momentum, wish, config.skidReleaseSpeed, config.groundAccelerate, DT);
-			if (momentum.length() <= config.skidReleaseSpeed) {
+			momentum = SourceMovement.groundAccelerate(momentum, wish, config.skidReleaseSpeed * stimScale, config.groundAccelerate, DT);
+			if (momentum.length() <= config.skidReleaseSpeed * stimScale) {
 				release(player);
 				return;
 			}
@@ -496,9 +504,9 @@ public final class TitanfallController {
 	private static void takeOff(ClientPlayerEntity player, TitanfallConfig config, Input input, HVec displacement, float yaw) {
 		if (mode == Mode.NONE) {
 			HVec takeoff = displacement;
-			if (player.isSprinting() && input.pressingForward && takeoff.length() < config.sprintTakeoffSpeed) {
+			if (player.isSprinting() && input.pressingForward && takeoff.length() < config.sprintTakeoffSpeed * stimScale) {
 				HVec direction = takeoff.length() > 1.0 ? takeoff.normalize() : HVec.forwardFromYaw(yaw);
-				takeoff = direction.scale(config.sprintTakeoffSpeed);
+				takeoff = direction.scale(config.sprintTakeoffSpeed * stimScale);
 			}
 
 			momentum = takeoff;
@@ -696,7 +704,7 @@ public final class TitanfallController {
 
 		double speed = Math.max(Math.abs(momentumAlong), momentum.length() * config.wallRunSpeedRetain);
 		if (!wish.isZero() && Math.abs(wish.dot(wallTangent)) >= 0.3) {
-			speed = Math.max(speed, config.wallRunEntrySpeed);
+			speed = Math.max(speed, config.wallRunEntrySpeed * stimScale);
 		}
 
 		wallSpeed = direction * speed;
@@ -755,7 +763,7 @@ public final class TitanfallController {
 		if (Math.abs(along) > 0.1) {
 			double sign = Math.signum(along);
 			boolean agrees = Math.signum(wallSpeed) == sign || wallSpeed == 0.0;
-			double target = sign * (agrees ? Math.max(Math.abs(wallSpeed), config.wallRunMaxSpeed) : config.wallRunMaxSpeed);
+			double target = sign * (agrees ? Math.max(Math.abs(wallSpeed), config.wallRunMaxSpeed * stimScale) : config.wallRunMaxSpeed * stimScale);
 			double rate = (agrees ? config.wallRunAccel : config.wallRunReverseAccel) * DT;
 			wallSpeed = approach(wallSpeed, target, rate);
 		} else {
@@ -857,7 +865,7 @@ public final class TitanfallController {
 			// The input push steers the kick; it must not raise the along-wall speed past what the run had
 			// (or the run cap), or hopping between two parallel walls would gain speed without limit.
 			double along = launch.dot(wallTangent);
-			double alongCap = Math.max(Math.abs(carried), config.wallRunMaxSpeed);
+			double alongCap = Math.max(Math.abs(carried), config.wallRunMaxSpeed * stimScale);
 			if (Math.abs(along) > alongCap) {
 				launch = launch.subtract(wallTangent.scale(along - Math.signum(along) * alongCap));
 			}

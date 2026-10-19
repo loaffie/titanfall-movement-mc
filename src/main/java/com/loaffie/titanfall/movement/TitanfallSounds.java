@@ -21,6 +21,9 @@ public final class TitanfallSounds {
 	public static final SoundEvent GRAPPLE_RELEASE = register("grapple_release");
 	public static final SoundEvent GRAPPLE_READY = register("grapple_ready");
 	public static final SoundEvent GRAPPLE_DENIED = register("grapple_denied");
+	public static final SoundEvent STIM_ACTIVATE = register("stim_activate");
+	public static final SoundEvent STIM_LOOP = register("stim_loop");
+	public static final SoundEvent STIM_DEACTIVATE = register("stim_deactivate");
 
 	private TitanfallSounds() {
 	}

@@ -60,6 +60,13 @@ public class PilotParticle extends SpriteBillboardParticle {
 	public static final Style GRAPPLE_TRAIL = new Style(Shape.STREAK, 4, 6, 0.022F, 0.012F, 1.6F,
 			rgb(0xE8FBFF), rgb(0x6FD3FF), rgb(0x1A4CFF), 0.55F, 0.6F, 0.0F, false);
 
+	/** Stim trail: a soft glowing streak left behind a stimmed pilot, white-blue cooling to deep blue. */
+	public static final Style STIM_TRAIL = new Style(Shape.STREAK, 12, 16, 0.13F, 0.04F, 4.0F,
+			rgb(0xF0FCFF), rgb(0x52C8FF), rgb(0x1238FF), 0.8F, 0.72F, 0.0F, false);
+	/** Stim injection flare at the chest. */
+	public static final Style STIM_FLASH = new Style(Shape.BILLBOARD, 6, 7, 0.2F, 0.7F, 0.0F,
+			rgb(0xFFFFFF), rgb(0x8BE6FF), rgb(0x1F5BFF), 0.7F, 1.0F, 0.0F, false);
+
 	private final Style style;
 	private final Vector3f ringNormal;
 	private final float spin;

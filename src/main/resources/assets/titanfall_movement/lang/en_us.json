@@ -5,7 +5,12 @@
 	"item.titanfall_movement.pilot_grapple": "Grapple",
 	"item.titanfall_movement.pilot_grapple.tooltip.slot.trinkets": "Worn on the forearm (glove slot)",
 	"item.titanfall_movement.pilot_grapple.tooltip.slot.offhand": "Worn on the forearm (off hand)",
-	"item.titanfall_movement.pilot_grapple.tooltip.use": "Press Grapple to fire the hook and reel in",
+	"item.titanfall_movement.pilot_grapple.tooltip.use": "Press Tactical Ability to fire the hook and reel in",
 	"key.categories.titanfall_movement": "Titanfall Movement",
-	"key.titanfall_movement.grapple": "Grapple"
+	"item.titanfall_movement.pilot_stim": "Stim",
+	"item.titanfall_movement.pilot_stim.tooltip.slot.trinkets": "Worn on the right hip (belt slot)",
+	"item.titanfall_movement.pilot_stim.tooltip.slot.offhand": "Worn on the right hip (off hand)",
+	"item.titanfall_movement.pilot_stim.tooltip.use": "Press Tactical Ability for a burst of speed and fast healing",
+	"key.titanfall_movement.tactical": "Tactical Ability",
+	"key.titanfall_movement.stim": "Stim (when also wearing the Grapple)"
 }

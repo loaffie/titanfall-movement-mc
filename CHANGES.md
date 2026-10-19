@@ -1,3 +1,48 @@
+# 2.2 (Minecraft 1.21.1)
+
+## The Stim
+
+Titanfall 2's Stim Pilot tactical: an autoinjector worn on the right hip.
+
+- **Behaviour from the game's files** (`mp_ability_heal.txt`, `sh_stim.gnut`, `_health_regen.gnut`,
+  `sh_consts.gnut`):
+  - +40% speed for 3 s, which outlasts the stim by 0.5 s and fades over its last 0.25 s.
+  - Double-rate healing that starts 2 s after the last hit (not 5).
+  - A 25 s recharge that starts at once (200 charge at 8 a second).
+  - The comedown sound two seconds before the end.
+- **Speed in every move.** Walking and sprinting get the boost from a server-side movement-speed
+  modifier. The moves the controller drives itself scale with it: sprint take-off, the wall-run cap and
+  entry speed, and the skid hand-off. Sprinting goes from 5.61 to 7.86 b/s (checked in game).
+- **Healing** runs on the server. In the test, a pilot hit for 12 was healed back to full a quarter of a
+  second after the 2 s delay.
+- **FOV.** Vanilla's speed-attribute FOV swing (+20%) is taken back out, and a subtle +6% stim FOV is
+  added instead.
+- **Model** (new `tools/generate-stim-model.py`): the autoinjector and its hip holster, with a vial that
+  drains during the jab and refills with the recharge. The geometry and painting shared with the Grapple
+  moved into `tools/meshkit.py`; the Grapple's output is byte-for-byte unchanged.
+- **Animation.**
+  - First person: the right-hand item drops away, the hand comes up with the injector and jabs it in,
+    then the item returns.
+  - Third person: the hand goes to the hip, then across to the chest with a blue flare at the jab. The
+    held item is hidden while the hand has the injector.
+- **Effects.**
+  - Blue streak trails from shoulders and hips.
+  - A pulsing blue screen-edge glow, and speed lines that thicken with speed (after Titanfall's
+    `P_heal` cockpit effect, which reads 0-360 u/s).
+- **Sounds**: activation, a heartbeat loop and the comedown.
+- **Multiplayer**: the server relays each stim, so other players see and hear it.
+- **Equipping**: the Trinkets belt slot (enabled for players), or held. The Stim gets a key of its own
+  (unbound) for pilots who also wear the Grapple; the Grapple's key is now **Tactical Ability**.
+- **HUD and config.** The crosshair readout is now a tactical HUD with a charge arc per ability. The Mod
+  Menu screen has Stim duration, speed, cooldown, heal rate and screen-effect settings.
+
+## Fixes
+
+- **Trinkets slots.** The glove slots (and now the belt slot) never appeared, because no file enabled them
+  for players. Fixed in 2.1's re-release, and part of this version.
+- **Crosshair readout.** It now centres on vanilla's crosshair pixel, mirrored exactly. Also fixed in 2.1's
+  re-release.
+
 # 2.1 (Minecraft 1.21.1)
 
 ## The Grapple

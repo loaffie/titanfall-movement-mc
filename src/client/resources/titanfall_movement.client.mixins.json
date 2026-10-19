@@ -3,9 +3,11 @@
 	"package": "com.loaffie.titanfall.mixin.client",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
+		"AbstractClientPlayerEntityMixin",
 		"CameraMixin",
 		"EntityServerVelocityMixin",
 		"GameRendererMixin",
+		"HeldItemFeatureRendererMixin",
 		"HeldItemRendererMixin",
 		"LivingEntityJumpMixin",
 		"LivingEntityTravelMixin",
