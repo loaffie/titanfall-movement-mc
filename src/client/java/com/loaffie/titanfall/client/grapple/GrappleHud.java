@@ -15,7 +15,9 @@ import net.minecraft.util.math.MathHelper;
  */
 public final class GrappleHud {
 	private static final int RADIUS = 11;
-	private static final int DOTS = 15;
+	private static final int DOTS = 25;
+	/** Brackets' distance either side of the crosshair's centre pixel. */
+	private static final int BRACKET_GAP = 7;
 	/** The arc spans the bottom of the ring, from 205 to 335 degrees (screen y points down). */
 	private static final float ARC_START = (float) Math.toRadians(25.0);
 	private static final float ARC_END = (float) Math.toRadians(155.0);
@@ -35,8 +37,10 @@ public final class GrappleHud {
 			return;
 		}
 
-		int cx = context.getScaledWindowWidth() / 2;
-		int cy = context.getScaledWindowHeight() / 2;
+		// The centre pixel of vanilla's 15 x 15 crosshair, which is drawn at ((w - 15) / 2, (h - 15) / 2). Everything
+		// below is drawn in single pixels mirrored about it, so the readout sits exactly round the crosshair.
+		int cx = (context.getScaledWindowWidth() - 15) / 2 + 7;
+		int cy = (context.getScaledWindowHeight() - 15) / 2 + 7;
 		double meter = GrappleController.meter();
 		boolean ready = GrappleController.ready();
 		int filled = (int) Math.floor(meter * DOTS + 1.0E-6);
@@ -45,15 +49,16 @@ public final class GrappleHud {
 			int x = cx + Math.round(MathHelper.cos(a) * RADIUS);
 			int y = cy + Math.round(MathHelper.sin(a) * RADIUS);
 			int color = i < filled ? (ready ? READY : CHARGING) : EMPTY;
-			context.fill(x - 1, y, x + 1, y + 1, color);
+			context.fill(x, y, x + 1, y + 1, color);
 		}
 
 		int bracket = ready && GrappleController.targetInRange() ? BRACKET_ON : BRACKET_OFF;
 		for (int s = -1; s <= 1; s += 2) {
-			int x = cx + s * 7;
+			int x = cx + s * BRACKET_GAP;
 			context.fill(x, cy - 3, x + 1, cy + 4, bracket);
-			context.fill(s < 0 ? x : x - 1, cy - 3, s < 0 ? x + 2 : x + 1, cy - 2, bracket);
-			context.fill(s < 0 ? x : x - 1, cy + 3, s < 0 ? x + 2 : x + 1, cy + 4, bracket);
+			// Serifs point inward, toward the crosshair.
+			context.fill(x - s, cy - 3, x - s + 1, cy - 2, bracket);
+			context.fill(x - s, cy + 3, x - s + 1, cy + 4, bracket);
 		}
 	}
 }
