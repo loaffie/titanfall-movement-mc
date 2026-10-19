@@ -1,9 +1,11 @@
 package com.loaffie.titanfall.mixin.client;
 
 import com.loaffie.titanfall.client.camera.PilotCamera;
+import com.loaffie.titanfall.client.phase.PhaseScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * View roll and slide FOV.
+ * View roll, slide FOV, and the Phase Shift view.
  *
  * <p>{@code renderWorld} builds its projection as {@code projection * viewBob}, where the view-bob stack
  * first receives {@code tiltViewWhenHurt}. A rotation about Z added there rolls the image in view space,
@@ -39,5 +41,12 @@ public abstract class GameRendererMixin {
 			double scale = MinecraftClient.getInstance().options.getFovEffectScale().getValue();
 			cir.setReturnValue(cir.getReturnValueD() * (1.0 + boost * scale));
 		}
+	}
+
+	/** The phase view goes over the finished world, before the hands are drawn on top in colour. */
+	@Inject(method = "renderWorld(Lnet/minecraft/client/render/RenderTickCounter;)V",
+			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;renderHand(Lnet/minecraft/client/render/Camera;FLorg/joml/Matrix4f;)V"))
+	private void titanfall$phaseView(RenderTickCounter tickCounter, CallbackInfo ci) {
+		PhaseScreen.renderWorldEffect(tickCounter.getTickDelta(true), tickCounter.getLastFrameDuration());
 	}
 }

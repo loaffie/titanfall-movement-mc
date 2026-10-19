@@ -1,0 +1,33 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"pattern": [
+		"IAI",
+		"CEC",
+		"LRL"
+	],
+	"key": {
+		"I": {
+			"item": "minecraft:iron_ingot"
+		},
+		"A": {
+			"item": "minecraft:amethyst_shard"
+		},
+		"C": {
+			"item": "minecraft:copper_ingot"
+		},
+		"E": {
+			"item": "minecraft:ender_pearl"
+		},
+		"L": {
+			"item": "minecraft:leather"
+		},
+		"R": {
+			"item": "minecraft:redstone"
+		}
+	},
+	"result": {
+		"id": "titanfall_movement:pilot_phase_shift",
+		"count": 1
+	}
+}

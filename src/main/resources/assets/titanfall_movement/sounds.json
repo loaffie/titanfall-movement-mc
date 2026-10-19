@@ -106,5 +106,32 @@
 		"sounds": [
 			"titanfall_movement:stim/deactivate"
 		]
+	},
+	"phase_activate": {
+		"sounds": [
+			"titanfall_movement:phase/activate_1",
+			"titanfall_movement:phase/activate_2"
+		]
+	},
+	"phase_loop": {
+		"sounds": [
+			"titanfall_movement:phase/loop"
+		]
+	},
+	"phase_warning": {
+		"sounds": [
+			"titanfall_movement:phase/warning"
+		]
+	},
+	"phase_end": {
+		"sounds": [
+			"titanfall_movement:phase/end_1",
+			"titanfall_movement:phase/end_2"
+		]
+	},
+	"phase_telefrag": {
+		"sounds": [
+			"titanfall_movement:phase/telefrag"
+		]
 	}
 }

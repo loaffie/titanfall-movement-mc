@@ -1,4 +1,4 @@
-# Titanfall Movement 2.2.1 (Fabric 1.21.1)
+# Titanfall Movement 2.3 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -146,6 +146,63 @@ healing.
     and the comedown two seconds before it ends (Titanfall's own cue timing).
   - Other players see the trail and the injection, and hear it.
 - **HUD**: a charge arc round the crosshair, under it or over it when the Grapple's arc is there too.
+
+## Phase Shift
+
+Titanfall 2's Phase Shift tactical: a gauntlet on the back of the off hand that shifts the pilot out of
+phase with the world for two seconds. You stay in the overworld, in the same place, and keep full freedom
+of movement, but the world can't touch you and you can't touch it.
+
+- Item id `titanfall_movement:pilot_phase_shift`, in the Combat creative tab. Craftable; the recipe
+  unlocks once you pick up an ender pearl or an amethyst shard.
+
+  ```
+  Iron Ingot     Amethyst Shard   Iron Ingot
+  Copper Ingot   Ender Pearl      Copper Ingot
+  Leather        Redstone         Leather
+  ```
+- **Worn on the back of the off hand** (the left hand for a right-handed player, and the other way round).
+  With Trinkets it goes in the **off-hand glove** slot (right-click it to equip). Without Trinkets, hold it
+  in the off hand.
+- **Using it.** Press **Tactical Ability** (`G`). If you also wear the Grapple, the key fires the Grapple,
+  and Phase Shift has its own **Phase Shift** key (unbound by default) under Controls > Titanfall Movement.
+- **Works like Titanfall 2's** (values from the game's `mp_ability_shifter.txt` and `sh_phase_shift.gnut`):
+  - **Instant, 2 seconds** (`phaseLengthSeconds`), with a **15-second recharge** that starts at once
+    (`phaseCooldownSeconds`; 200 charge at 13.3 a second). It can't be cut short.
+  - **Out of phase**, you can't be seen, hit, targeted or pushed. Projectiles, swings and the crosshair pass
+    through you, mobs hunting you lose you, and no damage reaches you (except what ignores invulnerability,
+    like the void). You can't attack, use items, use or break blocks, or pick things up either.
+  - **Other phased pilots** can see each other, but can't hurt each other either.
+  - **Telefrag:** come back inside a player or mob up to human size and it dies (`phaseTelefrag`). Come back
+    inside something bigger, like an iron golem, and you're pushed out of it instead.
+- **What you see while phased.**
+  - The world drains to a dark, cold black and white with a blue-black vignette, a flickering electric rim
+    and a little grain. A ripple and flash tear the screen as you go out and come back.
+  - Every player, mob and object vanishes. The map looks empty and shadowy, apart from other phased
+    pilots, who shimmer with a crawling blue energy.
+  - The HUD is pared down to health and the phase timer: the crosshair, hotbar, experience and effects
+    go. A white arc round the crosshair counts the phase down.
+  - `phaseScreenEffects` turns the view effects and the HUD trim off.
+- **What others see.** You vanish: body, gear, name tag and shadow. Where you were, a blue, crackling ghost
+  of you carries on a little way and thins out, with sparks and a short trail of light along the way you
+  were heading. When you come back there's a white-blue flash, a ring at your feet and a spray of sparks,
+  and they hear it. While you're phased, anyone close hears a low hum.
+- **Looks.**
+  - **Model:** a fingerless glove with a round coil housing over the back of the hand. It has a ring of
+    twelve coil segments round a glowing hub, a wrist pack with a small red read-out, cables into the coil,
+    and straps over the knuckles and forearm.
+  - **Active:** the coil burns blue and electric arcs crawl over it and leap off its rim. Sparks fly off it
+    and it cools for a moment after.
+  - **First person:** one-handed. The gauntlet hand comes up into the bottom corner of the screen on its own
+    side, with the back of the hand to your eyes. The fingers flick, the coil fires, and the hand holds a
+    moment, then drops away. The hands are drawn after the black-and-white effect, so the blue coil burns
+    in colour.
+  - **Third person:** the arm swings up in front of the face, the back of the hand up, with a flick.
+  - Sounds: the coil charging and a reversed rush as you tear out, a hollow beating drone while phased,
+    the warning a second and a half before the way back opens, and a crack and thump as you come back
+    (Titanfall's own cue timing). A telefrag has its own crunch.
+- **HUD**: a charge arc round the crosshair, sharing the Grapple and Stim's places (first worn under,
+  second over).
 
 ## Movement
 

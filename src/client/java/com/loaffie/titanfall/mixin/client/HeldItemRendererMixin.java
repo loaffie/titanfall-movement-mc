@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.mixin.client;
 
 import com.loaffie.titanfall.client.grapple.GrappleFirstPerson;
+import com.loaffie.titanfall.client.phase.PhaseFirstPerson;
 import com.loaffie.titanfall.client.stim.StimFirstPerson;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -18,9 +19,10 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * First-person pilot gear. Draws the Grapple arm and the Stim injection with the hands, before the hand
- * buffers are flushed; keeps vanilla from drawing a second empty arm where the raised Grapple arm already
- * is; and lowers vanilla's right-hand item out of the way while the Stim is injected.
+ * First-person pilot gear. Draws the Grapple arm, the Stim injection and the Phase Shift hand with the hands,
+ * before the hand buffers are flushed; keeps vanilla from drawing a second arm where the raised Grapple arm
+ * or Phase Shift hand already is; and lowers vanilla's right-hand item out of the way while the Stim is
+ * injected.
  */
 @Mixin(HeldItemRenderer.class)
 public abstract class HeldItemRendererMixin {
@@ -30,7 +32,12 @@ public abstract class HeldItemRendererMixin {
 			at = @At("HEAD"), cancellable = true)
 	private void titanfall$yieldMainArm(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress,
 			ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
-		if (hand == Hand.MAIN_HAND && item.isEmpty() && player instanceof ClientPlayerEntity local && GrappleFirstPerson.replacesMainArm(local)) {
+		if (!(player instanceof ClientPlayerEntity local)) {
+			return;
+		}
+
+		Arm arm = hand == Hand.MAIN_HAND ? local.getMainArm() : local.getMainArm().getOpposite();
+		if ((hand == Hand.MAIN_HAND && item.isEmpty() && GrappleFirstPerson.replacesMainArm(local)) || PhaseFirstPerson.replacesArm(local, arm)) {
 			ci.cancel();
 		}
 	}
@@ -41,6 +48,7 @@ public abstract class HeldItemRendererMixin {
 			ClientPlayerEntity player, int light, CallbackInfo ci) {
 		GrappleFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 		StimFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
+		PhaseFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 	}
 
 	/** Vanilla's main-hand draw: lowered out of view while the right hand is busy injecting a Stim. */

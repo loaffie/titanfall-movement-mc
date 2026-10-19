@@ -263,6 +263,20 @@ public class TitanfallConfig {
 	/** Screen-edge pulse and speed lines while stimmed. */
 	public boolean stimScreenEffects = true;
 
+	// --- phase shift ---
+	// Titanfall 2's Phase Shift, from the game's files: mp_ability_shifter.txt and sh_phase_shift.gnut.
+	/** How long a phase lasts, seconds ({@code fire_duration} 2.0 in multiplayer). */
+	public double phaseLengthSeconds = 2.0;
+	/** Time for the charge to come back, seconds: 200 ammo at {@code regen_ammo_refill_rate} 13.333 a second = 15. */
+	public double phaseCooldownSeconds = 15.0;
+	/**
+	 * Coming out of phase inside someone kills them (Titanfall's telefrag): anything up to human size. Anything
+	 * bigger pushes the pilot out instead.
+	 */
+	public boolean phaseTelefrag = true;
+	/** The black-and-white phase world, the shift's screen flashes and the pared-down HUD while phased. */
+	public boolean phaseScreenEffects = true;
+
 	// --- camera ---
 	/**
 	 * Camera roll while wall running, degrees, scaled by how side-on the wall is to the view. Positive banks the
@@ -357,6 +371,8 @@ public class TitanfallConfig {
 		stimSpeedBoost = Math.max(0.0, Math.min(stimSpeedBoost, 2.0));
 		stimCooldownSeconds = Math.max(0.0, stimCooldownSeconds);
 		stimHealPerSecond = Math.max(0.0, stimHealPerSecond);
+		phaseLengthSeconds = Math.max(0.25, Math.min(phaseLengthSeconds, 10.0));
+		phaseCooldownSeconds = Math.max(0.0, phaseCooldownSeconds);
 	}
 
 	public void save() {

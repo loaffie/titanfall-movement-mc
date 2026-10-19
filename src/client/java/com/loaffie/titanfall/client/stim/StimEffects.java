@@ -1,5 +1,6 @@
 package com.loaffie.titanfall.client.stim;
 
+import com.loaffie.titanfall.client.phase.PhaseStates;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.movement.physics.HVec;
 import com.loaffie.titanfall.particle.TitanfallParticles;
@@ -45,7 +46,7 @@ public final class StimEffects {
 
 	/** One tick of trail behind a stimmed pilot. */
 	static void trail(PlayerEntity player, StimStates.State state) {
-		if (!enabled()) {
+		if (!enabled() || PhaseStates.hidden(player)) {
 			return;
 		}
 

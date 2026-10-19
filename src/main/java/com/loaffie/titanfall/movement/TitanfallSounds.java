@@ -24,6 +24,11 @@ public final class TitanfallSounds {
 	public static final SoundEvent STIM_ACTIVATE = register("stim_activate");
 	public static final SoundEvent STIM_LOOP = register("stim_loop");
 	public static final SoundEvent STIM_DEACTIVATE = register("stim_deactivate");
+	public static final SoundEvent PHASE_ACTIVATE = register("phase_activate");
+	public static final SoundEvent PHASE_LOOP = register("phase_loop");
+	public static final SoundEvent PHASE_WARNING = register("phase_warning");
+	public static final SoundEvent PHASE_END = register("phase_end");
+	public static final SoundEvent PHASE_TELEFRAG = register("phase_telefrag");
 
 	private TitanfallSounds() {
 	}

@@ -99,6 +99,10 @@ public class TitanfallConfigScreen extends Screen {
 		slider("Stim Cooldown", 0.0, 60.0, config.stimCooldownSeconds, value -> config.stimCooldownSeconds = value);
 		slider("Stim Heal/s", 0.0, 2.0, config.stimHealPerSecond, value -> config.stimHealPerSecond = value);
 		toggle("Stim Screen FX", () -> config.stimScreenEffects, () -> config.stimScreenEffects = !config.stimScreenEffects);
+		slider("Phase Length", 0.5, 5.0, config.phaseLengthSeconds, value -> config.phaseLengthSeconds = value);
+		slider("Phase Cooldown", 0.0, 60.0, config.phaseCooldownSeconds, value -> config.phaseCooldownSeconds = value);
+		toggle("Phase Telefrag", () -> config.phaseTelefrag, () -> config.phaseTelefrag = !config.phaseTelefrag);
+		toggle("Phase Screen FX", () -> config.phaseScreenEffects, () -> config.phaseScreenEffects = !config.phaseScreenEffects);
 		toggle("Sounds", () -> config.soundsEnabled, () -> config.soundsEnabled = !config.soundsEnabled);
 		slider("Volume", 0.0, 1.0, config.movementVolume, value -> config.movementVolume = value);
 

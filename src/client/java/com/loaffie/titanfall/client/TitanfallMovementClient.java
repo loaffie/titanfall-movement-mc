@@ -7,6 +7,12 @@ import com.loaffie.titanfall.client.grapple.GrappleLines;
 import com.loaffie.titanfall.client.grapple.GrappleModel;
 import com.loaffie.titanfall.client.grapple.GrappleRenderer;
 import com.loaffie.titanfall.client.particle.PilotParticle;
+import com.loaffie.titanfall.client.phase.PhaseFeatureRenderer;
+import com.loaffie.titanfall.client.phase.PhaseGhost;
+import com.loaffie.titanfall.client.phase.PhaseItemRenderer;
+import com.loaffie.titanfall.client.phase.PhaseModel;
+import com.loaffie.titanfall.client.phase.PhaseScreen;
+import com.loaffie.titanfall.client.phase.PhaseStates;
 import com.loaffie.titanfall.client.particle.ThrusterFlameParticle;
 import com.loaffie.titanfall.client.render.JumpkitFeatureRenderer;
 import com.loaffie.titanfall.client.render.JumpkitItemRenderer;
@@ -22,9 +28,12 @@ import com.loaffie.titanfall.grapple.Grapple;
 import com.loaffie.titanfall.grapple.GrappleSyncPayload;
 import com.loaffie.titanfall.item.TitanfallItems;
 import com.loaffie.titanfall.movement.GrappleController;
+import com.loaffie.titanfall.movement.PhaseController;
 import com.loaffie.titanfall.movement.StimController;
 import com.loaffie.titanfall.movement.TitanfallController;
 import com.loaffie.titanfall.particle.TitanfallParticles;
+import com.loaffie.titanfall.phase.PhaseShift;
+import com.loaffie.titanfall.phase.PhaseSyncPayload;
 import com.loaffie.titanfall.stim.Stim;
 import com.loaffie.titanfall.stim.StimSyncPayload;
 import net.fabricmc.api.ClientModInitializer;
@@ -49,14 +58,17 @@ import org.lwjgl.glfw.GLFW;
 
 public class TitanfallMovementClient implements ClientModInitializer {
 	/**
-	 * Uses the tactical ability: the Grapple (fire, and let go) or, without one, the Stim. Titanfall's tactical
-	 * key is Q, which Minecraft uses to drop items.
+	 * Uses the tactical ability: the Grapple (fire, and let go), or without one the Phase Shift, or the Stim.
+	 * Titanfall's tactical key is Q, which Minecraft uses to drop items.
 	 */
 	public static final KeyBinding TACTICAL_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.titanfall_movement.tactical", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_G, "key.categories.titanfall_movement"));
 	/** The Stim on its own key, for pilots wearing it alongside the Grapple. Unbound by default. */
 	public static final KeyBinding STIM_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.titanfall_movement.stim", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
+	/** The Phase Shift on its own key, for pilots wearing it alongside another tactical. Unbound by default. */
+	public static final KeyBinding PHASE_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			"key.titanfall_movement.phase_shift", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
 
 	@Override
 	public void onInitializeClient() {
@@ -69,10 +81,12 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		// movement.
 		ClientTickEvents.START_CLIENT_TICK.register(client -> {
 			while (TACTICAL_KEY.wasPressed()) {
-				if (client.player != null && !Grapple.isWorn(client.player) && Stim.isWorn(client.player)) {
-					StimController.onKeyPressed(client);
-				} else {
+				if (client.player == null || Grapple.isWorn(client.player)) {
 					GrappleController.onKeyPressed(client);
+				} else if (PhaseShift.isWorn(client.player)) {
+					PhaseController.onKeyPressed(client);
+				} else if (Stim.isWorn(client.player)) {
+					StimController.onKeyPressed(client);
 				}
 			}
 
@@ -80,8 +94,18 @@ public class TitanfallMovementClient implements ClientModInitializer {
 				StimController.onKeyPressed(client);
 			}
 
+			while (PHASE_KEY.wasPressed()) {
+				PhaseController.onKeyPressed(client);
+			}
+
 			GrappleController.preClientTick(client);
 		});
+		ClientTickEvents.END_CLIENT_TICK.register(PhaseController::clientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(PhaseStates::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(PhaseGhost::tick);
+		PhaseStates.register();
+		ClientPlayNetworking.registerGlobalReceiver(PhaseSyncPayload.ID, (payload, context) -> PhaseStates.receive(payload));
+		WorldRenderEvents.AFTER_ENTITIES.register(PhaseGhost::render);
 		ClientTickEvents.END_CLIENT_TICK.register(StimController::clientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(StimStates::tick);
 		ClientPlayNetworking.registerGlobalReceiver(StimSyncPayload.ID, (payload, context) -> StimStates.receive(payload));
@@ -91,6 +115,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		WorldRenderEvents.START.register(GrappleRenderer::startFrame);
 		WorldRenderEvents.AFTER_ENTITIES.register(GrappleRenderer::render);
 		HudRenderCallback.EVENT.register(StimHud::render);
+		HudRenderCallback.EVENT.register(PhaseScreen::renderHud);
 		HudRenderCallback.EVENT.register(TacticalHud::render);
 		// Pilots cannot fire weapons while the line is pulling them in (melee still works).
 		UseItemCallback.EVENT.register((player, world, hand) -> {
@@ -105,6 +130,8 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(JumpkitMesh.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(GrappleModel.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(StimModel.reloadListener());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PhaseModel.reloadListener());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PhaseScreen.reloadListener());
 		ParticleFactoryRegistry particles = ParticleFactoryRegistry.getInstance();
 		particles.register(TitanfallParticles.THRUSTER_JET, sprites -> new PilotParticle.Factory(sprites, PilotParticle.JET));
 		particles.register(TitanfallParticles.THRUSTER_SPARK, sprites -> new PilotParticle.Factory(sprites, PilotParticle.SPARK));
@@ -118,11 +145,16 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		particles.register(TitanfallParticles.GRAPPLE_TRAIL, sprites -> new PilotParticle.Factory(sprites, PilotParticle.GRAPPLE_TRAIL));
 		particles.register(TitanfallParticles.STIM_TRAIL, sprites -> new PilotParticle.Factory(sprites, PilotParticle.STIM_TRAIL));
 		particles.register(TitanfallParticles.STIM_FLASH, sprites -> new PilotParticle.Factory(sprites, PilotParticle.STIM_FLASH));
+		particles.register(TitanfallParticles.PHASE_SPARK, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PHASE_SPARK));
+		particles.register(TitanfallParticles.PHASE_FLASH, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PHASE_FLASH));
+		particles.register(TitanfallParticles.PHASE_RING, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PHASE_RING));
+		particles.register(TitanfallParticles.PHASE_WISP, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PHASE_WISP));
 
 		// The jumpkit item is drawn with the same OBJ mesh as the worn kit (inventory, hands, ground, frames).
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_JUMPKIT, new JumpkitItemRenderer());
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_GRAPPLE, new GrappleItemRenderer());
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_STIM, new StimItemRenderer());
+		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_PHASE_SHIFT, new PhaseItemRenderer());
 
 		EntityModelLayerRegistry.registerModelLayer(JumpkitModel.LAYER, JumpkitModel::getTexturedModelData);
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
@@ -130,6 +162,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 				registrationHelper.register(new JumpkitFeatureRenderer(playerRenderer, context.getModelLoader()));
 				registrationHelper.register(new GrappleFeatureRenderer(playerRenderer));
 				registrationHelper.register(new StimFeatureRenderer(playerRenderer));
+				registrationHelper.register(new PhaseFeatureRenderer(playerRenderer));
 			}
 		});
 	}

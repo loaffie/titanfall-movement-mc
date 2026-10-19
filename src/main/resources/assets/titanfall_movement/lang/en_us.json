@@ -11,6 +11,14 @@
 	"item.titanfall_movement.pilot_stim.tooltip.slot.trinkets": "Worn on the right hip (belt slot)",
 	"item.titanfall_movement.pilot_stim.tooltip.slot.offhand": "Worn on the right hip (off hand)",
 	"item.titanfall_movement.pilot_stim.tooltip.use": "Press Tactical Ability for a burst of speed and fast healing",
+	"item.titanfall_movement.pilot_phase_shift": "Phase Shift",
+	"item.titanfall_movement.pilot_phase_shift.tooltip.slot.trinkets": "Worn on the back of the off hand (off-hand glove slot)",
+	"item.titanfall_movement.pilot_phase_shift.tooltip.slot.offhand": "Worn on the back of the hand holding it (off hand)",
+	"item.titanfall_movement.pilot_phase_shift.tooltip.use": "Press Tactical Ability to shift out of phase for 2 seconds",
 	"key.titanfall_movement.tactical": "Tactical Ability",
-	"key.titanfall_movement.stim": "Stim (when also wearing the Grapple)"
+	"key.titanfall_movement.stim": "Stim (when also wearing the Grapple)",
+	"key.titanfall_movement.phase_shift": "Phase Shift (when also wearing another tactical)",
+	"death.attack.titanfall_movement.telefrag": "%1$s was telefragged",
+	"death.attack.titanfall_movement.telefrag.player": "%1$s was telefragged by %2$s",
+	"death.attack.titanfall_movement.telefrag.item": "%1$s was telefragged by %2$s"
 }

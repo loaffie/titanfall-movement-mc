@@ -6,8 +6,10 @@ from Titanfall 2 or any other game. The aim is the *feel* of the jumpkit: a hard
 a valve click and a jet hiss for the double jump, quick light footsteps over a thin thruster hiss on a wall
 run, a gritty scrape for the slide, and a weighty, rattly landing. The Grapple gets the same treatment: a
 pneumatic launch with the line whipping out, a hard metallic bite, a straining winch while it reels the
-pilot in, and the quick zip and latch of the hook coming home. And the Stim: the jab and hiss of the
-autoinjector and the rush that follows, a racing heart while it lasts, and the comedown.
+pilot in, and the quick zip and latch of the hook coming home. The Stim: the jab and hiss of the
+autoinjector and the rush that follows, a racing heart while it lasts, and the comedown. And Phase Shift:
+the gauntlet's coil charging and the pilot tearing out of the world with a warped, reversed rush, a hollow
+humming drone while phased, the rising warning before the way back, and the snap of rematerialising.
 
 Usage (from the repository root):
 
@@ -19,6 +21,7 @@ Requires numpy, scipy and ffmpeg (with libvorbis) on the PATH. Output, as mono 4
     src/main/resources/assets/titanfall_movement/sounds/movement/<name>.ogg
     src/main/resources/assets/titanfall_movement/sounds/grapple/<name>.ogg   (the grapple_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/stim/<name>.ogg      (the stim_* sounds)
+    src/main/resources/assets/titanfall_movement/sounds/phase/<name>.ogg     (the phase_* sounds)
 
 The one-shots come in variants (jump_1..3, double_jump_1..3, walljump_1..3, land_1..3) that
 sounds.json picks between at random, so repeated moves do not sound like a loop of one sample. The
@@ -507,6 +510,116 @@ def stim_deactivate(seed=91):
     return fade_edges(normalize(soft_clip(out, 1.2), 0.7), 0.002, 0.15)
 
 
+def electric(rng, seconds, density=60.0, bright=4500.0):
+    """Electric crackle: a sparse train of tiny sharp clicks, each a burst of bright noise, at random spacing."""
+    out = np.zeros(int(RATE * seconds))
+    n = int(density * seconds)
+    for _ in range(n):
+        at = rng.uniform(0, seconds - 0.01)
+        length = rng.uniform(0.002, 0.008)
+        burst = highpass(noise(rng, length), bright, order=2) * env_ad(length, 0.0005, length * 0.4)
+        place(out, burst, at, rng.uniform(0.2, 1.0))
+    return out
+
+
+def reverse_swell(rng, seconds, centres, q=1.4):
+    """A swell that builds to a hard stop (a reversed decay): the rush of something being pulled away."""
+    t = t_axis(seconds)
+    env = (t / seconds) ** 2.6
+    return sweep_bandpass(noise(rng, seconds), centres, q=q) * env
+
+
+def phase_activate(seed):
+    """Phasing out: the coil charging with a quick electric whine and crackle, a reversed rush sucking the
+    pilot out of the world, a hollow 'whumm' with a pitch-bent tone falling through it, and a ghostly tail."""
+    rng = np.random.default_rng(seed)
+    d = 1.5
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    # Coil charge: a whine sweeping up over 0.16 s with crackle on it.
+    charge = tone([900 * p, 2600 * p, 5200 * p], 0.18, "saw")
+    charge = bandpass(charge, 800, 7000, order=2) * np.linspace(0.2, 1.0, len(charge)) * 0.25
+    place(out, tail(charge, 0.01), 0.0)
+    place(out, electric(rng, 0.2, 140, 3500), 0.0, 0.45)
+    # The pull: a reversed swell into the moment of the shift.
+    place(out, reverse_swell(rng, 0.2, [400 * p, 1800 * p, 6000 * p]), 0.0, 0.9)
+    # The shift: a deep hollow 'whumm' (detuned, ring-modulated) with a falling tone through it.
+    t = t_axis(1.25)
+    body = np.sin(2 * np.pi * 52 * p * t + 3.0 * np.sin(2 * np.pi * 7 * t)) * np.exp(-t / 0.35)
+    fall = tone([1400 * p, 600 * p, 180 * p], 1.25, "saw")
+    fall = lowpass(fall * np.sin(2 * np.pi * 31 * t), 2600) * np.exp(-t / 0.4) * 0.35
+    rush = sweep_bandpass(noise(rng, 1.25), [5000 * p, 1500 * p, 300 * p], q=1.2) * np.exp(-t / 0.3)
+    place(out, tail(body * 0.9 + fall + rush * 0.7, 0.3), 0.2)
+    place(out, thud(rng, 0.25, 48, 1.0), 0.2, 0.7)
+    # A ghostly, chorused shimmer hanging after.
+    shimmer = (tone([2100 * p, 1700 * p], 1.25) + tone([2113 * p, 1690 * p], 1.25)) * np.exp(-t / 0.5) * 0.05
+    place(out, tail(shimmer, 0.3), 0.22)
+    return fade_edges(normalize(soft_clip(out, 1.5)))
+
+
+def phase_loop(seed=1011):
+    """While phased: a hollow, beating drone, a slow airy whoosh moving through it and a faint crackle -
+    the world heard from outside it."""
+    rng = np.random.default_rng(seed)
+    loop, cross = 2.0, 0.2
+    d = loop + cross + 0.4
+    t = t_axis(d)
+    # Drone: two close low tones beating against each other, with a quiet fifth above.
+    drone = np.sin(2 * np.pi * 73.4 * t) + np.sin(2 * np.pi * 74.9 * t) + 0.35 * np.sin(2 * np.pi * 110.2 * t)
+    drone = drone * (0.75 + 0.25 * np.sin(2 * np.pi * 0.5 * t))
+    # Hollow air: noise through a slowly swinging resonance.
+    air = sweep_bandpass(noise(rng, d), [500, 1300, 700, 1600, 600], q=2.2) * 0.5
+    # Faint electric fizz.
+    fizz = electric(rng, d, 25, 5000) * 0.25
+    out = drone * 0.22 + air + fizz
+    return normalize(seamless(soft_clip(out, 1.2), loop, cross), 0.7)
+
+
+def phase_warning(seed=1021):
+    """The way back opening: a tone and a rush rising over a second and a half, tightening toward the exit."""
+    rng = np.random.default_rng(seed)
+    d = 1.5
+    t = t_axis(d)
+    env = np.clip(t / 0.15, 0, 1) * (0.35 + 0.65 * (t / d) ** 1.5)
+    rise = tone([180, 420, 1100], d, "saw")
+    rise = lowpass(rise, 3000) * env * 0.3
+    swell = sweep_bandpass(noise(rng, d), [300, 1200, 4500], q=1.6) * env * 0.6
+    # A tremolo that speeds up toward the end.
+    tremolo = 0.65 + 0.35 * np.sin(2 * np.pi * np.cumsum(np.linspace(6, 22, len(t))) / RATE)
+    out = (rise + swell) * tremolo
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.75), 0.01, 0.02)
+
+
+def phase_end(seed):
+    """Rematerialising: a hard reversed suck snapping into a bright electric crack, a punchy low impact and
+    a quick sparkling decay as the pilot drops back into the world."""
+    rng = np.random.default_rng(seed)
+    d = 1.0
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    place(out, reverse_swell(rng, 0.12, [6000 * p, 1500 * p, 400 * p], q=1.2), 0.0, 1.0)
+    crack = highpass(noise(rng, 0.05), 1800, order=2) * env_ad(0.05, 0.0005, 0.012)
+    place(out, crack, 0.12, 1.0)
+    place(out, thud(rng, 0.3, 62 * p, 1.2), 0.12, 0.9)
+    place(out, metal_ring(rng, 0.5, [(1900 * p, 0.25, 1.0), (3050 * p, 0.15, 0.7), (4700 * p, 0.08, 0.5)], 0.08), 0.12, 0.35)
+    place(out, electric(rng, 0.45, 90, 4000) * np.exp(-t_axis(0.45) / 0.15), 0.13, 0.6)
+    return fade_edges(normalize(soft_clip(out, 1.5)))
+
+
+def telefrag(seed=1041):
+    """A telefrag: a wet, crunching burst with a deep body hit under it."""
+    rng = np.random.default_rng(seed)
+    d = 0.7
+    out = np.zeros(int(RATE * d))
+    crunch = bandpass(noise(rng, 0.25), 300, 4000, order=2) * env_ad(0.25, 0.001, 0.06)
+    crunch *= 0.6 + 0.4 * np.sign(np.sin(2 * np.pi * 37 * t_axis(0.25)))
+    place(out, crunch, 0.0, 1.0)
+    place(out, thud(rng, 0.4, 45, 1.4), 0.0, 1.0)
+    squelch = lowpass(noise(rng, 0.3), 700) * env_ad(0.3, 0.01, 0.08)
+    place(out, squelch, 0.05, 0.6)
+    return fade_edges(normalize(soft_clip(out, 1.8)))
+
+
 SOUNDS = {
     "double_jump_1": lambda: double_jump(101),
     "double_jump_2": lambda: double_jump(102),
@@ -539,12 +652,19 @@ SOUNDS = {
     "stim_activate_2": lambda: stim_activate(802),
     "stim_loop": stim_loop,
     "stim_deactivate": stim_deactivate,
+    "phase_activate_1": lambda: phase_activate(1001),
+    "phase_activate_2": lambda: phase_activate(1002),
+    "phase_loop": phase_loop,
+    "phase_warning": phase_warning,
+    "phase_end_1": lambda: phase_end(1031),
+    "phase_end_2": lambda: phase_end(1032),
+    "phase_telefrag": telefrag,
 }
 
 
 def write_ogg(name, samples):
-    # grapple_* and stim_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
-    group = next((g for g in ("grapple", "stim") if name.startswith(g + "_")), None)
+    # grapple_*, stim_* and phase_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
+    group = next((g for g in ("grapple", "stim", "phase") if name.startswith(g + "_")), None)
     out_dir = SOUNDS_DIR / group if group else OUT
     file = name[len(group) + 1:] if group else name
     out_dir.mkdir(parents=True, exist_ok=True)

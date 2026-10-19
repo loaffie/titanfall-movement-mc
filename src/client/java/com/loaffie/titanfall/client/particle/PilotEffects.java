@@ -1,5 +1,6 @@
 package com.loaffie.titanfall.client.particle;
 
+import com.loaffie.titanfall.client.phase.PhaseStates;
 import com.loaffie.titanfall.client.render.JumpkitModel;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.movement.physics.HVec;
@@ -152,6 +153,10 @@ public final class PilotEffects {
 	 * steady blue flame on both thrusters.
 	 */
 	public static void airborneTick(PlayerEntity player) {
+		if (PhaseStates.hidden(player)) {
+			return;
+		}
+
 		if (!enabled()) {
 			return;
 		}
@@ -180,6 +185,10 @@ public final class PilotEffects {
 	 * rings show exactly where and which way the thrusters fire.
 	 */
 	public static void doubleJump(PlayerEntity player) {
+		if (PhaseStates.hidden(player)) {
+			return;
+		}
+
 		if (!enabled()) {
 			return;
 		}
@@ -218,6 +227,10 @@ public final class PilotEffects {
 
 	/** Wall kick: a ring flashes on the wall where the pilot pushed off, and the jets fire back into it. */
 	public static void wallJump(PlayerEntity player, HVec wallNormal) {
+		if (PhaseStates.hidden(player)) {
+			return;
+		}
+
 		if (!enabled()) {
 			return;
 		}
@@ -246,6 +259,10 @@ public final class PilotEffects {
 	 * are flung back against the run.
 	 */
 	public static void wallRunTick(PlayerEntity player, HVec wallNormal, HVec wallVelocity, int age) {
+		if (PhaseStates.hidden(player)) {
+			return;
+		}
+
 		if (!enabled()) {
 			return;
 		}
@@ -277,6 +294,10 @@ public final class PilotEffects {
 	 * burn as if driving the slide (it is only for show), and sparks skip off the ground behind the pilot.
 	 */
 	public static void slideTick(PlayerEntity player, int age) {
+		if (PhaseStates.hidden(player)) {
+			return;
+		}
+
 		if (!enabled()) {
 			return;
 		}
@@ -294,6 +315,10 @@ public final class PilotEffects {
 
 	/** Slide hop: a quick paired thruster puff and a small ring off the ground. */
 	public static void slideHop(PlayerEntity player) {
+		if (PhaseStates.hidden(player)) {
+			return;
+		}
+
 		if (!enabled()) {
 			return;
 		}

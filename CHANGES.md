@@ -1,3 +1,45 @@
+# 2.3 (Minecraft 1.21.1)
+
+## Phase Shift
+
+Titanfall 2's Phase Shift Pilot tactical: a gauntlet on the back of the off hand. It shifts you out of
+phase with the world for two seconds; you stay in the overworld.
+
+- **Behaviour from the game's files** (`mp_ability_shifter.txt`, `sh_phase_shift.gnut`):
+  - Instant (no warm-up), 2 s long, 15 s recharge starting at once (200 charge at 13.333 a second).
+  - Warning sound 1.5 s before the end.
+  - Telefrag on the way out, credited to the pilot. Like the game's exit check, anything bigger than
+    human size pushes the pilot out instead.
+- **Out of phase** (server side):
+  - No damage either way, except what bypasses invulnerability.
+  - No attacking, using items, using or breaking blocks, or picking things up.
+  - Can't be hit (`canHit`), so projectiles, melee and the crosshair pass through; can't be pushed.
+  - Can't be targeted (`canTakeDamage`), and mobs hunting the pilot drop them.
+- **The phase world** (client):
+  - A new post-process shader (`shaders/post/phase_shift.json`): dark, cold black and white with a
+    vignette, an electric rim, grain, and a ripple-and-flash tear at both ends.
+  - It runs before the hands are drawn, so the gauntlet stays in colour.
+  - Everything that isn't a phased pilot vanishes, and phased pilots vanish from everyone else.
+  - The HUD keeps health and the tactical readout.
+- **Seen from outside:**
+  - The pilot vanishes, leaving a blue, crackling ghost that drifts on along their heading, with sparks
+    and a trail of light.
+  - They return in a flash and a ring of sparks, and can be heard humming while phased.
+- **Model** (new `tools/generate-phase-model.py`): after the Time-Shift gauntlet. Fingerless glove, round
+  coil housing on the back of the hand with twelve segments round a hub, wrist pack with a red read-out,
+  cables and straps. While phasing the coil burns blue with arcs crawling over it, and sparks fly.
+- **Animation:**
+  - First person: the gauntlet hand rises one-handed into the bottom corner on its own side, back of the
+    hand to the eyes, flicks, holds, and drops away.
+  - Third person: the arm swings up in front of the face.
+- **Sounds** (synthesised, `phase_*` in `tools/generate-audio.py`): activate, loop, warning, end,
+  telefrag.
+- **Equipping:** Trinkets' off-hand glove slot, or held in the off hand. Tactical key priority: Grapple,
+  then Phase Shift, then Stim. A new unbound **Phase Shift** key is under Controls.
+- **Recipe:** iron, amethyst, copper, an ender pearl, leather and redstone.
+- **Config:** `phaseLengthSeconds`, `phaseCooldownSeconds`, `phaseTelefrag` and `phaseScreenEffects`, also
+  on the config screen.
+
 # 2.2.1 (Minecraft 1.21.1)
 
 - **Stim length** is now 5 seconds (`stimLengthSeconds`; Titanfall's own is 3). The setting was renamed, so

@@ -1,9 +1,12 @@
 package com.loaffie.titanfall.client;
 
+import com.loaffie.titanfall.client.phase.PhaseStates;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.grapple.Grapple;
 import com.loaffie.titanfall.movement.GrappleController;
+import com.loaffie.titanfall.movement.PhaseController;
 import com.loaffie.titanfall.movement.StimController;
+import com.loaffie.titanfall.phase.PhaseShift;
 import com.loaffie.titanfall.stim.Stim;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -13,9 +16,9 @@ import net.minecraft.util.math.MathHelper;
 /**
  * The tactical abilities' crosshair readout, after Titanfall 2's tactical ring: a short arc round the
  * crosshair per ability that fills as its charge comes back (amber while refilling, cyan when ready) - the
- * Grapple's under the crosshair, the Stim's under it too or, when both are worn, over it - and for the
- * Grapple two brackets either side of the crosshair that light up when something the hook could bite is
- * under it and in range.
+ * first ability worn (Grapple, then Phase Shift, then Stim) under the crosshair, a second over it - and for
+ * the Grapple two brackets either side of the crosshair that light up when something the hook could bite is
+ * under it and in range. While phased, the Phase Shift's arc counts the phase down in white.
  */
 public final class TacticalHud {
 	private static final int RADIUS = 11;
@@ -28,6 +31,7 @@ public final class TacticalHud {
 	private static final int READY = 0xE05FD8FF;
 	private static final int CHARGING = 0xD0FF9A2E;
 	private static final int EMPTY = 0x60202830;
+	private static final int PHASED = 0xF0E8F6FF;
 	private static final int BRACKET_ON = 0xF0BDF3FF;
 	private static final int BRACKET_OFF = 0x50BDF3FF;
 
@@ -42,8 +46,9 @@ public final class TacticalHud {
 		}
 
 		boolean grapple = Grapple.isWorn(client.player);
+		boolean phase = PhaseShift.isWorn(client.player);
 		boolean stim = Stim.isWorn(client.player);
-		if (!grapple && !stim) {
+		if (!grapple && !phase && !stim) {
 			return;
 		}
 
@@ -51,8 +56,10 @@ public final class TacticalHud {
 		// below is drawn in single pixels mirrored about it, so the readout sits exactly round the crosshair.
 		int cx = (context.getScaledWindowWidth() - 15) / 2 + 7;
 		int cy = (context.getScaledWindowHeight() - 15) / 2 + 7;
+		int side = 1;
 		if (grapple) {
-			arc(context, cx, cy, GrappleController.meter(), GrappleController.ready(), 1);
+			arc(context, cx, cy, GrappleController.meter(), GrappleController.ready() ? READY : CHARGING, side);
+			side = -1;
 			int bracket = GrappleController.ready() && GrappleController.targetInRange() ? BRACKET_ON : BRACKET_OFF;
 			for (int s = -1; s <= 1; s += 2) {
 				int x = cx + s * BRACKET_GAP;
@@ -63,19 +70,31 @@ public final class TacticalHud {
 			}
 		}
 
+		if (phase) {
+			PhaseStates.State state = PhaseStates.of(client.player);
+			if (state != null && state.phased()) {
+				float left = 1.0F - (state.age + tickCounter.getTickDelta(false)) / state.ticks;
+				arc(context, cx, cy, MathHelper.clamp(left, 0.0F, 1.0F), PHASED, side);
+			} else {
+				arc(context, cx, cy, PhaseController.meter(), PhaseController.ready() ? READY : CHARGING, side);
+			}
+
+			side = -side;
+		}
+
 		if (stim) {
-			arc(context, cx, cy, StimController.meter(), StimController.ready(), grapple ? -1 : 1);
+			arc(context, cx, cy, StimController.meter(), StimController.ready() ? READY : CHARGING, side);
 		}
 	}
 
-	/** One charge arc: under the crosshair ({@code side} 1) or over it (-1), filled to {@code meter}. */
-	private static void arc(DrawContext context, int cx, int cy, double meter, boolean ready, int side) {
+	/** One charge arc: under the crosshair ({@code side} 1) or over it (-1), filled to {@code meter} in {@code fill}. */
+	private static void arc(DrawContext context, int cx, int cy, double meter, int fill, int side) {
 		int filled = (int) Math.floor(meter * DOTS + 1.0E-6);
 		for (int i = 0; i < DOTS; i++) {
 			float a = MathHelper.lerp(i / (float) (DOTS - 1), ARC_START, ARC_END);
 			int x = cx + Math.round(MathHelper.cos(a) * RADIUS);
 			int y = cy + side * Math.round(MathHelper.sin(a) * RADIUS);
-			int color = i < filled ? (ready ? READY : CHARGING) : EMPTY;
+			int color = i < filled ? fill : EMPTY;
 			context.fill(x, y, x + 1, y + 1, color);
 		}
 	}

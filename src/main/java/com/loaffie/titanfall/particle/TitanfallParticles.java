@@ -39,6 +39,14 @@ public final class TitanfallParticles {
 	public static final SimpleParticleType STIM_TRAIL = register("stim_trail");
 	/** Stim injection: a soft blue flare where the needle goes in. */
 	public static final SimpleParticleType STIM_FLASH = register("stim_flash");
+	/** Phase Shift: electric sparks thrown off the gauntlet's coil and off a pilot shifting in or out. */
+	public static final SimpleParticleType PHASE_SPARK = register("phase_spark");
+	/** Phase Shift: the flash a pilot comes back in. */
+	public static final SimpleParticleType PHASE_FLASH = register("phase_flash");
+	/** Phase Shift: the ring punched out round a pilot coming back. */
+	public static final SimpleParticleType PHASE_RING = register("phase_ring");
+	/** Phase Shift: soft light and smoke left along the way a pilot was heading as they vanish. */
+	public static final SimpleParticleType PHASE_WISP = register("phase_wisp");
 
 	private TitanfallParticles() {
 	}

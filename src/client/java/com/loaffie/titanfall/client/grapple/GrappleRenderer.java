@@ -1,5 +1,6 @@
 package com.loaffie.titanfall.client.grapple;
 
+import com.loaffie.titanfall.client.phase.PhaseStates;
 import com.loaffie.titanfall.grapple.Grapple;
 import com.loaffie.titanfall.movement.physics.HVec;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
@@ -76,7 +77,7 @@ public final class GrappleRenderer {
 		MatrixStack matrices = new MatrixStack();
 		for (Map.Entry<Integer, GrappleLine> entry : GrappleLines.all()) {
 			GrappleLine line = entry.getValue();
-			if (!line.active() || !(world.getEntityById(entry.getKey()) instanceof PlayerEntity player)) {
+			if (!line.active() || !(world.getEntityById(entry.getKey()) instanceof PlayerEntity player) || PhaseStates.hidden(player)) {
 				continue;
 			}
 

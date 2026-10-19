@@ -67,6 +67,19 @@ public class PilotParticle extends SpriteBillboardParticle {
 	public static final Style STIM_FLASH = new Style(Shape.BILLBOARD, 6, 7, 0.2F, 0.7F, 0.0F,
 			rgb(0xFFFFFF), rgb(0x8BE6FF), rgb(0x1F5BFF), 0.7F, 1.0F, 0.0F, false);
 
+	/** Phase Shift spark: a quick, hot white-blue fleck that snaps out and dies, like an electric arc. */
+	public static final Style PHASE_SPARK = new Style(Shape.STREAK, 4, 8, 0.03F, 0.012F, 3.2F,
+			rgb(0xFFFFFF), rgb(0x7CD0FF), rgb(0x1E4BFF), 1.0F, 0.78F, 0.15F, false);
+	/** Phase Shift return flash: a big white-blue bloom, gone in a few frames. */
+	public static final Style PHASE_FLASH = new Style(Shape.BILLBOARD, 5, 6, 0.9F, 1.6F, 0.0F,
+			rgb(0xFFFFFF), rgb(0x9DDCFF), rgb(0x2050FF), 0.85F, 1.0F, 0.0F, false);
+	/** Phase Shift return ring, lying flat round the pilot's feet. */
+	public static final Style PHASE_RING = new Style(Shape.RING, 8, 9, 0.2F, 1.9F, 0.0F,
+			rgb(0xE8F8FF), rgb(0x5FB8FF), rgb(0x1838FF), 0.7F, 1.0F, 0.0F, false);
+	/** Phase Shift wisp: a soft, slow, drifting glow left behind where a pilot shifted out. */
+	public static final Style PHASE_WISP = new Style(Shape.BILLBOARD, 14, 24, 0.22F, 0.5F, 0.0F,
+			rgb(0xBFE8FF), rgb(0x3F86E8), rgb(0x0C1A55), 0.42F, 0.86F, -0.01F, false);
+
 	private final Style style;
 	private final Vector3f ringNormal;
 	private final float spin;

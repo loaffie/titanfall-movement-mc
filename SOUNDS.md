@@ -1,4 +1,4 @@
-# Movement, Grapple and Stim sounds
+# Movement, Grapple, Stim and Phase Shift sounds
 
 The mod ships its own movement sounds, synthesised by `tools/generate-audio.py`. They are modelled on the
 *character* of Titanfall 2's pilot jumpkit, but every one is built from oscillators, filtered noise and
@@ -23,6 +23,11 @@ envelopes. Nothing is sampled from Titanfall 2 or any other game.
 | `stim_activate` | `stim/activate_1..2.ogg` | the injector's click and the hiss of the dose going in, then a rush: a deep swell, a tone climbing an octave and a half, and the first hard heartbeat |
 | `stim_loop` | `stim/loop.ogg` | a racing heart (150 bpm, lub-dub), blood rushing in the ears and a thin ringing (seamless loop, fades out with the stim) |
 | `stim_deactivate` | `stim/deactivate.ogg` | the comedown, two seconds before the stim ends: a tone sliding down, the heart slowing, a long exhale |
+| `phase_activate` | `phase/activate_1..2.ogg` | the coil charging with a quick whine and crackle, a reversed rush pulling the pilot out, then a hollow "whumm" with a tone falling through it and a ghostly shimmer |
+| `phase_loop` | `phase/loop.ogg` | while phased: a low drone beating against itself, hollow air swinging through it and a faint electric fizz (seamless loop; others hear it quieter) |
+| `phase_warning` | `phase/warning.ogg` | a tone and rush rising, tremolo speeding up, 1.5 seconds before the way back opens (Titanfall's cue timing) |
+| `phase_end` | `phase/end_1..2.ogg` | coming back: a hard reversed suck snapping into an electric crack, a punchy thump, a metallic ring and sparkle |
+| `phase_telefrag` | `phase/telefrag.ogg` | a crunching burst with a deep body hit, where someone is telefragged |
 
 Most one-shots have two or three variants that `sounds.json` picks between at random, and the game adds a ±4%
 pitch variation on top, so repeated moves don't sound canned.
@@ -35,12 +40,12 @@ python3 tools/generate-audio.py grapple_   # only the Grapple's
 ```
 
 Requires numpy, scipy and ffmpeg with libvorbis. It writes mono 44.1 kHz Ogg Vorbis into
-`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/` and `.../sounds/stim/`.
+`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/`, `.../sounds/stim/` and `.../sounds/phase/`.
 
 ## Using other audio
 
 Any resource pack can replace the files under `assets/titanfall_movement/sounds/movement/` and
-`sounds/grapple/` and `sounds/stim/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
+`sounds/grapple/`, `sounds/stim/` and `sounds/phase/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
 redistribute it.
 
 ## Adjusting

@@ -5,10 +5,12 @@
 	"client": [
 		"AbstractClientPlayerEntityMixin",
 		"CameraMixin",
+		"EntityRenderDispatcherMixin",
 		"EntityServerVelocityMixin",
 		"GameRendererMixin",
 		"HeldItemFeatureRendererMixin",
 		"HeldItemRendererMixin",
+		"InGameHudMixin",
 		"LivingEntityJumpMixin",
 		"LivingEntityTravelMixin",
 		"ParticleManagerMixin",
