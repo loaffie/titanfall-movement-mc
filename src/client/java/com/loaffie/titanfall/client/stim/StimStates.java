@@ -17,11 +17,11 @@ import java.util.Map;
  */
 public final class StimStates {
 	/** Length of the injection animation, seconds: reach for the hip, jab, and put it back. */
-	public static final float INJECT_SECONDS = 0.6F;
+	public static final float INJECT_SECONDS = 0.8F;
 	/** The end-of-stim sound plays this long before the stim ends (as Titanfall's deactivate cue does). */
 	private static final int DEACTIVATE_LEAD_TICKS = 40;
-	/** The tick of the injection animation the needle goes in (40% through it): the flare. */
-	private static final int JAB_TICK = Math.round(INJECT_SECONDS * 20.0F * 0.4F);
+	/** The tick of the injection animation the needle goes in (half way through it): the flare. */
+	private static final int JAB_TICK = Math.round(INJECT_SECONDS * 20.0F * 0.5F);
 
 	/** One running stim. */
 	public static final class State {
@@ -65,7 +65,7 @@ public final class StimStates {
 
 	/** A stim starts on {@code player} now. */
 	public static State start(PlayerEntity player, int boostTicks) {
-		int duration = (int) Math.round(TitanfallConfig.get().stimDurationSeconds * 20.0);
+		int duration = (int) Math.round(TitanfallConfig.get().stimLengthSeconds * 20.0);
 		State state = new State(boostTicks, Math.min(duration, boostTicks));
 		STATES.put(player.getId(), state);
 		StimSounds.activate(player, state);

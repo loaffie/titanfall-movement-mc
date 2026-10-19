@@ -1,4 +1,4 @@
-# Titanfall Movement 2.2 (Fabric 1.21.1)
+# Titanfall Movement 2.2.1 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -118,11 +118,13 @@ healing.
   Grapple, and the Stim has its own **Stim** key (unbound by default) under Controls > Titanfall Movement.
 - **Works like Titanfall 2's** (values from the game's `mp_ability_heal.txt`, `sh_stim.gnut`,
   `_health_regen.gnut` and `sh_consts.gnut`):
-  - **+40% speed for 3 seconds**, fading out over half a second after that. Walking and sprinting get
+  - **+40% speed for 5 seconds** (Titanfall's stim lasts 3; `stimLengthSeconds`), fading out over half a
+    second after that. Walking and sprinting get
     it on the server too, as a movement-speed attribute modifier. The pilot moves the mod runs itself also
     get it: the sprint take-off, the wall run's top speed and entry speed, and the skid hand-off.
-  - **Fast healing while it runs**: double the pilot's regen rate, starting 2 seconds after your last hit
-    instead of 5. That's enough to bring a hurt pilot back to full in about a second once it kicks in.
+  - **Fast healing while it runs, and for 2 seconds after it ends** (`stimHealLingerSeconds`): double the
+    pilot's regen rate, starting 2 seconds after your last hit instead of 5. That's enough to bring a hurt
+    pilot back to full in about a second once it kicks in.
   - **25-second recharge**, starting the moment you use it. The meter refills steadily, as in the game.
   - The view widens a little while it runs. Vanilla's speed-based FOV jump is taken back out so the
     widening stays subtle.
@@ -130,10 +132,12 @@ healing.
   - **Model:** a gunmetal autoinjector with grip rings, an amber plunger cap, a steel needle and a caged
     glass vial of glowing blue stim, in an olive holster with clamp bands.
   - **The vial is a charge gauge:** it empties as the plunger goes down and refills as the stim recharges.
-  - **First person:** whatever the right hand holds drops out of view. The bare right hand comes up with
-    the injector and jabs it in, the vial draining as it goes, and the item comes back afterwards.
-  - **Third person:** the right hand reaches to the hip, swings the injector up across the body and jabs
-    it into the chest with a blue flare, then puts it back.
+  - **First person:** whatever the right hand holds drops out of view. The right forearm rises into the
+    right of the screen with the injector in the fist, needle toward the chest, and stabs it in, the vial
+    draining as it goes. The item comes back afterwards.
+  - **Third person:** the right hand reaches to the hip and draws the injector, then the arm becomes a
+    forearm. Its joint moves from the shoulder to an elbow in front of the waist, and the fist stabs the
+    injector straight into the right side of the chest with a blue flare, then puts it back.
   - **While it runs:**
     - glowing blue trails stream from the pilot's shoulders and hips and hang in the air behind them;
     - the screen edges glow blue and pulse like a racing heartbeat;

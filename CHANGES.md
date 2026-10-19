@@ -1,3 +1,17 @@
+# 2.2.1 (Minecraft 1.21.1)
+
+- **Stim length** is now 5 seconds (`stimLengthSeconds`; Titanfall's own is 3). The setting was renamed, so
+  an old config's 3 is not carried over.
+- **Healing lingers.** The stim's fast healing carries on for 2 seconds after the stim ends
+  (`stimHealLingerSeconds`).
+- **A new stab animation** replaces the awkward swing across the body.
+  - Third person: after drawing the injector from the hip, the arm becomes a forearm. Its joint moves from
+    the shoulder to an elbow in front of the waist, so the forearm stands up in front of the body and the
+    fist stabs the injector straight back into the right side of the chest.
+  - First person: the forearm is drawn on its own, rising into the right of the screen with the needle
+    toward the chest, and stabs in toward the camera. The vial drains during the hold.
+  - The whole injection now takes 0.8 s, so the stab and the hold read clearly.
+
 # 2.2 (Minecraft 1.21.1)
 
 ## The Stim

@@ -240,8 +240,11 @@ public class TitanfallConfig {
 	// --- stim ---
 	// Titanfall 2's Stim, from the game's files: mp_ability_heal.txt, sh_stim.gnut, _health_regen.gnut and
 	// sh_consts.gnut.
-	/** How long a stim lasts, seconds ({@code fire_duration} 3.0 in multiplayer). The speed boost outlasts it by 0.5 s. */
-	public double stimDurationSeconds = 3.0;
+	/**
+	 * How long a stim lasts, seconds. Titanfall 2's is 3.0 ({@code fire_duration}); this mod's default is a longer
+	 * 5. The speed boost outlasts it by 0.5 s, as in the game.
+	 */
+	public double stimLengthSeconds = 5.0;
 	/** Speed boost, fraction ({@code STIM_EFFECT_SEVERITY} 0.4: +40%). */
 	public double stimSpeedBoost = 0.4;
 	/** Seconds to recharge ({@code ammo_per_shot} 200 / {@code regen_ammo_refill_rate} 8 = 25 s, from the moment of use). */
@@ -253,6 +256,8 @@ public class TitanfallConfig {
 	 * regen tick out of 100, doubled ({@code ABILITY_STIM_REGEN_MOD} 2.0).
 	 */
 	public double stimHealPerSecond = 1.2;
+	/** The stim's fast healing keeps going this long after the stim itself ends, seconds. */
+	public double stimHealLingerSeconds = 2.0;
 	/** Extra FOV while stimmed, fraction (scaled by the FOV Effects option). */
 	public double stimFovBoost = 0.06;
 	/** Screen-edge pulse and speed lines while stimmed. */
@@ -347,7 +352,8 @@ public class TitanfallConfig {
 		grappleCooldownSeconds = Math.max(0.0, grappleCooldownSeconds);
 		grappleRegenDelaySeconds = Math.max(0.0, grappleRegenDelaySeconds);
 		grappleDetachLengthMax = Math.max(grappleDetachLengthMin, grappleDetachLengthMax);
-		stimDurationSeconds = Math.max(0.25, Math.min(stimDurationSeconds, 30.0));
+		stimLengthSeconds = Math.max(0.25, Math.min(stimLengthSeconds, 30.0));
+		stimHealLingerSeconds = Math.max(0.0, Math.min(stimHealLingerSeconds, 30.0));
 		stimSpeedBoost = Math.max(0.0, Math.min(stimSpeedBoost, 2.0));
 		stimCooldownSeconds = Math.max(0.0, stimCooldownSeconds);
 		stimHealPerSecond = Math.max(0.0, stimHealPerSecond);

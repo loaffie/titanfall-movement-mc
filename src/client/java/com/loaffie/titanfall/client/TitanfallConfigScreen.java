@@ -93,7 +93,8 @@ public class TitanfallConfigScreen extends Screen {
 		slider("Grapple Cooldown", 0.0, 30.0, config.grappleCooldownSeconds, value -> config.grappleCooldownSeconds = value);
 		toggle("Tactical HUD", () -> config.grappleHud, () -> config.grappleHud = !config.grappleHud);
 		toggle("No Items On Line", () -> config.grappleBlocksItemUse, () -> config.grappleBlocksItemUse = !config.grappleBlocksItemUse);
-		slider("Stim Duration", 1.0, 10.0, config.stimDurationSeconds, value -> config.stimDurationSeconds = value);
+		slider("Stim Length", 1.0, 10.0, config.stimLengthSeconds, value -> config.stimLengthSeconds = value);
+		slider("Stim Heal After", 0.0, 5.0, config.stimHealLingerSeconds, value -> config.stimHealLingerSeconds = value);
 		slider("Stim Speed", 0.0, 1.0, config.stimSpeedBoost, value -> config.stimSpeedBoost = value);
 		slider("Stim Cooldown", 0.0, 60.0, config.stimCooldownSeconds, value -> config.stimCooldownSeconds = value);
 		slider("Stim Heal/s", 0.0, 2.0, config.stimHealPerSecond, value -> config.stimHealPerSecond = value);

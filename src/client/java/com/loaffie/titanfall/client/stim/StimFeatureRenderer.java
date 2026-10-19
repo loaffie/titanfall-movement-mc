@@ -13,12 +13,10 @@ import org.joml.Vector3f;
 
 /**
  * Draws the Stim on every player wearing it: the holster on the front of the right hip, with the injector
- * in it - or, during an injection, in the right fist with the needle driven into the chest.
+ * in it - or, during an injection, in the right fist with the needle aimed into the right side of the
+ * chest (the pose moves the fist; the needle goes in with it).
  */
 public class StimFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
-	/** Where the needle goes in: the front of the chest, a little right of centre (model pixels). */
-	private static final Vector3f CHEST = new Vector3f(-1.2F, 4.5F, -2.0F);
-
 	public StimFeatureRenderer(FeatureRendererContext<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> context) {
 		super(context);
 	}
@@ -48,13 +46,13 @@ public class StimFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEnt
 
 		if (inHand) {
 			// The chest point in the same camera-relative space the matrices end in.
-			Vector3f chest = modelRoot.transformPosition(new Vector3f(CHEST).div(16.0F));
+			Vector3f chest = modelRoot.transformPosition(new Vector3f(StimPoses.CHEST).div(16.0F));
 			boolean slim = player.getSkinTextures().model() == SkinTextures.Model.SLIM;
 			matrices.push();
 			model.rightArm.rotate(matrices);
 			matrices.scale(1.0F / 16.0F, 1.0F / 16.0F, 1.0F / 16.0F);
 			Vector3f fist = new Vector3f(slim ? -0.5F : -1.0F, 9.0F, -0.4F);
-			StimModel.renderInFist(matrices, vertexConsumers, light, fist, chest, StimAnimation.jab(t) * 1.5F, fill);
+			StimModel.renderInFist(matrices, vertexConsumers, light, fist, chest, 0.0F, fill);
 			matrices.pop();
 		}
 	}

@@ -26,7 +26,8 @@ import java.util.UUID;
  *   its last quarter second. Here it is a movement-speed attribute modifier, so walking and sprinting are
  *   faster on the server and the client alike (the client also scales the pilot moves it runs itself).</li>
  *   <li>While the stim runs, health regenerates at double rate, starting two seconds after the last hit
- *   instead of the usual five ({@code ABILITY_STIM_REGEN_MOD}, {@code ABILITY_STIM_REGEN_DELAY}).</li>
+ *   instead of the usual five ({@code ABILITY_STIM_REGEN_MOD}, {@code ABILITY_STIM_REGEN_DELAY}). Here the
+ *   healing also lingers for {@code stimHealLingerSeconds} after the stim ends.</li>
  *   <li>Other players are told, so they see the trail and hear the stim.</li>
  * </ul>
  *
@@ -69,7 +70,7 @@ public final class StimServer {
 
 	/** Boost length in ticks: the stim plus the half second the speed effect outlasts it. */
 	public static int boostTicks(TitanfallConfig config) {
-		return (int) Math.round((config.stimDurationSeconds + 0.5) * 20.0);
+		return (int) Math.round((config.stimLengthSeconds + 0.5) * 20.0);
 	}
 
 	private static void activate(ServerPlayerEntity player) {
@@ -86,7 +87,8 @@ public final class StimServer {
 
 		int boost = boostTicks(config);
 		LAST_USE.put(player.getUuid(), now);
-		ACTIVE.put(player.getUuid(), new Active(now, boost, (int) Math.round(config.stimDurationSeconds * 20.0)));
+		int heal = (int) Math.round((config.stimLengthSeconds + config.stimHealLingerSeconds) * 20.0);
+		ACTIVE.put(player.getUuid(), new Active(now, boost, heal));
 		StimSyncPayload sync = new StimSyncPayload(player.getId(), boost);
 		for (ServerPlayerEntity other : PlayerLookup.tracking(player)) {
 			if (other != player) {
@@ -113,15 +115,16 @@ public final class StimServer {
 				continue;
 			}
 
-			boolean over = elapsed >= active.boostTicks() || !player.isAlive();
-			float level = over ? 0.0F : Math.min(1.0F, (active.boostTicks() - elapsed) / (float) FADE_TICKS);
+			boolean boosting = elapsed < active.boostTicks() && player.isAlive();
+			float level = boosting ? Math.min(1.0F, (active.boostTicks() - elapsed) / (float) FADE_TICKS) : 0.0F;
 			setBoost(player, config.stimSpeedBoost * level);
-			if (over) {
+			if (!player.isAlive() || (!boosting && elapsed >= active.healTicks())) {
 				iterator.remove();
 				continue;
 			}
 
-			// Double-rate healing while the stim runs, once two seconds have passed since the last hit.
+			// Double-rate healing while the stim runs and for a while after, once two seconds have passed since
+			// the last hit.
 			int lastDamage = LAST_DAMAGE.getOrDefault(entry.getKey(), Integer.MIN_VALUE / 2);
 			if (elapsed < active.healTicks() && player.getHealth() < player.getMaxHealth()
 					&& now - lastDamage >= config.stimRegenDelaySeconds * 20.0) {
