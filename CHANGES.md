@@ -1,3 +1,16 @@
+# 2.4.2 (Minecraft 1.21.1)
+
+- **Pulse Blade: a new throw, overhand like a baseball, in first and third person.**
+  - Thrown with the main hand (the right, or the left for a left-handed player). It draws across the body
+    from the sheath on the left hip, and the kunai now leaves from that side.
+  - **First person:** the hand is pulled right back beside the head. The forearm fills the side of the view
+    and the kunai's blade points back, away from the throw. The throw is a last pull back, a whip over the
+    top that lets go as the arm reaches out, and a follow-through down and across the body, on the same
+    smooth curves as 2.4.1. The held weapon dips out of view while the kunai is up and comes back after.
+  - **Third person:** the arm pulls out, up and back with the blade pointing behind, then comes over the top
+    and follows through across the body. The held item is hidden while the kunai is in hand (it used to
+    stay in the throwing hand).
+
 # 2.4.1 (Minecraft 1.21.1)
 
 - **Pulse Blade, first person: a new hold and throw.** The old one twisted the wrist as the arm moved, kept

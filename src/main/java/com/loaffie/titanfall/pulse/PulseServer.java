@@ -73,7 +73,7 @@ public final class PulseServer {
 
 		PulseBladeEntity blade = new PulseBladeEntity(TitanfallEntities.PULSE_BLADE, player.getServerWorld());
 		blade.setOwner(player);
-		Vec3d origin = PulseBlade.origin(player.getEyePos(), payload.yaw(), pitch);
+		Vec3d origin = PulseBlade.origin(player.getEyePos(), payload.yaw(), pitch, PulseBlade.throwingArm(player));
 		blade.setPosition(origin);
 		Vec3d velocity = PulseBlade.launch(config, payload.yaw(), pitch, motion);
 		blade.setVelocity(velocity);

@@ -4,6 +4,7 @@ import com.loaffie.titanfall.client.grapple.GrappleFirstPerson;
 import com.loaffie.titanfall.client.phase.PhaseFirstPerson;
 import com.loaffie.titanfall.client.pulse.PulseFirstPerson;
 import com.loaffie.titanfall.client.stim.StimFirstPerson;
+import com.loaffie.titanfall.pulse.PulseBlade;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -24,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * throw with the hands,
  * before the hand buffers are flushed; keeps vanilla from drawing a second arm where the raised Grapple arm
  * or a Phase Shift or Pulse Blade hand already is; and lowers vanilla's right-hand item out of the way while the Stim is
- * injected.
+ * injected or the Pulse Blade thrown.
  */
 @Mixin(HeldItemRenderer.class)
 public abstract class HeldItemRendererMixin {
@@ -40,7 +41,7 @@ public abstract class HeldItemRendererMixin {
 
 		Arm arm = hand == Hand.MAIN_HAND ? local.getMainArm() : local.getMainArm().getOpposite();
 		if ((hand == Hand.MAIN_HAND && item.isEmpty() && GrappleFirstPerson.replacesMainArm(local)) || PhaseFirstPerson.replacesArm(local, arm)
-				|| PulseFirstPerson.replacesArm(local, arm)) {
+				|| (item.isEmpty() && PulseFirstPerson.replacesArm(local, arm))) {
 			ci.cancel();
 		}
 	}
@@ -55,7 +56,7 @@ public abstract class HeldItemRendererMixin {
 		PulseFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 	}
 
-	/** Vanilla's main-hand draw: lowered out of view while the right hand is busy injecting a Stim. */
+	/** Vanilla's main-hand draw: lowered out of view while the hand is busy injecting a Stim or throwing a Pulse Blade. */
 	@ModifyArg(method = "renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;Lnet/minecraft/client/network/ClientPlayerEntity;I)V",
 			at = @At(value = "INVOKE", target = RENDER_FIRST_PERSON_ITEM, ordinal = 0), index = 6)
 	private float titanfall$lowerMainHand(float equipProgress) {
@@ -75,6 +76,16 @@ public abstract class HeldItemRendererMixin {
 		}
 
 		Arm arm = mainHand ? player.getMainArm() : player.getMainArm().getOpposite();
-		return arm == Arm.RIGHT ? Math.max(equipProgress, StimFirstPerson.lowerRightHand(player, MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false))) : equipProgress;
+		float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false);
+		float lowered = equipProgress;
+		if (arm == Arm.RIGHT) {
+			lowered = Math.max(lowered, StimFirstPerson.lowerRightHand(player, tickDelta));
+		}
+
+		if (arm == PulseBlade.throwingArm(player)) {
+			lowered = Math.max(lowered, PulseFirstPerson.lowerMainHand(player, tickDelta));
+		}
+
+		return lowered;
 	}
 }

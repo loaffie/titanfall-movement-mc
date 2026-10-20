@@ -11,6 +11,7 @@ import net.minecraft.entity.damage.DamageType;
 import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -32,10 +33,10 @@ public final class PulseBlade {
 	private static final double GRAVITY_UNITS = 750.0 * 2.0;
 	/** The pilot's own motion carried into the throw ({@code projectile_inherit_owner_velocity_scale} 1), capped, blocks/tick. */
 	private static final double MAX_INHERITED = 2.0;
-	/** Where the kunai leaves the hand, from the eye: ahead, to the left (it is thrown left-handed) and down. */
+	/** Where the kunai leaves the hand, from the eye: ahead, out to the throwing arm's side, and a little up (an overhand throw). */
 	private static final double ORIGIN_AHEAD = 0.35;
-	private static final double ORIGIN_LEFT = 0.25;
-	private static final double ORIGIN_DOWN = 0.12;
+	private static final double ORIGIN_SIDE = 0.22;
+	private static final double ORIGIN_UP = 0.05;
 
 	private PulseBlade() {
 	}
@@ -54,11 +55,17 @@ public final class PulseBlade {
 		return config.pulseThrowSpeed / 20.0;
 	}
 
-	/** Where the kunai starts for a throw from {@code eye} with this view. */
-	public static Vec3d origin(Vec3d eye, float yaw, float pitch) {
+	/** The arm that throws: the pilot's main arm (it draws across the body from the sheath on the left hip). */
+	public static Arm throwingArm(LivingEntity entity) {
+		return entity.getMainArm();
+	}
+
+	/** Where the kunai starts for a throw from {@code eye} with this view, by {@code arm}. */
+	public static Vec3d origin(Vec3d eye, float yaw, float pitch, Arm arm) {
 		Vec3d look = Vec3d.fromPolar(pitch, yaw);
-		Vec3d left = Vec3d.fromPolar(0.0F, yaw - 90.0F);
-		return eye.add(look.multiply(ORIGIN_AHEAD)).add(left.multiply(ORIGIN_LEFT)).add(0.0, -ORIGIN_DOWN, 0.0);
+		Vec3d right = Vec3d.fromPolar(0.0F, yaw + 90.0F);
+		double side = arm == Arm.RIGHT ? ORIGIN_SIDE : -ORIGIN_SIDE;
+		return eye.add(look.multiply(ORIGIN_AHEAD)).add(right.multiply(side)).add(0.0, ORIGIN_UP, 0.0);
 	}
 
 	/** The kunai's starting velocity for a throw with this view, carrying the pilot's own motion. */

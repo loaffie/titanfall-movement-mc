@@ -1,4 +1,4 @@
-# Titanfall Movement 2.4.1 (Fabric 1.21.1)
+# Titanfall Movement 2.4.2 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -222,7 +222,7 @@ where it lands, and its pulses reveal everything around it, through walls.
   -             Amethyst Shard   -
   Iron Nugget   -                Redstone
   ```
-- **Worn on the left hip,** in a sheath on the front of the hip. With Trinkets it goes in the **belt** slot
+- **Worn on the left hip,** in a sheath on the front of the hip, and drawn across the body by the throwing hand. With Trinkets it goes in the **belt** slot
   (right-click it to equip; the belt holds one tactical, so it's the Pulse Blade or the Stim). Without
   Trinkets, hold it in the off hand. The sheath shows empty while the next kunai charges.
 - **Using it.** **Hold** Tactical Ability (`G`) to draw the kunai and aim: an orange dashed arc shows its
@@ -246,12 +246,15 @@ where it lands, and its pulses reveal everything around it, through walls.
     read-out window (green "SAFE" in the sheath, orange "ARMED" once drawn), a crenellated collar, a black
     grip with a warning label, a ribbed sleeve, a blue band, and a leaf-shaped blade with a carbon-weave
     inlay and glowing blue edges. It rides blade-down in an olive sheath.
-  - **First person:** the left forearm comes up from the hip into the lower left of the view, the kunai
-    gripped overhand with its blade up past the knuckles, and breathes a little while you aim. The throw is
-    one smooth motion: a short wind-up toward the shoulder, a fast snap forward that lets the kunai go as the
-    arm reaches out, and a follow-through down across the view.
-  - **Third person:** the left arm cocks back over the shoulder, then swings forward and down across the
-    body.
+  - **Thrown overhand, like a baseball, with your main hand** (the right, or the left if you're
+    left-handed), drawing across the body from the sheath. Titanfall swaps your weapon for the kunai's own
+    viewmodel; here your held item dips out of view while the kunai is up.
+  - **First person:** the hand pulls the kunai right back beside your head. The forearm fills the side of the
+    view and the blade points back, away from the throw, breathing a little while you aim. The throw is one
+    smooth motion: a last pull back, the arm whipping over the top, the kunai leaving as the arm reaches out,
+    and a follow-through down across the body.
+  - **Third person:** the arm pulls out, up and back with the blade pointing behind, then comes over the top
+    and follows through across the body. The held item is put away for the throw.
   - **In flight** it spins about its axis and leaves a thin blue streak. It bites in with sparks, and with
     every pulse its band and edges flare, a ring spreads over the surface, and a shell of blue light sweeps
     out to the edge of the radius.

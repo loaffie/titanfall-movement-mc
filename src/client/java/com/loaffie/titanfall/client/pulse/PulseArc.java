@@ -89,7 +89,7 @@ public final class PulseArc {
 		World world = player.getWorld();
 		float yaw = player.getYaw(tickDelta);
 		float pitch = player.getPitch(tickDelta);
-		Vec3d position = PulseBlade.origin(player.getCameraPosVec(tickDelta), yaw, pitch);
+		Vec3d position = PulseBlade.origin(player.getCameraPosVec(tickDelta), yaw, pitch, PulseBlade.throwingArm(player));
 		Vec3d velocity = PulseBlade.launch(config, yaw, pitch, player.getVelocity());
 		List<Vec3d> points = new ArrayList<>();
 		points.add(position);
