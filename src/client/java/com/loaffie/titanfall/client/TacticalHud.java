@@ -43,7 +43,7 @@ public final class TacticalHud {
 	public static void render(DrawContext context, RenderTickCounter tickCounter) {
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.player == null || client.options.hudHidden || !TitanfallConfig.get().grappleHud
-				|| !client.options.getPerspective().isFirstPerson() || client.player.isSpectator()) {
+				|| !client.options.getPerspective().isFirstPerson() || client.player.isSpectator() || PulseController.aiming(client.player)) {
 			return;
 		}
 

@@ -77,13 +77,8 @@ public final class PulseFirstPerson {
 	/** The share of the throw each key is reached at; the release comes just before the arm is out. */
 	private static final float[] TOSS_AT = {0.0F, 0.12F, 0.4F, 0.7F, 1.0F};
 
-	/**
-	 * The kunai in the fist (arm space, pixels, the arm's centre line at x = 0): gripped just behind the
-	 * knuckles, its axis out past them and a little along the fingers, so it points where the knuckles do -
-	 * back, while the arm is cocked.
-	 */
-	private static final Vector3f GRIP = new Vector3f(0.0F, 8.6F, -0.8F);
-	private static final Vector3f BLADE = new Vector3f(0.0F, 0.3F, -1.0F).normalize();
+	/** The fist's place along the arm (pixels from the joint): the middle of the hand. */
+	private static final float FIST_Y = 9.0F;
 	/** Breathing while held ready, blocks. */
 	private static final float SWAY = 0.005F;
 
@@ -127,7 +122,7 @@ public final class PulseFirstPerson {
 		// The arm's box sits off its joint (a right arm's is x -3..1 px, a left's -1..3; slim ones 0.5 px less):
 		// centre it on the forearm's axis.
 		float centre = (arm == Arm.RIGHT ? -1.0F : 1.0F) * (slim ? 0.5F : 1.0F);
-		Vector3f fistOnArm = new Vector3f(centre, GRIP.y, 0.0F).div(16.0F);
+		Vector3f fistOnArm = new Vector3f(centre, FIST_Y, 0.0F).div(16.0F);
 		Vector3f elbow = new Vector3f(pose.fist()).sub(pose.turn().transform(fistOnArm));
 
 		matrices.push();
@@ -136,10 +131,7 @@ public final class PulseFirstPerson {
 		renderForearm(matrices, consumers, player, arm, light);
 		if (state.inHand()) {
 			matrices.scale(1.0F / 16.0F, 1.0F / 16.0F, 1.0F / 16.0F);
-			matrices.translate(centre + GRIP.x, GRIP.y, GRIP.z);
-			matrices.multiply(new Quaternionf().rotationTo(new Vector3f(0.0F, 1.0F, 0.0F), BLADE));
-			matrices.translate(0.0F, -PulseModel.GRIP_Y, 0.0F);
-			PulseModel.renderKunai(matrices, consumers, light, true, 0.0F);
+			PulseModel.renderHeld(matrices, consumers, light, centre);
 		}
 
 		matrices.pop();

@@ -68,10 +68,80 @@ public final class PulseBlade {
 		return eye.add(look.multiply(ORIGIN_AHEAD)).add(right.multiply(side)).add(0.0, ORIGIN_UP, 0.0);
 	}
 
-	/** The kunai's starting velocity for a throw with this view, carrying the pilot's own motion. */
+	/** The kunai's starting velocity for a throw along this direction, carrying the pilot's own motion. */
 	public static Vec3d launch(TitanfallConfig config, float yaw, float pitch, Vec3d ownerVelocity) {
-		Vec3d inherited = ownerVelocity.lengthSquared() > MAX_INHERITED * MAX_INHERITED ? ownerVelocity.normalize().multiply(MAX_INHERITED) : ownerVelocity;
-		return Vec3d.fromPolar(pitch, yaw).multiply(speed(config)).add(inherited);
+		return Vec3d.fromPolar(pitch, yaw).multiply(speed(config)).add(inherited(ownerVelocity));
+	}
+
+	/** The share of the pilot's motion the kunai carries: all of it, capped. */
+	public static Vec3d inherited(Vec3d ownerVelocity) {
+		return ownerVelocity.lengthSquared() > MAX_INHERITED * MAX_INHERITED ? ownerVelocity.normalize().multiply(MAX_INHERITED) : ownerVelocity;
+	}
+
+	/**
+	 * The throw direction that lands the kunai on {@code target} - what's under the crosshair - from {@code
+	 * origin} (the hand, off to the side of the eye), as a unit vector, or null if it can't reach. Shooters
+	 * converge projectiles on the crosshair the same way; thrown straight along the view, the kunai would land
+	 * off to the throwing hand's side and low.
+	 *
+	 * <p>The flight steps once a tick - move by the velocity, then fall by {@link #gravity} - so after {@code n}
+	 * ticks it has moved {@code n v - g n(n-1)/2} (up). With {@code v = s d + u} (speed {@code s} along unit
+	 * {@code d}, plus the inherited motion {@code u}) landing on the target needs
+	 * {@code s d n = D - u n + g n(n-1)/2 up}, where {@code D} is the target from the origin: solved for the
+	 * flight time {@code n} at which the right side's length is {@code s n} (the flatter arc), then for
+	 * {@code d}.
+	 */
+	public static Vec3d aimAt(TitanfallConfig config, Vec3d origin, Vec3d target, Vec3d ownerVelocity) {
+		double s = speed(config);
+		double g = gravity();
+		Vec3d u = inherited(ownerVelocity);
+		Vec3d d = target.subtract(origin);
+		double n = d.length() / s;
+		if (n < 1.0E-3) {
+			return null;
+		}
+
+		// Newton's method on f(n) = |R(n)| - s n, from the straight-line time; it settles in a few steps.
+		for (int i = 0; i < 12; i++) {
+			Vec3d r = required(d, u, g, n);
+			double f = r.length() - s * n;
+			Vec3d r2 = required(d, u, g, n + 1.0E-3);
+			double slope = (r2.length() - s * (n + 1.0E-3) - f) / 1.0E-3;
+			if (Math.abs(slope) < 1.0E-9) {
+				break;
+			}
+
+			double next = n - f / slope;
+			if (!Double.isFinite(next) || next <= 0.0) {
+				return null;
+			}
+
+			n = next;
+			if (Math.abs(f) < 1.0E-5) {
+				break;
+			}
+		}
+
+		Vec3d r = required(d, u, g, n);
+		if (Math.abs(r.length() - s * n) > 1.0E-2) {
+			return null;
+		}
+
+		return r.normalize();
+	}
+
+	private static Vec3d required(Vec3d d, Vec3d u, double g, double n) {
+		return d.subtract(u.multiply(n)).add(0.0, g * n * (n - 1.0) / 2.0, 0.0);
+	}
+
+	/** The yaw (degrees, Minecraft's) of a direction. */
+	public static float yawOf(Vec3d direction) {
+		return (float) (MathHelper.atan2(-direction.x, direction.z) * MathHelper.DEGREES_PER_RADIAN);
+	}
+
+	/** The pitch (degrees, Minecraft's: positive down) of a unit direction. */
+	public static float pitchOf(Vec3d direction) {
+		return (float) (-Math.asin(MathHelper.clamp(direction.y, -1.0, 1.0)) * MathHelper.DEGREES_PER_RADIAN);
 	}
 
 	/** Pulse radius, blocks (Titanfall's {@code SONAR_GRENADE_RADIUS} 1250 u). */

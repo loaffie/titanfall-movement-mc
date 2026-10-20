@@ -34,7 +34,8 @@ import java.util.List;
  * running out to where it will stick, with a ring on the surface there - or round whoever it would hit.
  *
  * <p>The trace runs the kunai's own flight (the same start, launch and gravity as the thrown entity, tick by
- * tick, stopping at blocks and at anything living), so the line shows exactly where it lands.
+ * tick, stopping at blocks and at anything living) for the throw {@link PulseAim} makes - converging on the
+ * crosshair - so the line runs out to exactly where it lands, under the crosshair.
  */
 public final class PulseArc {
 	/** Longest flight traced, ticks (two seconds: about 175 blocks at full speed). */
@@ -85,12 +86,10 @@ public final class PulseArc {
 
 	/** Runs the kunai's flight from the hand as it would be thrown now. */
 	private static Trace trace(ClientPlayerEntity player, float tickDelta) {
-		TitanfallConfig config = TitanfallConfig.get();
 		World world = player.getWorld();
-		float yaw = player.getYaw(tickDelta);
-		float pitch = player.getPitch(tickDelta);
-		Vec3d position = PulseBlade.origin(player.getCameraPosVec(tickDelta), yaw, pitch, PulseBlade.throwingArm(player));
-		Vec3d velocity = PulseBlade.launch(config, yaw, pitch, player.getVelocity());
+		PulseAim.Aim aim = PulseAim.of(player, tickDelta);
+		Vec3d position = aim.origin();
+		Vec3d velocity = aim.velocity();
 		List<Vec3d> points = new ArrayList<>();
 		points.add(position);
 		for (int tick = 0; tick < MAX_TICKS; tick++) {

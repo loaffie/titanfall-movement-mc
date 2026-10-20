@@ -1,3 +1,25 @@
+# 2.4.3 (Minecraft 1.21.1)
+
+- **Pulse Blade lands on the crosshair.**
+  - Why it missed: the kunai leaves from the throwing hand, off to the side of the eye, and was thrown
+    parallel to the view, so it landed low and to that side. Minecraft's small downward speed on a standing
+    player made it lower still.
+  - The throw is now solved to converge on whatever is under the crosshair (up to 160 blocks; blocks and
+    living things), allowing for gravity and the motion it carries.
+  - The aiming arc and the throw share the solution. The server takes the direction from the client, within
+    20 degrees of its view.
+  - Measured in game: within 1-6 cm of the crosshair point at 2-25 blocks (the 6 cm is the tip sinking into
+    the surface).
+  - A standing pilot no longer passes their resting downward speed to the throw.
+- **Crosshair hidden while aiming:** the crosshair and the tactical ring give way to the arc and its landing
+  ring while the kunai is up.
+- **The kunai sits properly in the hand, in both views.**
+  - It's held like a vanilla sword: gripped at the end of the fist, its grip and ring in the hand and the
+    blade leaving through the front, angled past the fingers.
+  - Before, it went through the flat of the hand in first person, poked out of the end of the fist on the
+    throw, and was buried in the arm in third person.
+  - It's placed in the arm's own space, so it turns with the wrist through the whole throw.
+
 # 2.4.2 (Minecraft 1.21.1)
 
 - **Pulse Blade: a new throw, overhand like a baseball, in first and third person.**

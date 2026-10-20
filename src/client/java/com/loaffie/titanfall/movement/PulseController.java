@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.movement;
 
 import com.loaffie.titanfall.client.grapple.GrappleSounds;
+import com.loaffie.titanfall.client.pulse.PulseAim;
 import com.loaffie.titanfall.client.pulse.PulseSounds;
 import com.loaffie.titanfall.client.pulse.PulseStates;
 import com.loaffie.titanfall.config.TitanfallConfig;
@@ -40,7 +41,7 @@ public final class PulseController {
 
 		releaseQueued = false;
 		PulseStates.draw(player);
-		send(new PulseThrowPayload(PulseThrowPayload.AIM, 0.0F, 0.0F, 0.0, 0.0, 0.0));
+		send(new PulseThrowPayload(PulseThrowPayload.AIM, 0.0F, 0.0F, 0.0F, 0.0F, 0.0, 0.0, 0.0));
 	}
 
 	/** Start of every client tick, with whether the key is still held: throws on release, lets go at the release point. */
@@ -54,7 +55,7 @@ public final class PulseController {
 		if (!PulseBlade.isWorn(player) || PhaseShift.isPhased(player)) {
 			if (state.stage != PulseStates.Stage.THROW) {
 				PulseStates.cancel(player);
-				send(new PulseThrowPayload(PulseThrowPayload.CANCEL, 0.0F, 0.0F, 0.0, 0.0, 0.0));
+				send(new PulseThrowPayload(PulseThrowPayload.CANCEL, 0.0F, 0.0F, 0.0F, 0.0F, 0.0, 0.0, 0.0));
 			}
 
 			return;
@@ -75,8 +76,11 @@ public final class PulseController {
 	private static void release(ClientPlayerEntity player) {
 		meter = 0.0;
 		PulseSounds.toss(player);
-		Vec3d motion = player.getVelocity();
-		send(new PulseThrowPayload(PulseThrowPayload.THROW, player.getYaw(), player.getPitch(), motion.x, motion.y, motion.z));
+		// The same throw the arc showed: from the hand, converging on the crosshair.
+		PulseAim.Aim aim = PulseAim.of(player, 1.0F);
+		Vec3d motion = PulseAim.motion(player);
+		send(new PulseThrowPayload(PulseThrowPayload.THROW, player.getYaw(), player.getPitch(), aim.aimYaw(), aim.aimPitch(),
+				motion.x, motion.y, motion.z));
 	}
 
 	private static void send(PulseThrowPayload payload) {

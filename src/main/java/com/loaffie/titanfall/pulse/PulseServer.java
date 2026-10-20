@@ -24,6 +24,8 @@ import java.util.UUID;
 public final class PulseServer {
 	/** Ticks of slack on the cooldown check, for latency. */
 	private static final int COOLDOWN_SLACK_TICKS = 20;
+	/** The most the throw may turn from the view to converge on the crosshair, degrees. */
+	private static final double MAX_CONVERGENCE = 20.0;
 
 	private static final Map<UUID, Long> LAST_THROW = new HashMap<>();
 
@@ -60,7 +62,8 @@ public final class PulseServer {
 		Long last = LAST_THROW.get(player.getUuid());
 		long cooldown = Math.round(config.pulseCooldownSeconds * 20.0) - COOLDOWN_SLACK_TICKS;
 		if (PhaseShift.isPhased(player) || (last != null && now - last < cooldown)
-				|| !Float.isFinite(payload.yaw()) || !Float.isFinite(payload.pitch())) {
+				|| !Float.isFinite(payload.yaw()) || !Float.isFinite(payload.pitch())
+				|| !Float.isFinite(payload.aimYaw()) || !Float.isFinite(payload.aimPitch())) {
 			return false;
 		}
 
@@ -75,7 +78,12 @@ public final class PulseServer {
 		blade.setOwner(player);
 		Vec3d origin = PulseBlade.origin(player.getEyePos(), payload.yaw(), pitch, PulseBlade.throwingArm(player));
 		blade.setPosition(origin);
-		Vec3d velocity = PulseBlade.launch(config, payload.yaw(), pitch, motion);
+		// The throw converges on the client's crosshair; a direction far off the view is not a throw from it.
+		float aimPitch = MathHelper.clamp(payload.aimPitch(), -90.0F, 90.0F);
+		Vec3d look = Vec3d.fromPolar(pitch, payload.yaw());
+		Vec3d aim = Vec3d.fromPolar(aimPitch, payload.aimYaw());
+		boolean converging = look.dotProduct(aim) >= Math.cos(Math.toRadians(MAX_CONVERGENCE));
+		Vec3d velocity = converging ? PulseBlade.launch(config, payload.aimYaw(), aimPitch, motion) : PulseBlade.launch(config, payload.yaw(), pitch, motion);
 		blade.setVelocity(velocity);
 		blade.setYaw((float) (MathHelper.atan2(velocity.x, velocity.z) * MathHelper.DEGREES_PER_RADIAN));
 		blade.setPitch((float) (MathHelper.atan2(velocity.y, velocity.horizontalLength()) * MathHelper.DEGREES_PER_RADIAN));

@@ -12,7 +12,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -51,6 +50,10 @@ public final class PulseModel {
 	private static final float HIP_TILT = -16.0F;
 	/** Mesh depth of the sheath's clip: it sits on the body's front face. */
 	private static final float CLIP_BACK = 0.62F;
+
+	/** The held kunai: its grip near the end of the fist (arm pixels), and its axis out of the front of the hand. */
+	private static final Vector3f HELD_GRIP = new Vector3f(0.0F, 9.4F, -1.5F);
+	private static final Vector3f HELD_AXIS = new Vector3f(0.0F, 0.55F, -0.83F).normalize();
 
 	private PulseModel() {
 	}
@@ -96,21 +99,17 @@ public final class PulseModel {
 	}
 
 	/**
-	 * The kunai in a fist: held round its grip at {@code grip} (pixels, in the current matrices' space) with the
-	 * tip aimed at {@code target} (in the space the matrices end in - camera-relative).
+	 * The kunai in a fist, in the arm part's own space (pixels, after the arm's transform; {@code centre} is the
+	 * arm's centre line, 1 px off the joint for a wide arm, 0.5 for a slim one). Held the way vanilla holds a
+	 * sword: gripped at the end of the fist, its grip and ring inside the hand and the blade leaving through the
+	 * front of the hand, angled out past the fingers - so it turns with the wrist through the whole throw.
 	 */
-	public static void renderInHand(MatrixStack matrices, VertexConsumerProvider consumers, int light, Vector3f grip, Vector3f target, boolean armed) {
-		Vector3f local = new Matrix4f(matrices.peek().getPositionMatrix()).invert().transformPosition(new Vector3f(target));
-		Vector3f aim = local.sub(grip);
-		if (aim.lengthSquared() < 1.0E-6F) {
-			aim.set(0.0F, 1.0F, 0.0F);
-		}
-
+	public static void renderHeld(MatrixStack matrices, VertexConsumerProvider consumers, int light, float centre) {
 		matrices.push();
-		matrices.translate(grip.x, grip.y, grip.z);
-		matrices.multiply(new Quaternionf().rotationTo(new Vector3f(0.0F, 1.0F, 0.0F), aim.normalize()));
+		matrices.translate(centre, HELD_GRIP.y, HELD_GRIP.z);
+		matrices.multiply(new Quaternionf().rotationTo(new Vector3f(0.0F, 1.0F, 0.0F), HELD_AXIS));
 		matrices.translate(0.0F, -GRIP_Y, 0.0F);
-		renderKunai(matrices, consumers, light, armed, 0.0F);
+		renderKunai(matrices, consumers, light, true, 0.0F);
 		matrices.pop();
 	}
 

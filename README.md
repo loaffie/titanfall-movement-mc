@@ -1,4 +1,4 @@
-# Titanfall Movement 2.4.2 (Fabric 1.21.1)
+# Titanfall Movement 2.4.3 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -225,8 +225,10 @@ where it lands, and its pulses reveal everything around it, through walls.
 - **Worn on the left hip,** in a sheath on the front of the hip, and drawn across the body by the throwing hand. With Trinkets it goes in the **belt** slot
   (right-click it to equip; the belt holds one tactical, so it's the Pulse Blade or the Stim). Without
   Trinkets, hold it in the off hand. The sheath shows empty while the next kunai charges.
-- **Using it.** **Hold** Tactical Ability (`G`) to draw the kunai and aim: an orange dashed arc shows its
-  flight, with a ring where it will stick (or round whoever it would hit). **Let go** to throw. A quick tap
+- **Using it.** **Hold** Tactical Ability (`G`) to draw the kunai and aim: the crosshair gives way to an
+  orange dashed arc showing its flight, with a ring where it will stick (or round whoever it would hit).
+  **Let go** to throw. The throw converges on whatever is under the crosshair, so it lands right where you
+  aim, even though it leaves from your hand off to the side. A quick tap
   draws and throws in one motion. If you also wear the Grapple or Phase Shift, they take the key, and the
   Pulse Blade has its own **Pulse Blade** key (unbound by default) under Controls.
 - **Works like Titanfall 2's** (values from the game's `mp_weapon_grenade_sonar.txt` / `.nut` and
@@ -255,6 +257,8 @@ where it lands, and its pulses reveal everything around it, through walls.
     and a follow-through down across the body.
   - **Third person:** the arm pulls out, up and back with the blade pointing behind, then comes over the top
     and follows through across the body. The held item is put away for the throw.
+  - **In the hand** the kunai sits as a sword does: gripped at the end of the fist, the blade leaving through
+    the front of the hand. It turns with the wrist, the same way in both views.
   - **In flight** it spins about its axis and leaves a thin blue streak. It bites in with sparks, and with
     every pulse its band and edges flare, a ring spreads over the surface, and a shell of blue light sweeps
     out to the edge of the radius.
