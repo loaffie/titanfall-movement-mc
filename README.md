@@ -1,4 +1,4 @@
-# Titanfall Movement 2.4 (Fabric 1.21.1)
+# Titanfall Movement 2.4.1 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -246,8 +246,10 @@ where it lands, and its pulses reveal everything around it, through walls.
     read-out window (green "SAFE" in the sheath, orange "ARMED" once drawn), a crenellated collar, a black
     grip with a warning label, a ribbed sleeve, a blue band, and a leaf-shaped blade with a carbon-weave
     inlay and glowing blue edges. It rides blade-down in an olive sheath.
-  - **First person:** the left hand comes up holding the kunai overhand, tip forward, and holds it cocked
-    while you aim. On the throw it whips forward and lets go.
+  - **First person:** the left forearm comes up from the hip into the lower left of the view, the kunai
+    gripped overhand with its blade up past the knuckles, and breathes a little while you aim. The throw is
+    one smooth motion: a short wind-up toward the shoulder, a fast snap forward that lets the kunai go as the
+    arm reaches out, and a follow-through down across the view.
   - **Third person:** the left arm cocks back over the shoulder, then swings forward and down across the
     body.
   - **In flight** it spins about its axis and leaves a thin blue streak. It bites in with sparks, and with

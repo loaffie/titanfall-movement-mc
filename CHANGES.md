@@ -1,3 +1,14 @@
+# 2.4.1 (Minecraft 1.21.1)
+
+- **Pulse Blade, first person: a new hold and throw.** The old one twisted the wrist as the arm moved, kept
+  the kunai aimed at a fixed point instead of in the hand, and jumped between two poses.
+  - **Hold:** the forearm leans in across the lower left of the view like vanilla's hand, with the kunai
+    fixed in the fist (gripped overhand, blade up past the knuckles). It breathes a little while you aim.
+  - **Throw:** a keyframed wind-up, snap and follow-through. The hand runs along a smooth curve through
+    the keys with its turn blended between them. The easing keeps the speed continuous through the
+    release, which lands just before the arm is fully out.
+  - The draw rises from the hip with the same hand pose.
+
 # 2.4 (Minecraft 1.21.1)
 
 ## Pulse Blade
