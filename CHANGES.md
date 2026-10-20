@@ -1,3 +1,10 @@
+# 2.5.1 (Minecraft 1.21.1)
+
+- **Cloak: a smaller, compact wrist device.** The forearm-long bracer is replaced with a slim band close round
+  the wrist (2.5 px wide where it was 5) and a small, low module on top of it. The module carries two
+  emitter lenses (it had three), light strips down its sides, a tiny dial and a short cable back along the
+  forearm. The side field rails are gone, and the mesh is a third lighter (616 triangles from 1016).
+
 # 2.5 (Minecraft 1.21.1)
 
 ## Cloak

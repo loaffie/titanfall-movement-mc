@@ -13,15 +13,15 @@ import org.joml.Quaternionf;
  * model ({@code models/item/pilot_cloak.json}) shrinks it to nothing in the hands, because a held Cloak is
  * worn - the feature renderer draws it on the forearm instead.
  *
- * <p>Vanilla hands this renderer a one-block cube (0..1) after the model's display transform. The bracer
- * (about 5 x 8 x 6 px) is centred in it lying along the item's X axis, its lenses up toward the viewer, and
- * scaled so its 8 px length fills 85% of the block.
+ * <p>Vanilla hands this renderer a one-block cube (0..1) after the model's display transform. The wrist band
+ * (about 4.5 x 5 x 5 px with its cable) is centred in it lying along the item's X axis, its lenses up toward
+ * the viewer, and scaled so it fills 80% of the block.
  */
 public final class CloakItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 	/** Mesh bounds centre, pixels. */
-	private static final float CENTRE_Y = 5.6F;
-	private static final float CENTRE_Z = -0.6F;
-	private static final float SCALE = 0.85F / 8.0F;
+	private static final float CENTRE_Y = 7.4F;
+	private static final float CENTRE_Z = -0.45F;
+	private static final float SCALE = 0.8F / 5.2F;
 	/** Mesh +X to item +Z, mesh +Y (toward the hand) to item -X, mesh -Z (the top, with the lenses) to item +Y. */
 	private static final Quaternionf LAY_FLAT = new Quaternionf().setFromNormalized(new Matrix3f(
 			0.0F, 0.0F, 1.0F,

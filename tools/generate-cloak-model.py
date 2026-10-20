@@ -2,9 +2,9 @@
 """Build the Cloak bracer: its mesh (OBJ), texture atlas and item sprite.
 
 Titanfall 2's Cloak has no device of its own on screen; this one is a wrist-mounted field projector worn on
-the off-hand forearm: an armoured bracer, a low housing along the top of the forearm carrying a row of three
-round emitter lenses, two field rails down the sides with light strips in them, a dial at the wrist end and a
-cable running from the housing up toward the elbow, into the suit.
+the off-hand wrist: a slim band close round the wrist and a small, low module on top of it with two round
+emitter lenses, light strips down its sides, a tiny dial and a short cable tucked back along the forearm,
+into the suit.
 
 Usage (from the repository root):
 
@@ -21,9 +21,9 @@ x = 0, +Y from the shoulder (y = -2) down to the hand (y = 10), -Z the front of 
 when the arm is raised). The renderer moves it onto either arm (mirroring it for the right).
 
 Objects:
-    bracer - the bracer, housing, rails, dial and cable (lit)
-    lens   - the three emitter lenses (full-bright, tinted by the charge)
-    strip  - the light strips in the side rails (full-bright, tinted by the charge)
+    bracer - the wrist band, module, dial and cable (lit)
+    lens   - the two emitter lenses (full-bright, tinted by the charge)
+    strip  - the light strips down the module's sides (full-bright, tinted by the charge)
 """
 from __future__ import annotations
 
@@ -38,35 +38,31 @@ OBJ = ROOT / "src/main/resources/assets/titanfall_movement/models/entity/cloak.o
 PNG = ROOT / "src/main/resources/assets/titanfall_movement/textures/entity/cloak.png"
 ICON = ROOT / "src/main/resources/assets/titanfall_movement/textures/item/pilot_cloak.png"
 
-LENS_YS = (5.6, 6.75, 7.9)
+LENS_YS = (7.35, 8.25)
 
 
 def build():
     m = Mesh()
     b = "bracer"
-    # Bracer round the forearm, cuffed at the elbow end and the wrist.
-    m.add(b, bevel_box(-2.32, 4.4, -2.32, 2.32, 9.3, 2.32, 0.3), "dark")
-    m.add(b, bevel_box(-2.5, 4.1, -2.5, 2.5, 4.9, 2.5, 0.25), "shell")
-    m.add(b, bevel_box(-2.52, 8.8, -2.52, 2.52, 9.6, 2.52, 0.25), "shell")
-    # The housing along the top of the forearm and its dark face plate.
-    m.add(b, bevel_box(-1.55, 4.9, -3.25, 1.55, 8.65, -2.15, 0.35), "shell")
-    m.add(b, bevel_box(-1.2, 5.05, -3.42, 1.2, 8.5, -3.15, 0.12), "black")
-    # Emitter lenses: a steel bezel each, the glass set into it (separate object).
+    # A slim band round the wrist, sitting close to the arm, with a thin cuff at each edge.
+    m.add(b, bevel_box(-2.16, 6.7, -2.16, 2.16, 9.1, 2.16, 0.18), "dark")
+    m.add(b, bevel_box(-2.24, 6.55, -2.24, 2.24, 6.85, 2.24, 0.08), "shell")
+    m.add(b, bevel_box(-2.24, 8.95, -2.24, 2.24, 9.25, 2.24, 0.08), "shell")
+    # The module: a small low housing on top of the wrist and its dark face plate.
+    m.add(b, bevel_box(-1.0, 6.85, -2.75, 1.0, 8.85, -2.12, 0.18), "shell")
+    m.add(b, bevel_box(-0.78, 6.95, -2.86, 0.78, 8.75, -2.7, 0.06), "black")
+    # Two emitter lenses in steel bezels, the glass set into them (separate object).
     for y in LENS_YS:
-        m.add(b, cylinder("z", (0.0, y, 0.0), 0.48, -3.6, -3.3, 12, 0.05), "metal")
-    # Field rails down both sides, the light strips set into them (separate object).
-    for side in (-1, 1):
-        m.add(b, bevel_box(side * 2.3 - 0.28, 5.0, -1.45, side * 2.3 + 0.28, 8.7, 1.1, 0.1), "metal")
-    # Dial at the wrist end, and the cable from the housing up toward the elbow.
-    m.add(b, cylinder("z", (0.95, 8.95, 0.0), 0.36, -3.25, -2.7, 10, 0.05), "accent")
-    m.add(b, capsule_segment((-0.9, 5.0, -2.85), (-1.25, 3.2, -2.6), 0.42), "cable")
-    m.add(b, capsule_segment((-1.25, 3.2, -2.6), (-1.6, 1.6, -2.25), 0.42), "cable")
+        m.add(b, cylinder("z", (0.0, y, 0.0), 0.32, -3.02, -2.8, 10, 0.03), "metal")
+    # A tiny dial on the side of the housing, and a short cable tucked back along the forearm.
+    m.add(b, cylinder("x", (0.0, 7.85, -2.45), 0.2, 1.0, 1.18, 8, 0.03), "accent")
+    m.add(b, capsule_segment((-0.6, 6.9, -2.45), (-0.95, 5.6, -2.25), 0.26), "cable")
 
     for y in LENS_YS:
-        m.add("lens", cylinder("z", (0.0, y, 0.0), 0.33, -3.68, -3.55, 12), "light")
+        m.add("lens", cylinder("z", (0.0, y, 0.0), 0.22, -3.08, -3.0, 10), "light")
+    # Light strips along both sides of the housing.
     for side in (-1, 1):
-        for z in (-0.95, 0.35):
-            m.add("strip", bevel_box(side * 2.58 - 0.04, 5.3, z, side * 2.58 + 0.04, 8.4, z + 0.22, 0.02), "light")
+        m.add("strip", bevel_box(side * 1.02 - 0.03, 7.1, -2.6, side * 1.02 + 0.03, 8.6, -2.42, 0.01), "light")
     return m
 
 

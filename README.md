@@ -1,4 +1,4 @@
-# Titanfall Movement 2.5 (Fabric 1.21.1)
+# Titanfall Movement 2.5.1 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -224,9 +224,9 @@ invisible.
   ```
 - **Worn on the off-hand forearm** (the left for a right-handed player). With Trinkets it goes in the
   **off-hand glove** slot (right-click it to equip); without Trinkets, hold it in the off hand. The game
-  shows no device for it, so this one is a bracer: a housing along the top of the forearm with three emitter
-  lenses, light strips in field rails down its sides, a dial and a cable up toward the elbow. Its lights glow
-  pale cyan when charged and amber while charging.
+  shows no device for it, so this one is a compact wrist unit: a slim band close round the wrist with a small,
+  low module on top - two emitter lenses, light strips down its sides, a tiny dial and a short cable tucked
+  back along the forearm. Its lights glow pale cyan when charged and amber while charging.
 - **Using it.** Press **Tactical Ability** (`G`). If you also wear the Grapple or Phase Shift, they take the
   key, and the Cloak has its own **Cloak** key (unbound by default) under Controls. Once on, it can't be
   switched off early.
