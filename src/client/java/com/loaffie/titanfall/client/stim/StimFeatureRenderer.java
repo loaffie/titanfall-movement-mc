@@ -13,8 +13,9 @@ import org.joml.Vector3f;
 
 /**
  * Draws the Stim on every player wearing it: the holster on the front of the right hip, with the injector
- * in it - or, during an injection, in the right fist with the needle aimed into the right side of the
- * chest (the pose moves the fist; the needle goes in with it).
+ * in it - or, during an injection, in the right fist. Drawn, it comes out lying as it did in the holster
+ * and turns as the hand rises until the needle aims into the right side of the chest (the pose moves the
+ * fist; the needle goes in with it), and turns back the same way as it is put away.
  */
 public class StimFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
 	public StimFeatureRenderer(FeatureRendererContext<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> context) {
@@ -38,6 +39,8 @@ public class StimFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEnt
 		model.body.rotate(matrices);
 		StimModel.onHip(matrices);
 		StimModel.renderHolster(matrices, vertexConsumers, light);
+		// Where the holstered needle points, for the injector's aim as it leaves and re-enters the holster.
+		Vector3f holsteredTip = matrices.peek().getPositionMatrix().transformPosition(new Vector3f(0.0F, StimModel.NEEDLE_Y, 0.0F));
 		if (!inHand) {
 			StimModel.renderInjector(matrices, vertexConsumers, light, fill);
 		}
@@ -47,12 +50,12 @@ public class StimFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEnt
 		if (inHand) {
 			// The chest point in the same camera-relative space the matrices end in.
 			Vector3f chest = modelRoot.transformPosition(new Vector3f(StimPoses.CHEST).div(16.0F));
+			Vector3f target = holsteredTip.lerp(chest, 1.0F - StimAnimation.toHip(t));
 			boolean slim = player.getSkinTextures().model() == SkinTextures.Model.SLIM;
 			matrices.push();
 			model.rightArm.rotate(matrices);
 			matrices.scale(1.0F / 16.0F, 1.0F / 16.0F, 1.0F / 16.0F);
-			Vector3f fist = new Vector3f(slim ? -0.5F : -1.0F, 9.0F, -0.4F);
-			StimModel.renderInFist(matrices, vertexConsumers, light, fist, chest, 0.0F, fill);
+			StimModel.renderInFist(matrices, vertexConsumers, light, StimPoses.fistOnArm(slim), target, 0.0F, fill, StimModel.RING_GRIP_Y);
 			matrices.pop();
 		}
 	}

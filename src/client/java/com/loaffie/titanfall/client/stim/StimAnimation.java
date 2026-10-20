@@ -8,13 +8,14 @@ import net.minecraft.util.math.MathHelper;
 
 /**
  * The injection's timeline, shared by the first- and third-person animations. Over {@link StimStates#INJECT_SECONDS}
- * the right hand drops to the hip and draws the injector (to 0.2), brings it up in front of the right side
- * of the chest (to 0.42), stabs it in and holds while the plunger empties the vial (0.45 - 0.7), pulls it
- * out and puts it back (from 0.8).
+ * the right hand reaches the holster on the hip (to 0.16) and draws the injector (0.18), brings it up in
+ * front of the right side of the chest (0.2 - 0.4), stabs it in and holds while the plunger empties the
+ * vial (0.42 - 0.6), pulls it out (to 0.68), carries it back down to the holster (to 0.84) and lets go of
+ * it there (0.86), and the arm returns to rest.
  */
 public final class StimAnimation {
-	private static final float DRAW = 0.2F;
-	private static final float HOLSTER = 0.8F;
+	private static final float DRAW = 0.18F;
+	private static final float HOLSTER = 0.86F;
 
 	private StimAnimation() {
 	}
@@ -36,7 +37,7 @@ public final class StimAnimation {
 			return 0.0F;
 		}
 
-		return smooth(0.0F, 0.25F, t) * (1.0F - smooth(0.78F, 1.0F, t));
+		return smooth(0.0F, 0.16F, t) * (1.0F - smooth(0.88F, 1.0F, t));
 	}
 
 	/** How far whatever the right hand holds is put away for the injection, 0..1..0 (quickly away, back at the end). */
@@ -48,14 +49,14 @@ public final class StimAnimation {
 		return smooth(0.0F, 0.15F, t) * (1.0F - smooth(0.85F, 1.0F, t));
 	}
 
-	/** The arm's reach for the hip (first part) as opposed to the chest (second), 0..1. */
+	/** The arm's reach for the holster on the hip (drawing, and putting back) as opposed to the chest, 0..1. */
 	public static float toHip(float t) {
-		return 1.0F - smooth(0.18F, 0.42F, t);
+		return 1.0F - smooth(0.2F, 0.4F, t) + smooth(0.68F, 0.84F, t);
 	}
 
 	/** The jab: how far the needle is driven home, 0..1..0. */
 	public static float jab(float t) {
-		return smooth(0.42F, 0.5F, t) * (1.0F - smooth(0.68F, 0.78F, t));
+		return smooth(0.42F, 0.5F, t) * (1.0F - smooth(0.6F, 0.68F, t));
 	}
 
 	/**
@@ -66,7 +67,7 @@ public final class StimAnimation {
 		StimStates.State state = StimStates.of(player);
 		if (player == MinecraftClient.getInstance().player) {
 			if (state != null && state.inject(tickDelta) < 1.0F) {
-				return 1.0F - smooth(0.5F, 0.68F, state.inject(tickDelta));
+				return 1.0F - smooth(0.5F, 0.6F, state.inject(tickDelta));
 			}
 
 			return (float) StimController.meter();
@@ -77,7 +78,7 @@ public final class StimAnimation {
 		}
 
 		float t = state.inject(tickDelta);
-		float drained = 1.0F - smooth(0.5F, 0.68F, t);
+		float drained = 1.0F - smooth(0.5F, 0.6F, t);
 		float refill = (state.age + tickDelta) / (float) (TitanfallConfig.get().stimCooldownSeconds * 20.0);
 		return t < 1.0F ? drained : MathHelper.clamp(refill, 0.0F, 1.0F);
 	}

@@ -17,7 +17,7 @@ import java.util.Map;
  */
 public final class StimStates {
 	/** Length of the injection animation, seconds: reach for the hip, jab, and put it back. */
-	public static final float INJECT_SECONDS = 0.8F;
+	public static final float INJECT_SECONDS = 1.0F;
 	/** The end-of-stim sound plays this long before the stim ends (as Titanfall's deactivate cue does). */
 	private static final int DEACTIVATE_LEAD_TICKS = 40;
 	/** The tick of the injection animation the needle goes in (half way through it): the flare. */

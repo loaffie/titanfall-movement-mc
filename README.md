@@ -1,4 +1,4 @@
-# Titanfall Movement 2.3.2 (Fabric 1.21.1)
+# Titanfall Movement 2.3.3 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -135,10 +135,11 @@ healing.
   - **First person:** whatever the right hand holds drops out of view. The right forearm rises into the
     right of the screen with the injector in the fist, needle toward the chest, and stabs it in, the vial
     draining as it goes. The item comes back afterwards.
-  - **Third person:** the right hand reaches to the hip and draws the injector, then the arm becomes a
-    forearm. Its joint moves from the shoulder to an elbow tucked in at the side just above the waist, and
-    the fist stabs the injector straight into the right side of the chest with a blue flare, then puts it
-    back.
+  - **Third person:** the right hand reaches down to the holster, closes round the injector's grip rings
+    and draws it out, turning it from its holstered angle toward the chest as the hand rises. The arm
+    becomes a forearm, its joint moving from the shoulder to an elbow tucked in at the side just above the
+    waist, and the fist stabs the injector straight into the right side of the chest with a blue flare.
+    Then the hand carries it back down and seats it in the holster before letting go.
   - **While it runs:**
     - glowing blue trails stream from the pilot's shoulders and hips and hang in the air behind them;
     - the screen edges glow blue and pulse like a racing heartbeat;

@@ -28,10 +28,12 @@ public final class StimModel {
 	private static final float VIAL_END = 3.05F;
 	public static final float NEEDLE_Y = 5.0F;
 	/**
-	 * Where the fist closes round the injector, mesh pixels along its axis: on the plunger cap, thumb on
-	 * the button, so the body, vial and needle all stand clear of the fist.
+	 * Where the fist closes round the injector, mesh pixels along its axis. First person: on the plunger cap,
+	 * thumb on the button, so the body, vial and needle all stand clear of the fist. Third person: round the
+	 * grip rings, where the hand can take it out of the holster.
 	 */
-	private static final float GRIP_Y = -1.6F;
+	public static final float CAP_GRIP_Y = -1.6F;
+	public static final float RING_GRIP_Y = 0.9F;
 	private static final int FULL_BRIGHT = 0xF000F0;
 	private static final int WHITE = 0xFFFFFFFF;
 	private static final int FLUID = 0xFF4FCFFF;
@@ -53,6 +55,13 @@ public final class StimModel {
 
 	public static ObjModel mesh() {
 		return MESH.get();
+	}
+
+	/** A point of the holstered injector (mesh pixels) in the body part's space (pixels). */
+	public static Vector3f onHipPoint(Vector3f mesh) {
+		Vector3f point = new Vector3f(mesh.x, mesh.y, mesh.z - PLATE_BACK);
+		new Quaternionf().rotationZ((float) Math.toRadians(HIP_TILT)).transform(point);
+		return point.add(HIP_X, HIP_Y, HIP_Z);
 	}
 
 	/** From the body part's space (after {@code body.rotate}, in blocks) to the holster's mesh space. */
@@ -98,7 +107,7 @@ public final class StimModel {
 	 * the inverse of its matrix. {@code jab} (pixels) drives the needle in toward the target.
 	 */
 	public static void renderInFist(MatrixStack matrices, VertexConsumerProvider consumers, int light, Vector3f grip, Vector3f target,
-			float jab, float fill) {
+			float jab, float fill, float gripY) {
 		Matrix4f toLocal = new Matrix4f(matrices.peek().getPositionMatrix()).invert();
 		Vector3f local = toLocal.transformPosition(new Vector3f(target));
 		Vector3f aim = local.sub(grip, new Vector3f());
@@ -110,7 +119,7 @@ public final class StimModel {
 		matrices.push();
 		matrices.translate(grip.x + aim.x * jab, grip.y + aim.y * jab, grip.z + aim.z * jab);
 		matrices.multiply(new Quaternionf().rotationTo(new Vector3f(0.0F, 1.0F, 0.0F), aim));
-		matrices.translate(0.0F, -GRIP_Y, 0.0F);
+		matrices.translate(0.0F, -gripY, 0.0F);
 		renderInjector(matrices, consumers, light, fill);
 		matrices.pop();
 	}

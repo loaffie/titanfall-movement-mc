@@ -1,3 +1,14 @@
+# 2.3.3 (Minecraft 1.21.1)
+
+- **Stim draw, third person:** the injector is now really taken from the right hip holster and put back.
+  - Before, the hand never reached the holster: it swung to the side of the hip, and the injector popped
+    out of the holster into the fist, already aimed at the chest. At the end it popped back into the holster
+    while the hand was still at the chest, which looked like a second stim.
+  - Now the arm aims at the holstered injector's grip rings and the fist closes round them exactly there.
+    The injector leaves at its holstered angle and turns toward the chest as the hand rises.
+  - After the stab the hand carries it back down and seats it in the holster before letting go.
+  - The injection takes 1 second instead of 0.8 to fit the put-back in; the stab is unchanged.
+
 # 2.3.2 (Minecraft 1.21.1)
 
 - **Phase Shift while riding** no longer flings you away. Coming out of phase counted the camel (or horse,

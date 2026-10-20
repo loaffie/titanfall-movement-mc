@@ -83,7 +83,7 @@ public final class StimFirstPerson {
 			Vector3f grip = new Vector3f(GRIP);
 			// The needle's target, a hand's length past the fist along the needle, in the same camera-relative space.
 			Vector3f target = view.transform(new Vector3f(fist).add(new Vector3f(NEEDLE).mul(0.5F)));
-			StimModel.renderInFist(matrices, consumers, light, grip, target, 0.0F, StimAnimation.fill(player, tickDelta));
+			StimModel.renderInFist(matrices, consumers, light, grip, target, 0.0F, StimAnimation.fill(player, tickDelta), StimModel.CAP_GRIP_Y);
 		}
 
 		matrices.pop();
