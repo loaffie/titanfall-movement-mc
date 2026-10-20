@@ -1,4 +1,4 @@
-# Movement, Grapple, Stim, Phase Shift and Pulse Blade sounds
+# Movement and pilot ability sounds
 
 The mod ships its own movement sounds, synthesised by `tools/generate-audio.py`. They are modelled on the
 *character* of Titanfall 2's pilot jumpkit, but every one is built from oscillators, filtered noise and
@@ -33,6 +33,10 @@ envelopes. Nothing is sampled from Titanfall 2 or any other game.
 | `pulse_impact` | `pulse/impact_1..2.ogg` | the bite: a hard thunk, a metallic twang, grit, and two arming beeps. Played at the kunai |
 | `pulse_ping` | `pulse/ping.ogg` | each sonar pulse: a deep round "whoom", a clean high ping and its echo rolling away (heard far off) |
 | `pulse_detected` | `pulse/detected.ogg` | two harsh alarm beeps over a rising sweep, when someone's pulse reveals you |
+| `cloak_activate` | `cloak/activate_1..2.ogg` | an airy rush drawn in, a glassy shimmer climbing over it, and the field closing with a soft low "thoom" |
+| `cloak_loop` | `cloak/loop.ogg` | while cloaked, heard only by the pilot: a faint, airy, slowly beating hum with a far-off shimmer (seamless loop) |
+| `cloak_warning` | `cloak/warning.ogg` | three glassy flutters, each lower, 3 seconds before the cloak fails |
+| `cloak_end` | `cloak/end_1..2.ogg` | the shimmer falling apart downward, a short static tear and the air rushing back |
 
 Most one-shots have two or three variants that `sounds.json` picks between at random, and the game adds a ±4%
 pitch variation on top, so repeated moves don't sound canned.
@@ -45,12 +49,12 @@ python3 tools/generate-audio.py grapple_   # only the Grapple's
 ```
 
 Requires numpy, scipy and ffmpeg with libvorbis. It writes mono 44.1 kHz Ogg Vorbis into
-`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/`, `.../sounds/stim/`, `.../sounds/phase/` and `.../sounds/pulse/`.
+`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/`, `.../sounds/stim/`, `.../sounds/phase/`, `.../sounds/pulse/` and `.../sounds/cloak/`.
 
 ## Using other audio
 
 Any resource pack can replace the files under `assets/titanfall_movement/sounds/movement/` and
-`sounds/grapple/`, `sounds/stim/`, `sounds/phase/` and `sounds/pulse/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
+`sounds/grapple/`, `sounds/stim/`, `sounds/phase/`, `sounds/pulse/` and `sounds/cloak/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
 redistribute it.
 
 ## Adjusting

@@ -1,0 +1,33 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"pattern": [
+		"GQG",
+		"LEL",
+		"IRI"
+	],
+	"key": {
+		"G": {
+			"item": "minecraft:glass_pane"
+		},
+		"Q": {
+			"item": "minecraft:quartz"
+		},
+		"L": {
+			"item": "minecraft:leather"
+		},
+		"E": {
+			"item": "minecraft:ender_eye"
+		},
+		"I": {
+			"item": "minecraft:iron_ingot"
+		},
+		"R": {
+			"item": "minecraft:redstone"
+		}
+	},
+	"result": {
+		"id": "titanfall_movement:pilot_cloak",
+		"count": 1
+	}
+}

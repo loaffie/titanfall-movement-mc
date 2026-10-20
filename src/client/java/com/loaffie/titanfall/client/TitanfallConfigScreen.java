@@ -108,6 +108,9 @@ public class TitanfallConfigScreen extends Screen {
 		slider("Pulse Throw Speed", 20.0, 120.0, config.pulseThrowSpeed, value -> config.pulseThrowSpeed = value);
 		slider("Pulse Hit Damage", 0.0, 40.0, config.pulseImpactDamage, value -> config.pulseImpactDamage = value);
 		toggle("Pulse Aim Arc", () -> config.pulseArc, () -> config.pulseArc = !config.pulseArc);
+		slider("Cloak Length", 2.0, 30.0, config.cloakDurationSeconds, value -> config.cloakDurationSeconds = value);
+		slider("Cloak Cooldown", 0.0, 60.0, config.cloakCooldownSeconds, value -> config.cloakCooldownSeconds = value);
+		toggle("Cloak Screen FX", () -> config.cloakScreenEffects, () -> config.cloakScreenEffects = !config.cloakScreenEffects);
 		toggle("Sounds", () -> config.soundsEnabled, () -> config.soundsEnabled = !config.soundsEnabled);
 		slider("Volume", 0.0, 1.0, config.movementVolume, value -> config.movementVolume = value);
 

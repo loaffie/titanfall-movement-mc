@@ -161,5 +161,27 @@
 		"sounds": [
 			"titanfall_movement:pulse/detected"
 		]
+	},
+	"cloak_activate": {
+		"sounds": [
+			"titanfall_movement:cloak/activate_1",
+			"titanfall_movement:cloak/activate_2"
+		]
+	},
+	"cloak_loop": {
+		"sounds": [
+			"titanfall_movement:cloak/loop"
+		]
+	},
+	"cloak_warning": {
+		"sounds": [
+			"titanfall_movement:cloak/warning"
+		]
+	},
+	"cloak_end": {
+		"sounds": [
+			"titanfall_movement:cloak/end_1",
+			"titanfall_movement:cloak/end_2"
+		]
 	}
 }

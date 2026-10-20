@@ -34,6 +34,10 @@ public final class TitanfallSounds {
 	public static final SoundEvent PULSE_IMPACT = register("pulse_impact");
 	public static final SoundEvent PULSE_PING = register("pulse_ping");
 	public static final SoundEvent PULSE_DETECTED = register("pulse_detected");
+	public static final SoundEvent CLOAK_ACTIVATE = register("cloak_activate");
+	public static final SoundEvent CLOAK_LOOP = register("cloak_loop");
+	public static final SoundEvent CLOAK_WARNING = register("cloak_warning");
+	public static final SoundEvent CLOAK_END = register("cloak_end");
 
 	private TitanfallSounds() {
 	}

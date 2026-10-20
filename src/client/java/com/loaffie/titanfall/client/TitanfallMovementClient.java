@@ -1,6 +1,11 @@
 package com.loaffie.titanfall.client;
 
 import com.loaffie.titanfall.client.anim.PilotAnimations;
+import com.loaffie.titanfall.client.cloak.CloakFeatureRenderer;
+import com.loaffie.titanfall.client.cloak.CloakHud;
+import com.loaffie.titanfall.client.cloak.CloakItemRenderer;
+import com.loaffie.titanfall.client.cloak.CloakModel;
+import com.loaffie.titanfall.client.cloak.CloakStates;
 import com.loaffie.titanfall.client.grapple.GrappleFeatureRenderer;
 import com.loaffie.titanfall.client.grapple.GrappleItemRenderer;
 import com.loaffie.titanfall.client.grapple.GrappleLines;
@@ -31,11 +36,14 @@ import com.loaffie.titanfall.client.stim.StimHud;
 import com.loaffie.titanfall.client.stim.StimItemRenderer;
 import com.loaffie.titanfall.client.stim.StimModel;
 import com.loaffie.titanfall.client.stim.StimStates;
+import com.loaffie.titanfall.cloak.Cloak;
+import com.loaffie.titanfall.cloak.CloakSyncPayload;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.entity.TitanfallEntities;
 import com.loaffie.titanfall.grapple.Grapple;
 import com.loaffie.titanfall.grapple.GrappleSyncPayload;
 import com.loaffie.titanfall.item.TitanfallItems;
+import com.loaffie.titanfall.movement.CloakController;
 import com.loaffie.titanfall.movement.GrappleController;
 import com.loaffie.titanfall.movement.PhaseController;
 import com.loaffie.titanfall.movement.PulseController;
@@ -73,7 +81,7 @@ import org.lwjgl.glfw.GLFW;
 public class TitanfallMovementClient implements ClientModInitializer {
 	/**
 	 * Uses the tactical ability, the first one worn of: the Grapple (fire, and let go), the Phase Shift, the
-	 * Pulse Blade (hold to aim, let go to throw) and the Stim. Titanfall's tactical key is Q, which Minecraft
+	 * Cloak, the Pulse Blade (hold to aim, let go to throw) and the Stim. Titanfall's tactical key is Q, which Minecraft
 	 * uses to drop items.
 	 */
 	public static final KeyBinding TACTICAL_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -84,6 +92,9 @@ public class TitanfallMovementClient implements ClientModInitializer {
 	/** The Phase Shift on its own key, for pilots wearing it alongside another tactical. Unbound by default. */
 	public static final KeyBinding PHASE_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.titanfall_movement.phase_shift", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
+	/** The Cloak on its own key, likewise. Unbound by default. */
+	public static final KeyBinding CLOAK_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			"key.titanfall_movement.cloak", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
 	/** The Pulse Blade on its own key, likewise. Unbound by default. */
 	public static final KeyBinding PULSE_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.titanfall_movement.pulse_blade", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
@@ -103,6 +114,8 @@ public class TitanfallMovementClient implements ClientModInitializer {
 					GrappleController.onKeyPressed(client);
 				} else if (PhaseShift.isWorn(client.player)) {
 					PhaseController.onKeyPressed(client);
+				} else if (Cloak.isWorn(client.player)) {
+					CloakController.onKeyPressed(client);
 				} else if (PulseBlade.isWorn(client.player)) {
 					PulseController.onKeyPressed(client);
 				} else if (Stim.isWorn(client.player)) {
@@ -118,6 +131,10 @@ public class TitanfallMovementClient implements ClientModInitializer {
 				PhaseController.onKeyPressed(client);
 			}
 
+			while (CLOAK_KEY.wasPressed()) {
+				CloakController.onKeyPressed(client);
+			}
+
 			while (PULSE_KEY.wasPressed()) {
 				PulseController.onKeyPressed(client);
 			}
@@ -127,6 +144,10 @@ public class TitanfallMovementClient implements ClientModInitializer {
 
 			GrappleController.preClientTick(client);
 		});
+		ClientTickEvents.END_CLIENT_TICK.register(CloakController::clientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(CloakStates::tick);
+		CloakStates.register();
+		ClientPlayNetworking.registerGlobalReceiver(CloakSyncPayload.ID, (payload, context) -> CloakStates.receive(payload));
 		ClientTickEvents.END_CLIENT_TICK.register(PulseController::clientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(PulseStates::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(PulseSonar::tick);
@@ -152,6 +173,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		HudRenderCallback.EVENT.register(StimHud::render);
 		HudRenderCallback.EVENT.register(PhaseScreen::renderHud);
 		HudRenderCallback.EVENT.register(PulseHud::render);
+		HudRenderCallback.EVENT.register(CloakHud::render);
 		HudRenderCallback.EVENT.register(TacticalHud::render);
 		// Pilots cannot fire weapons while the line is pulling them in (melee still works).
 		UseItemCallback.EVENT.register((player, world, hand) -> {
@@ -168,6 +190,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(StimModel.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PhaseModel.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PulseModel.reloadListener());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(CloakModel.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PhaseScreen.reloadListener());
 		ParticleFactoryRegistry particles = ParticleFactoryRegistry.getInstance();
 		particles.register(TitanfallParticles.THRUSTER_JET, sprites -> new PilotParticle.Factory(sprites, PilotParticle.JET));
@@ -189,6 +212,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		particles.register(TitanfallParticles.PULSE_TRAIL, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PULSE_TRAIL));
 		particles.register(TitanfallParticles.PULSE_SPARK, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PULSE_SPARK));
 		particles.register(TitanfallParticles.PULSE_RING, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PULSE_RING));
+		particles.register(TitanfallParticles.CLOAK_SHIMMER, sprites -> new PilotParticle.Factory(sprites, PilotParticle.CLOAK_SHIMMER));
 
 		// The jumpkit item is drawn with the same OBJ mesh as the worn kit (inventory, hands, ground, frames).
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_JUMPKIT, new JumpkitItemRenderer());
@@ -196,6 +220,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_STIM, new StimItemRenderer());
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_PHASE_SHIFT, new PhaseItemRenderer());
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_PULSE_BLADE, new PulseItemRenderer());
+		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_CLOAK, new CloakItemRenderer());
 
 		EntityModelLayerRegistry.registerModelLayer(JumpkitModel.LAYER, JumpkitModel::getTexturedModelData);
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
@@ -205,6 +230,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 				registrationHelper.register(new StimFeatureRenderer(playerRenderer));
 				registrationHelper.register(new PhaseFeatureRenderer(playerRenderer));
 				registrationHelper.register(new PulseFeatureRenderer(playerRenderer));
+				registrationHelper.register(new CloakFeatureRenderer(playerRenderer));
 			}
 		});
 	}

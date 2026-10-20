@@ -1,3 +1,34 @@
+# 2.5 (Minecraft 1.21.1)
+
+## Cloak
+
+Titanfall 2's Cloak Pilot tactical, as a bracer on the off-hand forearm.
+
+- **Behaviour from the game's files** (`mp_ability_cloak.txt` / `.nut`, multiplayer values):
+  - Instant, 15 s long, needing a full charge.
+  - The charge drains over the cloak and refills at 10 a second (20 s from empty), so a cloak cut short
+    leaves charge behind.
+  - Firing a weapon drops it (the game's post-launch behaviour); melee and thrown things don't.
+- **Server:**
+  - Minecraft's invisibility flag, kept set through potion changes, so there's no name tag or shadow.
+  - Mobs' detection is cut to 10% whatever the armour, and mobs hunting from beyond 4 blocks lose the
+    pilot.
+  - Arrows, bolts, rockets and tridents fired by a cloaked pilot drop the cloak.
+  - It ends on death, and the server keeps its own charge.
+- **The look, client-side:**
+  - The cloaked body draws in a translucent layer at a few percent, cooled toward blue-grey, with a faint
+    crawling sheen and none of the gear.
+  - It shows more with speed, flickers when hit, and fades in and out over 8 ticks with glints.
+  - The pilot's own hand is a faint ghost, with a cool screen-edge shimmer that stutters in the last 3 s.
+- **Model** (new `tools/generate-cloak-model.py`): a bracer with an emitter housing and three lenses, light
+  strips in field rails, a dial and a cable. The lights show the charge.
+- **Sounds** (synthesised, `cloak_*`): activate, loop (the pilot only), warning, end.
+- **Equipping:** Trinkets' off-hand glove slot, or held. Tactical key order: Grapple, Phase Shift, Cloak,
+  Pulse Blade, Stim. A new unbound **Cloak** key.
+- **Recipe:** glass panes, quartz, leather, an eye of ender, iron and redstone.
+- **Config:** `cloakDurationSeconds`, `cloakCooldownSeconds` and `cloakScreenEffects`, also on the config
+  screen.
+
 # 2.4.3 (Minecraft 1.21.1)
 
 - **Pulse Blade lands on the crosshair.**

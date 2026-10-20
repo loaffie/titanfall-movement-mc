@@ -53,6 +53,8 @@ public final class TitanfallParticles {
 	public static final SimpleParticleType PULSE_SPARK = register("pulse_spark");
 	/** Pulse Blade: the ring each pulse sends out round the kunai, on the surface it is stuck in. */
 	public static final SimpleParticleType PULSE_RING = register("pulse_ring");
+	/** Cloak: the faint glints a pilot sheds as the cloak bends round them, or falls away. */
+	public static final SimpleParticleType CLOAK_SHIMMER = register("cloak_shimmer");
 
 	private TitanfallParticles() {
 	}

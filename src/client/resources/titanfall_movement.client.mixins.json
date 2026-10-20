@@ -13,10 +13,12 @@
 		"HeldItemRendererMixin",
 		"InGameHudMixin",
 		"LivingEntityJumpMixin",
+		"LivingEntityRendererCloakMixin",
 		"LivingEntityTravelMixin",
 		"MinecraftClientMixin",
 		"ParticleManagerMixin",
 		"PlayerEntityModelMixin",
+		"PlayerEntityRendererCloakMixin",
 		"PlayerEntityRendererMixin"
 	],
 	"injectors": {

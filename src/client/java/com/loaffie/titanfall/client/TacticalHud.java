@@ -1,8 +1,11 @@
 package com.loaffie.titanfall.client;
 
 import com.loaffie.titanfall.client.phase.PhaseStates;
+import com.loaffie.titanfall.client.cloak.CloakStates;
+import com.loaffie.titanfall.cloak.Cloak;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.grapple.Grapple;
+import com.loaffie.titanfall.movement.CloakController;
 import com.loaffie.titanfall.movement.GrappleController;
 import com.loaffie.titanfall.movement.PhaseController;
 import com.loaffie.titanfall.movement.PulseController;
@@ -18,7 +21,7 @@ import net.minecraft.util.math.MathHelper;
 /**
  * The tactical abilities' crosshair readout, after Titanfall 2's tactical ring: a short arc round the
  * crosshair per ability that fills as its charge comes back (amber while refilling, cyan when ready) - the
- * first ability worn (Grapple, Phase Shift, Pulse Blade, Stim) under the crosshair, a second over it - and for
+ * first ability worn (Grapple, Phase Shift, Cloak, Pulse Blade, Stim) under the crosshair, a second over it - and for
  * the Grapple two brackets either side of the crosshair that light up when something the hook could bite is
  * under it and in range. While phased, the Phase Shift's arc counts the phase down in white.
  */
@@ -33,7 +36,7 @@ public final class TacticalHud {
 	private static final int READY = 0xE05FD8FF;
 	private static final int CHARGING = 0xD0FF9A2E;
 	private static final int EMPTY = 0x60202830;
-	private static final int PHASED = 0xF0E8F6FF;
+	private static final int ACTIVE = 0xF0E8F6FF;
 	private static final int BRACKET_ON = 0xF0BDF3FF;
 	private static final int BRACKET_OFF = 0x50BDF3FF;
 
@@ -49,9 +52,10 @@ public final class TacticalHud {
 
 		boolean grapple = Grapple.isWorn(client.player);
 		boolean phase = PhaseShift.isWorn(client.player);
+		boolean cloak = Cloak.isWorn(client.player);
 		boolean pulse = PulseBlade.isWorn(client.player);
 		boolean stim = Stim.isWorn(client.player);
-		if (!grapple && !phase && !pulse && !stim) {
+		if (!grapple && !phase && !cloak && !pulse && !stim) {
 			return;
 		}
 
@@ -77,11 +81,18 @@ public final class TacticalHud {
 			PhaseStates.State state = PhaseStates.of(client.player);
 			if (state != null && state.phased()) {
 				float left = 1.0F - (state.age + tickCounter.getTickDelta(false)) / state.ticks;
-				arc(context, cx, cy, MathHelper.clamp(left, 0.0F, 1.0F), PHASED, side);
+				arc(context, cx, cy, MathHelper.clamp(left, 0.0F, 1.0F), ACTIVE, side);
 			} else {
 				arc(context, cx, cy, PhaseController.meter(), PhaseController.ready() ? READY : CHARGING, side);
 			}
 
+			side = -side;
+		}
+
+		if (cloak) {
+			CloakStates.State state = CloakStates.of(client.player);
+			boolean holding = state != null && state.holding();
+			arc(context, cx, cy, CloakController.meter(), holding ? ACTIVE : CloakController.ready() ? READY : CHARGING, side);
 			side = -side;
 		}
 

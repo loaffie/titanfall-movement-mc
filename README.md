@@ -1,4 +1,4 @@
-# Titanfall Movement 2.4.3 (Fabric 1.21.1)
+# Titanfall Movement 2.5 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -208,6 +208,46 @@ of movement, but the world can't touch you and you can't touch it.
     (Titanfall's own cue timing). A telefrag has its own crunch.
 - **HUD**: a charge arc round the crosshair, sharing the Grapple and Stim's places (first worn under,
   second over).
+
+## Cloak
+
+Titanfall 2's Cloak tactical: a field projector that bends light round the pilot until they're all but
+invisible.
+
+- Item id `titanfall_movement:pilot_cloak`, in the Combat creative tab. Craftable; the recipe unlocks once
+  you pick up an eye of ender or quartz.
+
+  ```
+  Glass Pane   Quartz      Glass Pane
+  Leather      Eye of Ender Leather
+  Iron Ingot   Redstone    Iron Ingot
+  ```
+- **Worn on the off-hand forearm** (the left for a right-handed player). With Trinkets it goes in the
+  **off-hand glove** slot (right-click it to equip); without Trinkets, hold it in the off hand. The game
+  shows no device for it, so this one is a bracer: a housing along the top of the forearm with three emitter
+  lenses, light strips in field rails down its sides, a dial and a cable up toward the elbow. Its lights glow
+  pale cyan when charged and amber while charging.
+- **Using it.** Press **Tactical Ability** (`G`). If you also wear the Grapple or Phase Shift, they take the
+  key, and the Cloak has its own **Cloak** key (unbound by default) under Controls. Once on, it can't be
+  switched off early.
+- **Works like Titanfall 2's** (values from the game's `mp_ability_cloak.txt` / `.nut`, multiplayer):
+  - **15 seconds** (`cloakDurationSeconds`). The charge drains over the cloak and refills at 10 a second:
+    **20 seconds** from empty (`cloakCooldownSeconds`). A cloak needs a full charge, so one cut short comes
+    back sooner.
+  - **Firing a weapon drops it** (arrows, crossbow bolts and rockets, tridents), as in the game since its
+    first patch. Melee and thrown things (snowballs, pearls, the Pulse Blade) don't.
+  - **Mobs barely notice you:** only right up close, whatever armour you wear. Mobs hunting you from more
+    than 4 blocks away lose you as you cloak. (Titans, which can't see cloak at all, aren't in the mod yet.)
+  - Uses Minecraft's own invisibility underneath, so there's no name tag and no shadow. A Pulse Blade still
+    reveals you.
+- **What others see:** a faint, glassy shimmer of you, cooled toward blue-grey, with a sheen crawling over
+  it, and none of your gear. It shows a little more as you move and flickers up when you're hit. Faint
+  glints scatter as the cloak closes and falls away, and they hear it.
+- **What you see:** your hand as a faint ghost, a cool shimmer round the edges of the screen that stutters in
+  the last 3 seconds with a warning sound, and the tactical arc draining in white. A faint airy hum plays
+  while it holds. `cloakScreenEffects` turns the view effects off.
+- Sounds: a glassy shimmer closing with a soft "thoom", the hum, a fluttering warning, and the shimmer
+  tearing open as it drops.
 
 ## Pulse Blade
 

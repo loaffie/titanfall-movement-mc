@@ -2,6 +2,7 @@
 	"replace": false,
 	"values": [
 		"titanfall_movement:pilot_grapple",
-		"titanfall_movement:pilot_phase_shift"
+		"titanfall_movement:pilot_phase_shift",
+		"titanfall_movement:pilot_cloak"
 	]
 }

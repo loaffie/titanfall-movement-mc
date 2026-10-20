@@ -90,6 +90,10 @@ public class PilotParticle extends SpriteBillboardParticle {
 	public static final Style PULSE_RING = new Style(Shape.RING, 9, 10, 0.12F, 1.6F, 0.0F,
 			rgb(0xFFFFFF), rgb(0x7CC4FF), rgb(0x1E4CFF), 0.85F, 1.0F, 0.0F, false);
 
+	/** Cloak glint: a faint, slow, pale glimmer where the light bends round a pilot as the cloak closes or falls away. */
+	public static final Style CLOAK_SHIMMER = new Style(Shape.BILLBOARD, 12, 20, 0.05F, 0.18F, 0.0F,
+			rgb(0xF4FBFF), rgb(0x9CC8FF), rgb(0x203A66), 0.4F, 0.9F, -0.005F, false);
+
 	private final Style style;
 	private final Vector3f ringNormal;
 	private final float spin;

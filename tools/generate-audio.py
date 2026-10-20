@@ -11,7 +11,9 @@ autoinjector and the rush that follows, a racing heart while it lasts, and the c
 the gauntlet's coil charging and the pilot tearing out of the world with a warped, reversed rush, a hollow
 humming drone while phased, the rising warning before the way back, and the snap of rematerialising. And
 the Pulse Blade: the kunai sliding out of its sheath, the whip of the throw, the bite as it sticks, the
-deep sonar ping of each pulse, and the alarm a revealed pilot hears.
+deep sonar ping of each pulse, and the alarm a revealed pilot hears. And the Cloak: a glassy shimmer bending
+shut round the pilot, a faint airy hum while it holds, a warning flutter before it fails, and the shimmer
+tearing open again.
 
 Usage (from the repository root):
 
@@ -25,6 +27,7 @@ Requires numpy, scipy and ffmpeg (with libvorbis) on the PATH. Output, as mono 4
     src/main/resources/assets/titanfall_movement/sounds/stim/<name>.ogg      (the stim_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/phase/<name>.ogg     (the phase_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/pulse/<name>.ogg     (the pulse_* sounds)
+    src/main/resources/assets/titanfall_movement/sounds/cloak/<name>.ogg     (the cloak_* sounds)
 
 The one-shots come in variants (jump_1..3, double_jump_1..3, walljump_1..3, land_1..3) that
 sounds.json picks between at random, so repeated moves do not sound like a loop of one sample. The
@@ -700,6 +703,76 @@ def pulse_detected(seed=1211):
     return fade_edges(normalize(soft_clip(out, 1.3), 0.75))
 
 
+def shimmer(rng, seconds, low, high, voices=6, rise=True):
+    """Glassy shimmer: a cluster of detuned high partials, each sliding a little and trembling."""
+    t = t_axis(seconds)
+    out = np.zeros(len(t))
+    for _ in range(voices):
+        f0 = rng.uniform(low, high)
+        f1 = f0 * (rng.uniform(1.05, 1.25) if rise else rng.uniform(0.8, 0.95))
+        f = np.linspace(f0, f1, len(t))
+        trem = 0.6 + 0.4 * np.sin(2 * np.pi * rng.uniform(9, 17) * t + rng.uniform(0, 6.28))
+        out += np.sin(2 * np.pi * np.cumsum(f) / RATE + rng.uniform(0, 6.28)) * trem
+    return out / voices
+
+
+def cloak_activate(seed):
+    """Cloaking: an airy rush drawn in, a glassy shimmer climbing over it, and the field closing with a soft
+    low 'thoom' and a fading crystalline tail."""
+    rng = np.random.default_rng(seed)
+    d = 1.4
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    place(out, reverse_swell(rng, 0.3, [600 * p, 2400 * p, 7000 * p], q=1.6), 0.0, 0.7)
+    t = t_axis(1.1)
+    env = np.clip(t / 0.25, 0, 1) * np.exp(-np.maximum(t - 0.3, 0) / 0.35)
+    place(out, tail(shimmer(rng, 1.1, 2200 * p, 4200 * p) * env * 0.6, 0.2), 0.05)
+    thoom = tone([140 * p, 70 * p], 0.5) * env_ad(0.5, 0.01, 0.18) * 0.6
+    place(out, thoom, 0.28, 1.0)
+    air = bandpass(noise(rng, 1.0), 3000, 9000, order=2) * np.exp(-t_axis(1.0) / 0.3) * 0.15
+    place(out, tail(air, 0.2), 0.3)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
+
+
+def cloak_loop(seed=1311):
+    """Cloaked: a faint, airy, slowly beating hum with a far-off glassy shimmer - heard only by the pilot."""
+    rng = np.random.default_rng(seed)
+    loop, cross = 3.0, 0.3
+    d = loop + cross + 0.4
+    t = t_axis(d)
+    hum = (np.sin(2 * np.pi * 220 * t) + np.sin(2 * np.pi * 221.3 * t)) * 0.12
+    air = sweep_bandpass(noise(rng, d), [1500, 3200, 2000, 3600, 1800], q=3.0) * 0.4
+    glass = shimmer(rng, d, 3000, 5200, voices=4) * 0.08
+    out = (hum + air + glass) * (0.8 + 0.2 * np.sin(2 * np.pi * (1 / loop) * t))
+    return normalize(seamless(soft_clip(out, 1.1), loop, cross), 0.6)
+
+
+def cloak_warning(seed=1321):
+    """Running out: the shimmer stuttering - three quick glassy flutters, each a little lower."""
+    rng = np.random.default_rng(seed)
+    d = 1.0
+    out = np.zeros(int(RATE * d))
+    for k in range(3):
+        seg = shimmer(rng, 0.18, 2600 - 300 * k, 3800 - 400 * k, voices=4) * env_ad(0.18, 0.01, 0.06)
+        place(out, seg, 0.05 + k * 0.22, 1.0 - 0.15 * k)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.7))
+
+
+def cloak_end(seed):
+    """Decloaking: the shimmer falling apart downward, a short static tear and the air rushing back in."""
+    rng = np.random.default_rng(seed)
+    d = 1.0
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    t = t_axis(0.8)
+    place(out, tail(shimmer(rng, 0.8, 2600 * p, 4400 * p, rise=False) * np.exp(-t / 0.25) * 0.6, 0.2), 0.0)
+    tear = bandpass(noise(rng, 0.12), 1500, 8000, order=2) * env_ad(0.12, 0.002, 0.04)
+    tear *= 0.5 + 0.5 * np.sign(np.sin(2 * np.pi * 60 * t_axis(0.12)))
+    place(out, tear, 0.0, 0.7)
+    place(out, tail(sweep_bandpass(noise(rng, 0.6), [6000 * p, 1500 * p, 500 * p], q=1.4) * np.exp(-t_axis(0.6) / 0.2)), 0.02, 0.6)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
+
+
 SOUNDS = {
     "double_jump_1": lambda: double_jump(101),
     "double_jump_2": lambda: double_jump(102),
@@ -747,12 +820,18 @@ SOUNDS = {
     "pulse_impact_2": lambda: pulse_impact(1122),
     "pulse_ping": pulse_ping,
     "pulse_detected": pulse_detected,
+    "cloak_activate_1": lambda: cloak_activate(1301),
+    "cloak_activate_2": lambda: cloak_activate(1302),
+    "cloak_loop": cloak_loop,
+    "cloak_warning": cloak_warning,
+    "cloak_end_1": lambda: cloak_end(1331),
+    "cloak_end_2": lambda: cloak_end(1332),
 }
 
 
 def write_ogg(name, samples):
-    # grapple_*, stim_*, phase_* and pulse_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
-    group = next((g for g in ("grapple", "stim", "phase", "pulse") if name.startswith(g + "_")), None)
+    # grapple_*, stim_*, phase_*, pulse_* and cloak_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
+    group = next((g for g in ("grapple", "stim", "phase", "pulse", "cloak") if name.startswith(g + "_")), None)
     out_dir = SOUNDS_DIR / group if group else OUT
     file = name[len(group) + 1:] if group else name
     out_dir.mkdir(parents=True, exist_ok=True)

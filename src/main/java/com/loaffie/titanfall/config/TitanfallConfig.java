@@ -294,6 +294,15 @@ public class TitanfallConfig {
 	/** Show the aiming arc while the Tactical key is held. */
 	public boolean pulseArc = true;
 
+	// --- cloak ---
+	// Titanfall 2's Cloak, from the game's files: mp_ability_cloak.txt/.nut (multiplayer values).
+	/** How long a cloak lasts, seconds ({@code fire_duration} 15). */
+	public double cloakDurationSeconds = 15.0;
+	/** Time for an empty charge to come back, seconds: 200 ammo at {@code regen_ammo_refill_rate} 10 a second = 20. */
+	public double cloakCooldownSeconds = 20.0;
+	/** The cloaked pilot's own view: the shimmer at the edges of the screen and on their hands. */
+	public boolean cloakScreenEffects = true;
+
 	// --- camera ---
 	/**
 	 * Camera roll while wall running, degrees, scaled by how side-on the wall is to the view. Positive banks the
@@ -396,6 +405,8 @@ public class TitanfallConfig {
 		pulseRadius = Math.max(1.0, Math.min(pulseRadius, 128.0));
 		pulseIntervalSeconds = Math.max(0.25, pulseIntervalSeconds);
 		pulseActiveSeconds = Math.max(0.25, Math.min(pulseActiveSeconds, 60.0));
+		cloakDurationSeconds = Math.max(0.5, Math.min(cloakDurationSeconds, 120.0));
+		cloakCooldownSeconds = Math.max(0.0, cloakCooldownSeconds);
 	}
 
 	public void save() {

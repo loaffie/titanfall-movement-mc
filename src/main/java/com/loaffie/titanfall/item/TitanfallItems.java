@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.item;
 
 import com.loaffie.titanfall.TitanfallMovement;
+import com.loaffie.titanfall.cloak.PilotCloakItem;
 import com.loaffie.titanfall.grapple.PilotGrappleItem;
 import com.loaffie.titanfall.phase.PilotPhaseShiftItem;
 import com.loaffie.titanfall.pulse.PilotPulseBladeItem;
@@ -59,6 +60,10 @@ public final class TitanfallItems {
 	public static final Item PILOT_PULSE_BLADE = register("pilot_pulse_blade",
 			new PilotPulseBladeItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
 
+	/** The Cloak bracer: a field projector worn on the off-hand forearm (Trinkets' off-hand glove slot, or held). */
+	public static final Item PILOT_CLOAK = register("pilot_cloak",
+			new PilotCloakItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
+
 	private TitanfallItems() {
 	}
 
@@ -91,6 +96,7 @@ public final class TitanfallItems {
 			entries.add(PILOT_STIM);
 			entries.add(PILOT_PHASE_SHIFT);
 			entries.add(PILOT_PULSE_BLADE);
+			entries.add(PILOT_CLOAK);
 		});
 	}
 }
