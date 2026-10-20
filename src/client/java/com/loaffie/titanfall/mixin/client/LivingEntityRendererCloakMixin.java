@@ -2,6 +2,8 @@ package com.loaffie.titanfall.mixin.client;
 
 import com.loaffie.titanfall.client.cloak.CloakShimmer;
 import com.loaffie.titanfall.client.cloak.CloakStates;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -15,7 +17,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -71,9 +72,9 @@ public abstract class LivingEntityRendererCloakMixin<T extends LivingEntity, M e
 	}
 
 	/** Vanilla skips the feature layers for spectators; a cloaked pilot's are skipped too. */
-	@Redirect(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+	@WrapOperation(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isSpectator()Z"))
-	private boolean titanfall$cloakHidesGear(LivingEntity entity) {
-		return entity.isSpectator() || CloakStates.amount(entity, titanfall$tickDelta) > 0.0F;
+	private boolean titanfall$cloakHidesGear(LivingEntity entity, Operation<Boolean> original) {
+		return original.call(entity) || CloakStates.amount(entity, titanfall$tickDelta) > 0.0F;
 	}
 }

@@ -6,6 +6,8 @@ import com.loaffie.titanfall.client.phase.PhaseFirstPerson;
 import com.loaffie.titanfall.client.pulse.PulseFirstPerson;
 import com.loaffie.titanfall.client.stim.StimFirstPerson;
 import com.loaffie.titanfall.pulse.PulseBlade;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -19,7 +21,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -92,9 +93,9 @@ public abstract class HeldItemRendererMixin {
 	}
 
 	/** Vanilla draws no empty hand for an invisible player; a cloaked pilot sees theirs, shimmering. */
-	@Redirect(method = "renderFirstPersonItem(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/util/Hand;FLnet/minecraft/item/ItemStack;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+	@WrapOperation(method = "renderFirstPersonItem(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/util/Hand;FLnet/minecraft/item/ItemStack;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/AbstractClientPlayerEntity;isInvisible()Z"))
-	private boolean titanfall$cloakedHandShows(AbstractClientPlayerEntity player) {
-		return player.isInvisible() && CloakStates.amount(player, MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false)) <= 0.0F;
+	private boolean titanfall$cloakedHandShows(AbstractClientPlayerEntity player, Operation<Boolean> original) {
+		return original.call(player) && CloakStates.amount(player, MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false)) <= 0.0F;
 	}
 }

@@ -1,3 +1,13 @@
+# 2.5.2 (Minecraft 1.21.1)
+
+- **Fix: crash on start with Fabric Loader 0.18 and older** ("Mixin transformation of net.minecraft.class_922
+  failed"). It happened with any mod list, not only with VulkanMod. The release build writes a `@Redirect`'s
+  `at` as an array, and the MixinExtras bundled with those loaders (0.5.0) reads it as a single annotation
+  and fails. The Cloak's two redirects are now MixinExtras `@WrapOperation`s: one hides gear on a cloaked
+  pilot, the other shows a cloaked pilot's first-person hand. These don't hit the bug and also chain with
+  other mods' wrappers on the same call. Checked in production on Loader 0.18.4 with Fabric API 0.116.8,
+  Trinkets, YACL, Mod Menu, Placeholder API, VulkanMod 0.5.5 and VulkanMod Extra.
+
 # 2.5.1 (Minecraft 1.21.1)
 
 - **Cloak: a smaller, compact wrist device.** The forearm-long bracer is replaced with a slim band close round
