@@ -1,3 +1,13 @@
+# 2.3.2 (Minecraft 1.21.1)
+
+- **Phase Shift while riding** no longer flings you away. Coming out of phase counted the camel (or horse,
+  boat...) you were sitting on as something you had shifted into, and pushed you out of it. Now:
+  - Shifting slips you off your mount, since nothing in the world can carry you out of phase.
+  - What you were riding, and anyone else on it, is ignored by the exit check.
+- **Gentler push-out** from mobs too big to telefrag (camels, horses, iron golems, ravagers). Titanfall's
+  push speed launched pilots far under the jumpkit's light gravity; it's now enough to clear the mob (about
+  1.7 blocks from inside an iron golem). Human-sized mobs and players are still telefragged.
+
 # 2.3.1 (Minecraft 1.21.1)
 
 - **Stim, third person:** the elbow of the stab pose sat far below the waist, so the arm stood straight up

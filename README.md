@@ -1,4 +1,4 @@
-# Titanfall Movement 2.3.1 (Fabric 1.21.1)
+# Titanfall Movement 2.3.2 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -175,7 +175,10 @@ of movement, but the world can't touch you and you can't touch it.
     like the void). You can't attack, use items, use or break blocks, or pick things up either.
   - **Other phased pilots** can see each other, but can't hurt each other either.
   - **Telefrag:** come back inside a player or mob up to human size and it dies (`phaseTelefrag`). Come back
-    inside something bigger, like an iron golem, and you're pushed out of it instead.
+    inside something bigger, like an iron golem or a camel, and you're nudged out of it instead (as in
+    Titanfall, where a pilot can't telefrag a Titan).
+  - **Riding:** shifting while riding something slips you off it, since nothing in the world can carry you
+    out of phase. What you were riding (and anyone else on it) is never telefragged or pushed against.
 - **What you see while phased.**
   - The world drains to a dark, cold black and white with a blue-black vignette, a flickering electric rim
     and a little grain. A ripple and flash tear the screen as you go out and come back.

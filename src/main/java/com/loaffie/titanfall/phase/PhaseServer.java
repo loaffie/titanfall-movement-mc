@@ -44,12 +44,13 @@ import java.util.UUID;
  * <ul>
  *   <li>The shift starts at once ({@code SHIFTER_WARMUP_TIME} 0) and lasts {@code phaseLengthSeconds}. The
  *   pilot stays where they are, in the same world, and keeps moving; the world just can't touch them, nor
- *   they it. Mobs hunting them lose them.</li>
+ *   they it. Mobs hunting them lose them, and a pilot riding something slips off it.</li>
  *   <li>Damage to and from a phased pilot is refused (only what bypasses invulnerability, like the void, gets
  *   through), and so is every attack and use of an item, block or entity.</li>
  *   <li>On the way out, whatever the pilot comes back inside is telefragged - killed outright, credited to the
  *   pilot - if it is human-sized; anything bigger pushes the pilot back out of it instead (the game's
- *   {@code GetEntityAtPhaseShiftExitPosition} and {@code PushPlayersApart}).</li>
+ *   {@code GetEntityAtPhaseShiftExitPosition} and {@code PushPlayersApart}). What the pilot was riding when
+ *   they shifted is left alone: they were sitting in it, not shifting into it.</li>
  *   <li>Other players are told, so they see the pilot vanish, the ghost it leaves and the flash it returns
  *   in, and hear it.</li>
  * </ul>
@@ -67,11 +68,18 @@ public final class PhaseServer {
 	private static final double HUMAN_HEIGHT = 3.0;
 	/** The pilot's box is shrunk by this before the exit check, so only a real overlap counts, blocks. */
 	private static final double EXIT_MARGIN = 0.12;
-	private static final double PUSH_SPEED = 0.7;
+	/**
+	 * How hard the pilot is pushed out of something too big to telefrag, blocks/tick: enough to clear it in a
+	 * few ticks. Titanfall's 600 u/s (0.76) throws a pilot far under the jumpkit's light gravity.
+	 */
+	private static final double PUSH_SPEED = 0.3;
+	private static final double PUSH_LIFT = 0.15;
 
 	/** Phased players and the server tick their phase ends. */
 	private static final Map<UUID, Integer> ACTIVE = new HashMap<>();
 	private static final Map<UUID, Integer> LAST_USE = new HashMap<>();
+	/** What each phased pilot was riding when they shifted. */
+	private static final Map<UUID, UUID> MOUNTS = new HashMap<>();
 	private static int now;
 
 	private PhaseServer() {
@@ -97,6 +105,7 @@ public final class PhaseServer {
 		ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
 			ACTIVE.remove(handler.player.getUuid());
 			LAST_USE.remove(handler.player.getUuid());
+			MOUNTS.remove(handler.player.getUuid());
 		});
 
 		// Out of phase, the pilot can't touch the world (both sides: the client asks first, the server checks).
@@ -132,6 +141,13 @@ public final class PhaseServer {
 		int ticks = phaseTicks(config);
 		LAST_USE.put(player.getUuid(), now);
 		ACTIVE.put(player.getUuid(), now + ticks);
+		// Out of phase nothing in the world can carry the pilot.
+		Entity mount = player.getRootVehicle();
+		if (mount != player) {
+			MOUNTS.put(player.getUuid(), mount.getUuid());
+			player.stopRiding();
+		}
+
 		// Whatever was hunting the pilot loses them.
 		Box around = player.getBoundingBox().expand(LOSE_TARGET_RANGE);
 		for (MobEntity mob : player.getServerWorld().getEntitiesByClass(MobEntity.class, around, mob -> mob.getTarget() == player)) {
@@ -160,15 +176,19 @@ public final class PhaseServer {
 		});
 		for (UUID id : ending) {
 			ACTIVE.remove(id);
+			UUID mount = MOUNTS.remove(id);
 			ServerPlayerEntity player = server.getPlayerManager().getPlayer(id);
 			if (player != null && player.isAlive()) {
-				exit(player);
+				exit(player, mount);
 			}
 		}
 	}
 
-	/** Back in phase: telefrag whatever human-sized thing the pilot is inside, or get pushed out of anything bigger. */
-	private static void exit(ServerPlayerEntity player) {
+	/**
+	 * Back in phase: telefrag whatever human-sized thing the pilot is inside, or get pushed out of anything
+	 * bigger. Whatever they were riding when they shifted - and anyone else riding it - is left alone.
+	 */
+	private static void exit(ServerPlayerEntity player, UUID mount) {
 		if (!TitanfallConfig.get().phaseTelefrag) {
 			return;
 		}
@@ -176,7 +196,8 @@ public final class PhaseServer {
 		Box box = player.getBoundingBox().contract(EXIT_MARGIN, 0.05, EXIT_MARGIN);
 		List<LivingEntity> inside = player.getServerWorld().getEntitiesByClass(LivingEntity.class, box, target -> target != player
 				&& target.isAlive() && !target.isSpectator() && !PhaseShift.isPhased(target)
-				&& !(target instanceof PlayerEntity other && other.isCreative()));
+				&& !(target instanceof PlayerEntity other && other.isCreative())
+				&& (mount == null || !target.getRootVehicle().getUuid().equals(mount)));
 		for (LivingEntity target : inside) {
 			if (target.getWidth() <= HUMAN_WIDTH && target.getHeight() <= HUMAN_HEIGHT) {
 				target.damage(player.getDamageSources().create(TELEFRAG, player), target.getMaxHealth() * 100.0F + 1000.0F);
@@ -186,7 +207,7 @@ public final class PhaseServer {
 				Vec3d away = player.getPos().subtract(target.getPos()).multiply(1.0, 0.0, 1.0);
 				away = away.lengthSquared() < 1.0E-4 ? player.getRotationVector().multiply(-1.0, 0.0, -1.0) : away;
 				away = away.normalize().multiply(PUSH_SPEED);
-				player.setVelocity(away.x, 0.3, away.z);
+				player.setVelocity(away.x, PUSH_LIFT, away.z);
 				player.velocityModified = true;
 			}
 		}
