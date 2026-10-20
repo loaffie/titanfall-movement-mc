@@ -103,6 +103,11 @@ public class TitanfallConfigScreen extends Screen {
 		slider("Phase Cooldown", 0.0, 60.0, config.phaseCooldownSeconds, value -> config.phaseCooldownSeconds = value);
 		toggle("Phase Telefrag", () -> config.phaseTelefrag, () -> config.phaseTelefrag = !config.phaseTelefrag);
 		toggle("Phase Screen FX", () -> config.phaseScreenEffects, () -> config.phaseScreenEffects = !config.phaseScreenEffects);
+		slider("Pulse Cooldown", 0.0, 60.0, config.pulseCooldownSeconds, value -> config.pulseCooldownSeconds = value);
+		slider("Pulse Radius", 8.0, 64.0, config.pulseRadius, value -> config.pulseRadius = value);
+		slider("Pulse Throw Speed", 20.0, 120.0, config.pulseThrowSpeed, value -> config.pulseThrowSpeed = value);
+		slider("Pulse Hit Damage", 0.0, 40.0, config.pulseImpactDamage, value -> config.pulseImpactDamage = value);
+		toggle("Pulse Aim Arc", () -> config.pulseArc, () -> config.pulseArc = !config.pulseArc);
 		toggle("Sounds", () -> config.soundsEnabled, () -> config.soundsEnabled = !config.soundsEnabled);
 		slider("Volume", 0.0, 1.0, config.movementVolume, value -> config.movementVolume = value);
 

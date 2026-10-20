@@ -80,6 +80,16 @@ public class PilotParticle extends SpriteBillboardParticle {
 	public static final Style PHASE_WISP = new Style(Shape.BILLBOARD, 14, 24, 0.22F, 0.5F, 0.0F,
 			rgb(0xBFE8FF), rgb(0x3F86E8), rgb(0x0C1A55), 0.42F, 0.86F, -0.01F, false);
 
+	/** Pulse Blade trail: a thin, quick blue-white streak behind the thrown kunai. */
+	public static final Style PULSE_TRAIL = new Style(Shape.STREAK, 5, 8, 0.035F, 0.01F, 3.0F,
+			rgb(0xE8F6FF), rgb(0x5AAEFF), rgb(0x1A3CFF), 0.6F, 0.7F, 0.0F, false);
+	/** Pulse Blade spark: hot orange-white flecks as the kunai bites and pulses. */
+	public static final Style PULSE_SPARK = new Style(Shape.STREAK, 6, 12, 0.03F, 0.012F, 3.5F,
+			rgb(0xFFFFFF), rgb(0xFFC27A), rgb(0xFF5A1E), 1.0F, 0.9F, 0.6F, true);
+	/** Pulse Blade pulse ring: a bright blue ring punched out round the kunai on its surface. */
+	public static final Style PULSE_RING = new Style(Shape.RING, 9, 10, 0.12F, 1.6F, 0.0F,
+			rgb(0xFFFFFF), rgb(0x7CC4FF), rgb(0x1E4CFF), 0.85F, 1.0F, 0.0F, false);
+
 	private final Style style;
 	private final Vector3f ringNormal;
 	private final float spin;

@@ -9,7 +9,9 @@ pneumatic launch with the line whipping out, a hard metallic bite, a straining w
 pilot in, and the quick zip and latch of the hook coming home. The Stim: the jab and hiss of the
 autoinjector and the rush that follows, a racing heart while it lasts, and the comedown. And Phase Shift:
 the gauntlet's coil charging and the pilot tearing out of the world with a warped, reversed rush, a hollow
-humming drone while phased, the rising warning before the way back, and the snap of rematerialising.
+humming drone while phased, the rising warning before the way back, and the snap of rematerialising. And
+the Pulse Blade: the kunai sliding out of its sheath, the whip of the throw, the bite as it sticks, the
+deep sonar ping of each pulse, and the alarm a revealed pilot hears.
 
 Usage (from the repository root):
 
@@ -22,6 +24,7 @@ Requires numpy, scipy and ffmpeg (with libvorbis) on the PATH. Output, as mono 4
     src/main/resources/assets/titanfall_movement/sounds/grapple/<name>.ogg   (the grapple_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/stim/<name>.ogg      (the stim_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/phase/<name>.ogg     (the phase_* sounds)
+    src/main/resources/assets/titanfall_movement/sounds/pulse/<name>.ogg     (the pulse_* sounds)
 
 The one-shots come in variants (jump_1..3, double_jump_1..3, walljump_1..3, land_1..3) that
 sounds.json picks between at random, so repeated moves do not sound like a loop of one sample. The
@@ -620,6 +623,83 @@ def telefrag(seed=1041):
     return fade_edges(normalize(soft_clip(out, 1.8)))
 
 
+def pulse_draw(seed):
+    """Unsheathing: a quick bright metal slide ('shhing') off the sheath's lip and the kunai's arming click."""
+    rng = np.random.default_rng(seed)
+    d = 0.5
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    slide = sweep_bandpass(noise(rng, 0.22), [2500 * p, 5500 * p, 8000 * p], q=3.0) * env_ad(0.22, 0.03, 0.08)
+    place(out, tail(slide), 0.0, 0.8)
+    place(out, metal_ring(rng, 0.35, [(3900 * p, 0.18, 1.0), (6100 * p, 0.1, 0.6), (8300 * p, 0.06, 0.3)], 0.1), 0.17, 0.45)
+    place(out, click(rng, 0.01, 7000), 0.3, 0.7)
+    place(out, tone([2200 * p, 2200 * p], 0.05) * env_ad(0.05, 0.002, 0.02) * 0.25, 0.32)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
+
+
+def pulse_throw(seed):
+    """The throw: a hard, fast whip of air with the kunai's spin fluttering through it."""
+    rng = np.random.default_rng(seed)
+    d = 0.5
+    t = t_axis(d)
+    p = rng.uniform(0.95, 1.05)
+    env = env_ad(d, 0.02, 0.1)
+    whip = sweep_bandpass(noise(rng, d), [900 * p, 3800 * p, 1500 * p], q=1.8) * env
+    flutter = 0.6 + 0.4 * np.sign(np.sin(2 * np.pi * 38 * t))
+    out = whip * flutter
+    out += bandpass(noise(rng, d), 150, 500, order=2) * env_ad(d, 0.005, 0.05) * 0.4
+    return fade_edges(normalize(soft_clip(out, 1.3), 0.8))
+
+
+def pulse_impact(seed):
+    """The kunai biting in: a hard thunk, a short metallic twang of the blade, grit, and the emitter arming."""
+    rng = np.random.default_rng(seed)
+    d = 0.8
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    place(out, thud(rng, 0.2, 95 * p, 1.0), 0.0, 1.0)
+    place(out, bandpass(noise(rng, 0.05), 1500, 6000, order=2) * env_ad(0.05, 0.001, 0.012), 0.0, 0.9)
+    twang = metal_ring(rng, 0.45, [(1250 * p, 0.25, 1.0), (2780 * p, 0.15, 0.5), (4100 * p, 0.08, 0.3)], 0.08)
+    place(out, twang * (1.0 + 0.4 * np.sin(2 * np.pi * 26 * t_axis(0.45))), 0.005, 0.45)
+    place(out, bandpass(noise(rng, 0.15), 300, 3000, order=2) * env_ad(0.15, 0.005, 0.05), 0.01, 0.35)
+    for k in range(2):
+        beep = tone([1750, 1750], 0.06) * env_ad(0.06, 0.003, 0.025)
+        place(out, beep, 0.2 + k * 0.1, 0.22)
+    return fade_edges(normalize(soft_clip(out, 1.4)))
+
+
+def pulse_ping(seed=1201):
+    """A sonar pulse: a deep, round 'whoom' swelling out, a clean high ping on top, and its echo rolling away."""
+    rng = np.random.default_rng(seed)
+    d = 1.6
+    out = np.zeros(int(RATE * d))
+    t = t_axis(1.5)
+    boom = np.sin(2 * np.pi * (70 * t + 40 * (1 - np.exp(-t / 0.08)) * 0.08)) * np.exp(-t / 0.35)
+    boom *= np.clip(t / 0.01, 0, 1)
+    swell = sweep_bandpass(noise(rng, 1.5), [200, 700, 1800, 600], q=2.0) * np.exp(-t / 0.3) * 0.6
+    ping = (np.sin(2 * np.pi * 1480 * t) + 0.35 * np.sin(2 * np.pi * 2960 * t)) * np.exp(-t / 0.18) * 0.4
+    place(out, tail(boom + swell + ping, 0.3), 0.0)
+    # The echo: the ping again, softer and darker, twice.
+    for k, (delay, gain) in enumerate(((0.32, 0.35), (0.66, 0.15))):
+        place(out, tail(lowpass(ping, 2500 - 800 * k), 0.3), delay, gain)
+    return fade_edges(normalize(soft_clip(out, 1.3), 0.85), 0.002, 0.1)
+
+
+def pulse_detected(seed=1211):
+    """Revealed: two sharp, harsh alarm beeps under a rising sweep - someone's sonar has you."""
+    rng = np.random.default_rng(seed)
+    d = 0.6
+    out = np.zeros(int(RATE * d))
+    for k in range(2):
+        beep = tone([1320, 1320], 0.09, "saw")
+        beep = lowpass(beep, 5000) * env_ad(0.09, 0.003, 0.04) * 0.6
+        place(out, beep, 0.02 + k * 0.16, 1.0)
+    sweep = tone([400, 1100], 0.45) * env_ad(0.45, 0.05, 0.15) * 0.15
+    place(out, sweep, 0.0, 1.0)
+    place(out, bandpass(noise(rng, 0.4), 2000, 6000, order=2) * env_ad(0.4, 0.01, 0.1) * 0.1, 0.0)
+    return fade_edges(normalize(soft_clip(out, 1.3), 0.75))
+
+
 SOUNDS = {
     "double_jump_1": lambda: double_jump(101),
     "double_jump_2": lambda: double_jump(102),
@@ -659,12 +739,20 @@ SOUNDS = {
     "phase_end_1": lambda: phase_end(1031),
     "phase_end_2": lambda: phase_end(1032),
     "phase_telefrag": telefrag,
+    "pulse_draw_1": lambda: pulse_draw(1101),
+    "pulse_draw_2": lambda: pulse_draw(1102),
+    "pulse_throw_1": lambda: pulse_throw(1111),
+    "pulse_throw_2": lambda: pulse_throw(1112),
+    "pulse_impact_1": lambda: pulse_impact(1121),
+    "pulse_impact_2": lambda: pulse_impact(1122),
+    "pulse_ping": pulse_ping,
+    "pulse_detected": pulse_detected,
 }
 
 
 def write_ogg(name, samples):
-    # grapple_*, stim_* and phase_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
-    group = next((g for g in ("grapple", "stim", "phase") if name.startswith(g + "_")), None)
+    # grapple_*, stim_*, phase_* and pulse_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
+    group = next((g for g in ("grapple", "stim", "phase", "pulse") if name.startswith(g + "_")), None)
     out_dir = SOUNDS_DIR / group if group else OUT
     file = name[len(group) + 1:] if group else name
     out_dir.mkdir(parents=True, exist_ok=True)

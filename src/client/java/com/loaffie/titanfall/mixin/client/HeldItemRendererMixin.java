@@ -2,6 +2,7 @@ package com.loaffie.titanfall.mixin.client;
 
 import com.loaffie.titanfall.client.grapple.GrappleFirstPerson;
 import com.loaffie.titanfall.client.phase.PhaseFirstPerson;
+import com.loaffie.titanfall.client.pulse.PulseFirstPerson;
 import com.loaffie.titanfall.client.stim.StimFirstPerson;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
@@ -19,9 +20,10 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * First-person pilot gear. Draws the Grapple arm, the Stim injection and the Phase Shift hand with the hands,
+ * First-person pilot gear. Draws the Grapple arm, the Stim injection, the Phase Shift hand and the Pulse Blade
+ * throw with the hands,
  * before the hand buffers are flushed; keeps vanilla from drawing a second arm where the raised Grapple arm
- * or Phase Shift hand already is; and lowers vanilla's right-hand item out of the way while the Stim is
+ * or a Phase Shift or Pulse Blade hand already is; and lowers vanilla's right-hand item out of the way while the Stim is
  * injected.
  */
 @Mixin(HeldItemRenderer.class)
@@ -37,7 +39,8 @@ public abstract class HeldItemRendererMixin {
 		}
 
 		Arm arm = hand == Hand.MAIN_HAND ? local.getMainArm() : local.getMainArm().getOpposite();
-		if ((hand == Hand.MAIN_HAND && item.isEmpty() && GrappleFirstPerson.replacesMainArm(local)) || PhaseFirstPerson.replacesArm(local, arm)) {
+		if ((hand == Hand.MAIN_HAND && item.isEmpty() && GrappleFirstPerson.replacesMainArm(local)) || PhaseFirstPerson.replacesArm(local, arm)
+				|| PulseFirstPerson.replacesArm(local, arm)) {
 			ci.cancel();
 		}
 	}
@@ -49,6 +52,7 @@ public abstract class HeldItemRendererMixin {
 		GrappleFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 		StimFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 		PhaseFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
+		PulseFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 	}
 
 	/** Vanilla's main-hand draw: lowered out of view while the right hand is busy injecting a Stim. */

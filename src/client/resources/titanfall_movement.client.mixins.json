@@ -5,6 +5,7 @@
 	"client": [
 		"AbstractClientPlayerEntityMixin",
 		"CameraMixin",
+		"EntityOutlineColorMixin",
 		"EntityRenderDispatcherMixin",
 		"EntityServerVelocityMixin",
 		"GameRendererMixin",
@@ -13,6 +14,7 @@
 		"InGameHudMixin",
 		"LivingEntityJumpMixin",
 		"LivingEntityTravelMixin",
+		"MinecraftClientMixin",
 		"ParticleManagerMixin",
 		"PlayerEntityModelMixin",
 		"PlayerEntityRendererMixin"

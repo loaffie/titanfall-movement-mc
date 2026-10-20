@@ -277,6 +277,23 @@ public class TitanfallConfig {
 	/** The black-and-white phase world, the shift's screen flashes and the pared-down HUD while phased. */
 	public boolean phaseScreenEffects = true;
 
+	// --- pulse blade ---
+	// Titanfall 2's Pulse Blade, from the game's files: mp_weapon_grenade_sonar.txt/.nut and sh_consts.gnut.
+	/** Time for the charge to come back, seconds: 200 ammo at {@code regen_ammo_refill_rate} 8 a second = 25. */
+	public double pulseCooldownSeconds = 25.0;
+	/** Throw speed, blocks/s ({@code projectile_launch_speed} 3500 u/s). */
+	public double pulseThrowSpeed = 88.9;
+	/** Damage to whatever the kunai hits directly ({@code damage_near_value} 100: a pilot's whole health). */
+	public double pulseImpactDamage = 20.0;
+	/** Sonar radius, blocks ({@code SONAR_GRENADE_RADIUS} 1250 u). */
+	public double pulseRadius = 31.75;
+	/** Time between pulses, seconds (the sonar loop's {@code wait 1.3333}). */
+	public double pulseIntervalSeconds = 1.3333;
+	/** How long the kunai pulses once it lands, seconds ({@code grenade_ignition_time} 4.5). */
+	public double pulseActiveSeconds = 4.5;
+	/** Show the aiming arc while the Tactical key is held. */
+	public boolean pulseArc = true;
+
 	// --- camera ---
 	/**
 	 * Camera roll while wall running, degrees, scaled by how side-on the wall is to the view. Positive banks the
@@ -373,6 +390,12 @@ public class TitanfallConfig {
 		stimHealPerSecond = Math.max(0.0, stimHealPerSecond);
 		phaseLengthSeconds = Math.max(0.25, Math.min(phaseLengthSeconds, 10.0));
 		phaseCooldownSeconds = Math.max(0.0, phaseCooldownSeconds);
+		pulseCooldownSeconds = Math.max(0.0, pulseCooldownSeconds);
+		pulseThrowSpeed = Math.max(5.0, Math.min(pulseThrowSpeed, 200.0));
+		pulseImpactDamage = Math.max(0.0, pulseImpactDamage);
+		pulseRadius = Math.max(1.0, Math.min(pulseRadius, 128.0));
+		pulseIntervalSeconds = Math.max(0.25, pulseIntervalSeconds);
+		pulseActiveSeconds = Math.max(0.25, Math.min(pulseActiveSeconds, 60.0));
 	}
 
 	public void save() {

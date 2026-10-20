@@ -1,4 +1,4 @@
-# Titanfall Movement 2.3.3 (Fabric 1.21.1)
+# Titanfall Movement 2.4 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
@@ -208,6 +208,55 @@ of movement, but the world can't touch you and you can't touch it.
     (Titanfall's own cue timing). A telefrag has its own crunch.
 - **HUD**: a charge arc round the crosshair, sharing the Grapple and Stim's places (first worn under,
   second over).
+
+## Pulse Blade
+
+Titanfall 2's Pulse Blade tactical: a throwing kunai with a sonar emitter in its grip. Throw it, it sticks
+where it lands, and its pulses reveal everything around it, through walls.
+
+- Item id `titanfall_movement:pilot_pulse_blade`, in the Combat creative tab. Craftable; the recipe unlocks
+  once you pick up an amethyst shard or redstone.
+
+  ```
+  -             -                Iron Ingot
+  -             Amethyst Shard   -
+  Iron Nugget   -                Redstone
+  ```
+- **Worn on the left hip,** in a sheath on the front of the hip. With Trinkets it goes in the **belt** slot
+  (right-click it to equip; the belt holds one tactical, so it's the Pulse Blade or the Stim). Without
+  Trinkets, hold it in the off hand. The sheath shows empty while the next kunai charges.
+- **Using it.** **Hold** Tactical Ability (`G`) to draw the kunai and aim: an orange dashed arc shows its
+  flight, with a ring where it will stick (or round whoever it would hit). **Let go** to throw. A quick tap
+  draws and throws in one motion. If you also wear the Grapple or Phase Shift, they take the key, and the
+  Pulse Blade has its own **Pulse Blade** key (unbound by default) under Controls.
+- **Works like Titanfall 2's** (values from the game's `mp_weapon_grenade_sonar.txt` / `.nut` and
+  `sh_consts.gnut`):
+  - **Thrown fast and nearly flat:** 3500 u/s (89 blocks a second, `pulseThrowSpeed`) with double gravity,
+    carrying your own motion. It sticks into the first block it meets.
+  - **A direct hit** does 20 damage (`pulseImpactDamage`; Titanfall's 100 is a pilot's whole health), and
+    the kunai drops off to stick where it lands.
+  - **Sonar:** a pulse as it lands and every 1.33 seconds for 4.5 seconds (`pulseIntervalSeconds`,
+    `pulseActiveSeconds`), each reaching 31.75 blocks (`pulseRadius`). Everything living it finds
+    (players, mobs, villagers) is outlined in red **through walls** for you and your team until shortly
+    after the next pulse. Phased pilots aren't picked up, as in the game.
+  - **Revealed?** If someone else's pulse finds you, you hear an alarm and the screen edges flash red.
+  - **25-second recharge** (`pulseCooldownSeconds`), starting the moment you throw.
+- **Looks.**
+  - **Model:** after Respawn's "Pilot Kunai" concept (the ARC ExD). A steel ring, a square head with a
+    read-out window (green "SAFE" in the sheath, orange "ARMED" once drawn), a crenellated collar, a black
+    grip with a warning label, a ribbed sleeve, a blue band, and a leaf-shaped blade with a carbon-weave
+    inlay and glowing blue edges. It rides blade-down in an olive sheath.
+  - **First person:** the left hand comes up holding the kunai overhand, tip forward, and holds it cocked
+    while you aim. On the throw it whips forward and lets go.
+  - **Third person:** the left arm cocks back over the shoulder, then swings forward and down across the
+    body.
+  - **In flight** it spins about its axis and leaves a thin blue streak. It bites in with sparks, and with
+    every pulse its band and edges flare, a ring spreads over the surface, and a shell of blue light sweeps
+    out to the edge of the radius.
+  - Sounds: the unsheath, the throw, the bite and arming beeps, a deep sonar ping with every pulse
+    (heard far off), and the alarm when you're revealed.
+- **HUD**: a charge arc round the crosshair, sharing places with the other tacticals. `pulseArc` turns the
+  aiming arc off.
 
 ## Movement
 

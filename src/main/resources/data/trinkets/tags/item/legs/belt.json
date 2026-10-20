@@ -1,6 +1,7 @@
 {
 	"replace": false,
 	"values": [
-		"titanfall_movement:pilot_stim"
+		"titanfall_movement:pilot_stim",
+		"titanfall_movement:pilot_pulse_blade"
 	]
 }

@@ -1,0 +1,27 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"pattern": [
+		"  I",
+		" A ",
+		"N R"
+	],
+	"key": {
+		"I": {
+			"item": "minecraft:iron_ingot"
+		},
+		"A": {
+			"item": "minecraft:amethyst_shard"
+		},
+		"N": {
+			"item": "minecraft:iron_nugget"
+		},
+		"R": {
+			"item": "minecraft:redstone"
+		}
+	},
+	"result": {
+		"id": "titanfall_movement:pilot_pulse_blade",
+		"count": 1
+	}
+}

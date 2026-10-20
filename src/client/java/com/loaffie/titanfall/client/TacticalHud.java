@@ -5,8 +5,10 @@ import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.grapple.Grapple;
 import com.loaffie.titanfall.movement.GrappleController;
 import com.loaffie.titanfall.movement.PhaseController;
+import com.loaffie.titanfall.movement.PulseController;
 import com.loaffie.titanfall.movement.StimController;
 import com.loaffie.titanfall.phase.PhaseShift;
+import com.loaffie.titanfall.pulse.PulseBlade;
 import com.loaffie.titanfall.stim.Stim;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -16,7 +18,7 @@ import net.minecraft.util.math.MathHelper;
 /**
  * The tactical abilities' crosshair readout, after Titanfall 2's tactical ring: a short arc round the
  * crosshair per ability that fills as its charge comes back (amber while refilling, cyan when ready) - the
- * first ability worn (Grapple, then Phase Shift, then Stim) under the crosshair, a second over it - and for
+ * first ability worn (Grapple, Phase Shift, Pulse Blade, Stim) under the crosshair, a second over it - and for
  * the Grapple two brackets either side of the crosshair that light up when something the hook could bite is
  * under it and in range. While phased, the Phase Shift's arc counts the phase down in white.
  */
@@ -47,8 +49,9 @@ public final class TacticalHud {
 
 		boolean grapple = Grapple.isWorn(client.player);
 		boolean phase = PhaseShift.isWorn(client.player);
+		boolean pulse = PulseBlade.isWorn(client.player);
 		boolean stim = Stim.isWorn(client.player);
-		if (!grapple && !phase && !stim) {
+		if (!grapple && !phase && !pulse && !stim) {
 			return;
 		}
 
@@ -79,6 +82,11 @@ public final class TacticalHud {
 				arc(context, cx, cy, PhaseController.meter(), PhaseController.ready() ? READY : CHARGING, side);
 			}
 
+			side = -side;
+		}
+
+		if (pulse) {
+			arc(context, cx, cy, PulseController.meter(), PulseController.ready() ? READY : CHARGING, side);
 			side = -side;
 		}
 

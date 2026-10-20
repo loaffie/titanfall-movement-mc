@@ -47,6 +47,12 @@ public final class TitanfallParticles {
 	public static final SimpleParticleType PHASE_RING = register("phase_ring");
 	/** Phase Shift: soft light and smoke left along the way a pilot was heading as they vanish. */
 	public static final SimpleParticleType PHASE_WISP = register("phase_wisp");
+	/** Pulse Blade: the faint streak a thrown kunai leaves. */
+	public static final SimpleParticleType PULSE_TRAIL = register("pulse_trail");
+	/** Pulse Blade: sparks as the kunai bites, and off it with each pulse. */
+	public static final SimpleParticleType PULSE_SPARK = register("pulse_spark");
+	/** Pulse Blade: the ring each pulse sends out round the kunai, on the surface it is stuck in. */
+	public static final SimpleParticleType PULSE_RING = register("pulse_ring");
 
 	private TitanfallParticles() {
 	}

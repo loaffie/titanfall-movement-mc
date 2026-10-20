@@ -29,6 +29,11 @@ public final class TitanfallSounds {
 	public static final SoundEvent PHASE_WARNING = register("phase_warning");
 	public static final SoundEvent PHASE_END = register("phase_end");
 	public static final SoundEvent PHASE_TELEFRAG = register("phase_telefrag");
+	public static final SoundEvent PULSE_DRAW = register("pulse_draw");
+	public static final SoundEvent PULSE_THROW = register("pulse_throw");
+	public static final SoundEvent PULSE_IMPACT = register("pulse_impact");
+	public static final SoundEvent PULSE_PING = register("pulse_ping");
+	public static final SoundEvent PULSE_DETECTED = register("pulse_detected");
 
 	private TitanfallSounds() {
 	}

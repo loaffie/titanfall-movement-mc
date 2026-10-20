@@ -1,3 +1,41 @@
+# 2.4 (Minecraft 1.21.1)
+
+## Pulse Blade
+
+Titanfall 2's Pulse Blade Pilot tactical: a sonar kunai worn on the left hip, held to aim and let go to
+throw.
+
+- **Behaviour from the game's files** (`mp_weapon_grenade_sonar.txt` / `.nut`, `sh_consts.gnut`):
+  - Thrown at 3500 u/s with 2x gravity, inheriting the pilot's motion.
+  - A pulse on landing and every 1.3333 s for 4.5 s, with a 1250 u (31.75 block) radius.
+  - 100 direct-hit damage (here 20, a player's whole health) and a 25 s recharge from the throw.
+  - Draw 0.18 s and throw 0.385 s, from `toss_pullout_time` and `toss_time`.
+- **New thrown entity** (`titanfall_movement:pulse_blade`).
+  - It flies and sticks the same way on server and client, so it lands in the same place on every
+    screen. The server deals the hit and times its life.
+  - It isn't saved with the world.
+- **Sonar on the client:**
+  - Each pulse reveals living things in range to the thrower and their team, with the vanilla glowing
+    outline turned red. It shows through walls and only on their screens.
+  - Anyone revealed by someone else gets an alarm and a red screen-edge flash.
+  - The wave is a rim-lit shell of blue light that fades near the camera.
+- **Aiming arc:** the kunai's own flight traced tick by tick. Orange running dashes with a ring where it
+  will stick, or round whoever it would hit. It fades near the hand and the camera.
+- **Model** (new `tools/generate-pulse-model.py`), after Respawn's Pilot Kunai concept art:
+  - Ring, head with a SAFE/ARMED read-out, crenellated collar and grip.
+  - Glowing blue band, and a leaf blade with a carbon inlay and glowing edges.
+  - An olive sheath for the front of the left hip, which shows empty while the next kunai charges.
+- **Animation:** first and third person, left-handed: draw, cock while aiming, whip forward on release.
+- **Particles:** blue flight streak, orange sparks on impact and each pulse, and a ring over the surface
+  with each pulse.
+- **Sounds** (synthesised, `pulse_*` in `tools/generate-audio.py`): draw, throw, impact, sonar ping and
+  detected alarm.
+- **Equipping:** Trinkets' belt slot (shared with the Stim), or held. Tactical key order: Grapple, Phase
+  Shift, Pulse Blade, Stim. A new unbound **Pulse Blade** key.
+- **Recipe:** an iron ingot, an amethyst shard, an iron nugget and redstone.
+- **Config:** `pulseCooldownSeconds`, `pulseThrowSpeed`, `pulseImpactDamage`, `pulseRadius`,
+  `pulseIntervalSeconds`, `pulseActiveSeconds` and `pulseArc`, most also on the config screen.
+
 # 2.3.3 (Minecraft 1.21.1)
 
 - **Stim draw, third person:** the injector is now really taken from the right hip holster and put back.

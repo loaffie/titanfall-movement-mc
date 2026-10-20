@@ -133,5 +133,33 @@
 		"sounds": [
 			"titanfall_movement:phase/telefrag"
 		]
+	},
+	"pulse_draw": {
+		"sounds": [
+			"titanfall_movement:pulse/draw_1",
+			"titanfall_movement:pulse/draw_2"
+		]
+	},
+	"pulse_throw": {
+		"sounds": [
+			"titanfall_movement:pulse/throw_1",
+			"titanfall_movement:pulse/throw_2"
+		]
+	},
+	"pulse_impact": {
+		"sounds": [
+			"titanfall_movement:pulse/impact_1",
+			"titanfall_movement:pulse/impact_2"
+		]
+	},
+	"pulse_ping": {
+		"sounds": [
+			"titanfall_movement:pulse/ping"
+		]
+	},
+	"pulse_detected": {
+		"sounds": [
+			"titanfall_movement:pulse/detected"
+		]
 	}
 }

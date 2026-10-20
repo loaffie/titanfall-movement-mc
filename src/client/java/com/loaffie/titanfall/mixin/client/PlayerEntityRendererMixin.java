@@ -4,6 +4,7 @@ import com.loaffie.titanfall.client.anim.PilotAnimations;
 import com.loaffie.titanfall.client.anim.PilotPoses;
 import com.loaffie.titanfall.client.grapple.GrapplePoses;
 import com.loaffie.titanfall.client.phase.PhasePoses;
+import com.loaffie.titanfall.client.pulse.PulsePoses;
 import com.loaffie.titanfall.client.stim.StimPoses;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -17,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Whole-body pilot poses. {@code setupTransforms} runs once per frame per rendered player, after the
  * body-yaw rotation and before the model is set up, so this is where the per-frame animation blend is
  * advanced and the lean/recline is applied to the matrix. It also marks the player for the grapple,
- * stim and phase shift arm poses, which only world renders get (first-person arms skip this method).
+ * stim, phase shift and pulse blade arm poses, which only world renders get (first-person arms skip this method).
  */
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerEntityRendererMixin {
@@ -28,6 +29,7 @@ public abstract class PlayerEntityRendererMixin {
 		GrapplePoses.prepare(player, tickDelta);
 		StimPoses.prepare(player, tickDelta);
 		PhasePoses.prepare(player, tickDelta);
+		PulsePoses.prepare(player, tickDelta);
 		PilotAnimations.State state = PilotAnimations.frame(player);
 		if (state != null) {
 			PilotPoses.applyBody(player, state, matrices, bodyYaw);

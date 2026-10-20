@@ -15,10 +15,18 @@
 	"item.titanfall_movement.pilot_phase_shift.tooltip.slot.trinkets": "Worn on the back of the off hand (off-hand glove slot)",
 	"item.titanfall_movement.pilot_phase_shift.tooltip.slot.offhand": "Worn on the back of the hand holding it (off hand)",
 	"item.titanfall_movement.pilot_phase_shift.tooltip.use": "Press Tactical Ability to shift out of phase for 2 seconds",
+	"item.titanfall_movement.pilot_pulse_blade": "Pulse Blade",
+	"item.titanfall_movement.pilot_pulse_blade.tooltip.slot.trinkets": "Worn in a sheath on the left hip (belt slot)",
+	"item.titanfall_movement.pilot_pulse_blade.tooltip.slot.offhand": "Worn in a sheath on the left hip (off hand)",
+	"item.titanfall_movement.pilot_pulse_blade.tooltip.use": "Hold Tactical Ability to aim, release to throw: its sonar reveals everything nearby",
 	"key.titanfall_movement.tactical": "Tactical Ability",
 	"key.titanfall_movement.stim": "Stim (when also wearing the Grapple)",
 	"key.titanfall_movement.phase_shift": "Phase Shift (when also wearing another tactical)",
+	"key.titanfall_movement.pulse_blade": "Pulse Blade (when also wearing another tactical)",
 	"death.attack.titanfall_movement.telefrag": "%1$s was telefragged",
 	"death.attack.titanfall_movement.telefrag.player": "%1$s was telefragged by %2$s",
-	"death.attack.titanfall_movement.telefrag.item": "%1$s was telefragged by %2$s"
+	"death.attack.titanfall_movement.telefrag.item": "%1$s was telefragged by %2$s",
+	"death.attack.titanfall_movement.pulse_blade": "%1$s was struck by a Pulse Blade",
+	"death.attack.titanfall_movement.pulse_blade.player": "%1$s was struck by %2$s's Pulse Blade",
+	"death.attack.titanfall_movement.pulse_blade.item": "%1$s was struck by %2$s's Pulse Blade"
 }

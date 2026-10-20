@@ -3,6 +3,7 @@ package com.loaffie.titanfall.mixin.client;
 import com.loaffie.titanfall.client.anim.PilotPoses;
 import com.loaffie.titanfall.client.grapple.GrapplePoses;
 import com.loaffie.titanfall.client.phase.PhasePoses;
+import com.loaffie.titanfall.client.pulse.PulsePoses;
 import com.loaffie.titanfall.client.stim.StimPoses;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.entity.LivingEntity;
@@ -41,5 +42,6 @@ public abstract class PlayerEntityModelMixin {
 		GrapplePoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
 		StimPoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
 		PhasePoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
+		PulsePoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
 	}
 }

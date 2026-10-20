@@ -3,6 +3,7 @@ package com.loaffie.titanfall.item;
 import com.loaffie.titanfall.TitanfallMovement;
 import com.loaffie.titanfall.grapple.PilotGrappleItem;
 import com.loaffie.titanfall.phase.PilotPhaseShiftItem;
+import com.loaffie.titanfall.pulse.PilotPulseBladeItem;
 import com.loaffie.titanfall.stim.PilotStimItem;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.component.type.AttributeModifierSlot;
@@ -54,6 +55,10 @@ public final class TitanfallItems {
 	public static final Item PILOT_PHASE_SHIFT = register("pilot_phase_shift",
 			new PilotPhaseShiftItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
 
+	/** The Pulse Blade: a sonar kunai worn in a sheath on the left hip (a Trinkets belt slot, or held). */
+	public static final Item PILOT_PULSE_BLADE = register("pilot_pulse_blade",
+			new PilotPulseBladeItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
+
 	private TitanfallItems() {
 	}
 
@@ -85,6 +90,7 @@ public final class TitanfallItems {
 			entries.add(PILOT_GRAPPLE);
 			entries.add(PILOT_STIM);
 			entries.add(PILOT_PHASE_SHIFT);
+			entries.add(PILOT_PULSE_BLADE);
 		});
 	}
 }
