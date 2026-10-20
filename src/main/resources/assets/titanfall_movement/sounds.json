@@ -183,5 +183,32 @@
 			"titanfall_movement:cloak/end_1",
 			"titanfall_movement:cloak/end_2"
 		]
+	},
+	"holo_deploy": {
+		"sounds": [
+			"titanfall_movement:holo/deploy_1",
+			"titanfall_movement:holo/deploy_2"
+		],
+		"subtitle": "subtitles.titanfall_movement.holo_deploy"
+	},
+	"holo_loop": {
+		"sounds": [
+			"titanfall_movement:holo/loop"
+		]
+	},
+	"holo_hit": {
+		"sounds": [
+			"titanfall_movement:holo/hit_1",
+			"titanfall_movement:holo/hit_2",
+			"titanfall_movement:holo/hit_3"
+		],
+		"subtitle": "subtitles.titanfall_movement.holo_hit"
+	},
+	"holo_end": {
+		"sounds": [
+			"titanfall_movement:holo/end_1",
+			"titanfall_movement:holo/end_2"
+		],
+		"subtitle": "subtitles.titanfall_movement.holo_end"
 	}
 }

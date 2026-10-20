@@ -55,6 +55,10 @@ public final class TitanfallParticles {
 	public static final SimpleParticleType PULSE_RING = register("pulse_ring");
 	/** Cloak: the faint glints a pilot sheds as the cloak bends round them, or falls away. */
 	public static final SimpleParticleType CLOAK_SHIMMER = register("cloak_shimmer");
+	/** Holo Pilot: a square fleck of hologram - the trail off a friendly decoy, and the pieces it breaks into. */
+	public static final SimpleParticleType HOLO_MOTE = register("holo_mote");
+	/** Holo Pilot: the scan ring that sweeps up a decoy as it is projected; the spawn velocity is its normal. */
+	public static final SimpleParticleType HOLO_RING = register("holo_ring");
 
 	private TitanfallParticles() {
 	}

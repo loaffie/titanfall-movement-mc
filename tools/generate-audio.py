@@ -13,7 +13,8 @@ humming drone while phased, the rising warning before the way back, and the snap
 the Pulse Blade: the kunai sliding out of its sheath, the whip of the throw, the bite as it sticks, the
 deep sonar ping of each pulse, and the alarm a revealed pilot hears. And the Cloak: a glassy shimmer bending
 shut round the pilot, a faint airy hum while it holds, a warning flutter before it fails, and the shimmer
-tearing open again.
+tearing open again. And the Holo Pilot: the projector's digital chirp and the hologram resolving with a
+bright synthetic tone, its low flickering hum, the crackle of a hit, and the picture breaking up.
 
 Usage (from the repository root):
 
@@ -28,6 +29,7 @@ Requires numpy, scipy and ffmpeg (with libvorbis) on the PATH. Output, as mono 4
     src/main/resources/assets/titanfall_movement/sounds/phase/<name>.ogg     (the phase_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/pulse/<name>.ogg     (the pulse_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/cloak/<name>.ogg     (the cloak_* sounds)
+    src/main/resources/assets/titanfall_movement/sounds/holo/<name>.ogg      (the holo_* sounds)
 
 The one-shots come in variants (jump_1..3, double_jump_1..3, walljump_1..3, land_1..3) that
 sounds.json picks between at random, so repeated moves do not sound like a loop of one sample. The
@@ -773,6 +775,90 @@ def cloak_end(seed):
     return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
 
 
+def bitcrush(x, levels=16, hold=6):
+    """Digital grit: the signal held for ``hold`` samples at a time and rounded to ``levels`` steps."""
+    held = np.repeat(x[::hold], hold)[:len(x)]
+    return np.round(held * levels) / levels
+
+
+def glitch_ticks(rng, seconds, rate, bright=5000.0):
+    """A run of tiny digital clicks at about ``rate`` a second, each a few samples of filtered noise."""
+    n = int(RATE * seconds)
+    out = np.zeros(n)
+    t = 0.0
+    while True:
+        t += rng.exponential(1.0 / rate)
+        i = int(t * RATE)
+        if i >= n - 200:
+            break
+        burst = rng.standard_normal(rng.integers(30, 160)) * rng.uniform(0.3, 1.0)
+        out[i:i + len(burst)] += burst
+    return highpass(out, bright, order=2)
+
+
+def holo_deploy(seed):
+    """Projecting the hologram: a quick rising digital chirp with a scatter of bit-clicks, resolving into a
+    bright, slightly detuned synthetic chord that settles with a soft shimmer."""
+    rng = np.random.default_rng(seed)
+    d = 1.1
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    t = t_axis(0.22)
+    chirp = np.sign(np.sin(2 * np.pi * np.cumsum(np.linspace(300 * p, 2600 * p, len(t))) / RATE))
+    place(out, lowpass(bitcrush(chirp * env_ad(0.22, 0.01, 0.08), 8, 4), 7000) * 0.35, 0.0)
+    place(out, glitch_ticks(rng, 0.35, 70) * np.exp(-t_axis(0.35) / 0.15) * 0.4, 0.0)
+    t = t_axis(0.85)
+    chord = sum(np.sin(2 * np.pi * f * p * t + rng.uniform(0, 6.28)) for f in (660, 663.5, 990, 1320)) / 4
+    chord *= np.clip(t / 0.03, 0, 1) * np.exp(-t / 0.3)
+    place(out, tail(chord * 0.55, 0.15), 0.16)
+    place(out, tail(shimmer(rng, 0.7, 3000 * p, 5000 * p, voices=4) * np.exp(-t_axis(0.7) / 0.25) * 0.18, 0.15), 0.18)
+    place(out, tone([180 * p, 120 * p], 0.3) * env_ad(0.3, 0.005, 0.1) * 0.35, 0.15)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.78))
+
+
+def holo_loop(seed=1411):
+    """A decoy running: a low synthetic hum with a faint digital flutter - heard by its pilot's side only."""
+    rng = np.random.default_rng(seed)
+    loop, cross = 2.4, 0.3
+    d = loop + cross + 0.4
+    t = t_axis(d)
+    hum = (np.sin(2 * np.pi * 110 * t) + 0.5 * np.sin(2 * np.pi * 220.7 * t) + 0.25 * np.sin(2 * np.pi * 331 * t)) * 0.2
+    flutter = 0.75 + 0.25 * np.sign(np.sin(2 * np.pi * 12.5 * t))
+    hiss = bandpass(noise(rng, d), 2500, 7000, order=2) * 0.05
+    ticks = glitch_ticks(rng, d, 9) * 0.05
+    out = bitcrush(hum * flutter, 64, 3) + hiss + ticks
+    return normalize(seamless(soft_clip(out, 1.1), loop, cross), 0.55)
+
+
+def holo_hit(seed):
+    """A decoy hit: the picture tearing for an instant - a crushed square burst falling in pitch, and crackle."""
+    rng = np.random.default_rng(seed)
+    d = 0.3
+    out = np.zeros(int(RATE * d))
+    t = t_axis(0.16)
+    f = np.linspace(rng.uniform(1300, 1700), rng.uniform(300, 450), len(t))
+    zap = np.sign(np.sin(2 * np.pi * np.cumsum(f) / RATE)) * env_ad(0.16, 0.002, 0.05)
+    place(out, lowpass(bitcrush(zap, 6, 5), 6000) * 0.5, 0.0)
+    place(out, glitch_ticks(rng, 0.2, 140) * np.exp(-t_axis(0.2) / 0.06) * 0.6, 0.0)
+    return fade_edges(normalize(soft_clip(out, 1.3), 0.72))
+
+
+def holo_end(seed):
+    """A decoy dissolving: the tone breaking up and falling away under a spray of digital crackle, then gone."""
+    rng = np.random.default_rng(seed)
+    d = 1.0
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    t = t_axis(0.7)
+    f = np.linspace(990 * p, 260 * p, len(t))
+    fall = (np.sin(2 * np.pi * np.cumsum(f) / RATE) + 0.5 * np.sin(2 * np.pi * np.cumsum(f * 1.5) / RATE)) * np.exp(-t / 0.22)
+    gate = 0.6 + 0.4 * np.sign(np.sin(2 * np.pi * np.linspace(18, 40, len(t)) * t))
+    place(out, tail(bitcrush(fall * gate, 24, 4) * 0.5, 0.15), 0.0)
+    place(out, tail(glitch_ticks(rng, 0.6, 120) * np.exp(-t_axis(0.6) / 0.2) * 0.5, 0.1), 0.02)
+    place(out, tail(shimmer(rng, 0.6, 2800 * p, 4600 * p, rise=False) * np.exp(-t_axis(0.6) / 0.2) * 0.25, 0.15), 0.0)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
+
+
 SOUNDS = {
     "double_jump_1": lambda: double_jump(101),
     "double_jump_2": lambda: double_jump(102),
@@ -826,12 +912,20 @@ SOUNDS = {
     "cloak_warning": cloak_warning,
     "cloak_end_1": lambda: cloak_end(1331),
     "cloak_end_2": lambda: cloak_end(1332),
+    "holo_deploy_1": lambda: holo_deploy(1401),
+    "holo_deploy_2": lambda: holo_deploy(1402),
+    "holo_loop": holo_loop,
+    "holo_hit_1": lambda: holo_hit(1421),
+    "holo_hit_2": lambda: holo_hit(1422),
+    "holo_hit_3": lambda: holo_hit(1423),
+    "holo_end_1": lambda: holo_end(1431),
+    "holo_end_2": lambda: holo_end(1432),
 }
 
 
 def write_ogg(name, samples):
-    # grapple_*, stim_*, phase_*, pulse_* and cloak_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
-    group = next((g for g in ("grapple", "stim", "phase", "pulse", "cloak") if name.startswith(g + "_")), None)
+    # grapple_*, stim_*, phase_*, pulse_*, cloak_* and holo_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
+    group = next((g for g in ("grapple", "stim", "phase", "pulse", "cloak", "holo") if name.startswith(g + "_")), None)
     out_dir = SOUNDS_DIR / group if group else OUT
     file = name[len(group) + 1:] if group else name
     out_dir.mkdir(parents=True, exist_ok=True)

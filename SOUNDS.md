@@ -37,6 +37,10 @@ envelopes. Nothing is sampled from Titanfall 2 or any other game.
 | `cloak_loop` | `cloak/loop.ogg` | while cloaked, heard only by the pilot: a faint, airy, slowly beating hum with a far-off shimmer (seamless loop) |
 | `cloak_warning` | `cloak/warning.ogg` | three glassy flutters, each lower, 3 seconds before the cloak fails |
 | `cloak_end` | `cloak/end_1..2.ogg` | the shimmer falling apart downward, a short static tear and the air rushing back |
+| `holo_deploy` | `holo/deploy_1..2.ogg` | a rising digital chirp and bit-clicks resolving into a bright, detuned synthetic chord |
+| `holo_loop` | `holo/loop.ogg` | while a decoy runs, heard by its pilot's side only: a low synthetic hum with a faint digital flutter (seamless loop) |
+| `holo_hit` | `holo/hit_1..3.ogg` | a decoy hit: a crushed square burst falling in pitch, and crackle |
+| `holo_end` | `holo/end_1..2.ogg` | a decoy dissolving: the tone breaking up and falling away under digital crackle |
 
 Most one-shots have two or three variants that `sounds.json` picks between at random, and the game adds a ±4%
 pitch variation on top, so repeated moves don't sound canned.
@@ -49,12 +53,12 @@ python3 tools/generate-audio.py grapple_   # only the Grapple's
 ```
 
 Requires numpy, scipy and ffmpeg with libvorbis. It writes mono 44.1 kHz Ogg Vorbis into
-`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/`, `.../sounds/stim/`, `.../sounds/phase/`, `.../sounds/pulse/` and `.../sounds/cloak/`.
+`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/`, `.../sounds/stim/`, `.../sounds/phase/`, `.../sounds/pulse/`, `.../sounds/cloak/` and `.../sounds/holo/`.
 
 ## Using other audio
 
 Any resource pack can replace the files under `assets/titanfall_movement/sounds/movement/` and
-`sounds/grapple/`, `sounds/stim/`, `sounds/phase/`, `sounds/pulse/` and `sounds/cloak/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
+`sounds/grapple/`, `sounds/stim/`, `sounds/phase/`, `sounds/pulse/`, `sounds/cloak/` and `sounds/holo/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
 redistribute it.
 
 ## Adjusting

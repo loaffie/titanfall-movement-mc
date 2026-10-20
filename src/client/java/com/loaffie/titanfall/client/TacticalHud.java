@@ -5,8 +5,10 @@ import com.loaffie.titanfall.client.cloak.CloakStates;
 import com.loaffie.titanfall.cloak.Cloak;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.grapple.Grapple;
+import com.loaffie.titanfall.holo.HoloPilot;
 import com.loaffie.titanfall.movement.CloakController;
 import com.loaffie.titanfall.movement.GrappleController;
+import com.loaffie.titanfall.movement.HoloController;
 import com.loaffie.titanfall.movement.PhaseController;
 import com.loaffie.titanfall.movement.PulseController;
 import com.loaffie.titanfall.movement.StimController;
@@ -21,7 +23,8 @@ import net.minecraft.util.math.MathHelper;
 /**
  * The tactical abilities' crosshair readout, after Titanfall 2's tactical ring: a short arc round the
  * crosshair per ability that fills as its charge comes back (amber while refilling, cyan when ready) - the
- * first ability worn (Grapple, Phase Shift, Cloak, Pulse Blade, Stim) under the crosshair, a second over it - and for
+ * first ability worn (Grapple, Phase Shift, Cloak, Holo Pilot, Pulse Blade, Stim) under the crosshair, a second over
+ * it - the Holo Pilot's split in two, one half per charge - and for
  * the Grapple two brackets either side of the crosshair that light up when something the hook could bite is
  * under it and in range. While phased, the Phase Shift's arc counts the phase down in white.
  */
@@ -53,9 +56,10 @@ public final class TacticalHud {
 		boolean grapple = Grapple.isWorn(client.player);
 		boolean phase = PhaseShift.isWorn(client.player);
 		boolean cloak = Cloak.isWorn(client.player);
+		boolean holo = HoloPilot.isWorn(client.player);
 		boolean pulse = PulseBlade.isWorn(client.player);
 		boolean stim = Stim.isWorn(client.player);
-		if (!grapple && !phase && !cloak && !pulse && !stim) {
+		if (!grapple && !phase && !cloak && !holo && !pulse && !stim) {
 			return;
 		}
 
@@ -96,6 +100,12 @@ public final class TacticalHud {
 			side = -side;
 		}
 
+		if (holo) {
+			int charges = HoloPilot.charges(TitanfallConfig.get());
+			arc(context, cx, cy, HoloController.meter() / charges, HoloController.ready() ? READY : CHARGING, side, charges);
+			side = -side;
+		}
+
 		if (pulse) {
 			arc(context, cx, cy, PulseController.meter(), PulseController.ready() ? READY : CHARGING, side);
 			side = -side;
@@ -108,8 +118,18 @@ public final class TacticalHud {
 
 	/** One charge arc: under the crosshair ({@code side} 1) or over it (-1), filled to {@code meter} in {@code fill}. */
 	private static void arc(DrawContext context, int cx, int cy, double meter, int fill, int side) {
+		arc(context, cx, cy, meter, fill, side, 1);
+	}
+
+	/** A charge arc split into {@code segments} with a one-dot gap between them, one per charge. */
+	private static void arc(DrawContext context, int cx, int cy, double meter, int fill, int side, int segments) {
 		int filled = (int) Math.floor(meter * DOTS + 1.0E-6);
 		for (int i = 0; i < DOTS; i++) {
+			// The dot at (or just past) each boundary between charges is left out.
+			if (segments > 1 && i > 0 && i < DOTS - 1 && (i * segments) % (DOTS - 1) < segments) {
+				continue;
+			}
+
 			float a = MathHelper.lerp(i / (float) (DOTS - 1), ARC_START, ARC_END);
 			int x = cx + Math.round(MathHelper.cos(a) * RADIUS);
 			int y = cy + side * Math.round(MathHelper.sin(a) * RADIUS);

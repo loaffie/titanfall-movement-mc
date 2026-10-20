@@ -38,6 +38,10 @@ public final class TitanfallSounds {
 	public static final SoundEvent CLOAK_LOOP = register("cloak_loop");
 	public static final SoundEvent CLOAK_WARNING = register("cloak_warning");
 	public static final SoundEvent CLOAK_END = register("cloak_end");
+	public static final SoundEvent HOLO_DEPLOY = register("holo_deploy");
+	public static final SoundEvent HOLO_LOOP = register("holo_loop");
+	public static final SoundEvent HOLO_HIT = register("holo_hit");
+	public static final SoundEvent HOLO_END = register("holo_end");
 
 	private TitanfallSounds() {
 	}

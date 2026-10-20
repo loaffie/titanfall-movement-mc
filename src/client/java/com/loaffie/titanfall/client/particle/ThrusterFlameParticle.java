@@ -1,5 +1,6 @@
 package com.loaffie.titanfall.client.particle;
 
+import com.loaffie.titanfall.client.anim.StandIns;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFactory;
 import net.minecraft.client.particle.ParticleTextureSheet;
@@ -87,6 +88,10 @@ public class ThrusterFlameParticle extends SpriteBillboardParticle {
 
 	private PlayerEntity player() {
 		Entity entity = this.world.getEntityById(playerId);
+		if (entity == null) {
+			entity = StandIns.byId(playerId);
+		}
+
 		return entity instanceof PlayerEntity player ? player : null;
 	}
 

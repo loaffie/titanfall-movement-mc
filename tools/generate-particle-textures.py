@@ -5,6 +5,7 @@
     spark.png  hot core with a short halo - sparks (drawn stretched along their velocity)
     ring.png   thin luminous ring         - shockwaves (drawn flat, facing a normal)
     flare.png  four-point star            - nozzle ignition flash
+    holo_pixel.png  soft-edged square     - Holo Pilot hologram flecks
 
 Run from the repository root: python3 tools/generate-particle-textures.py (needs Pillow).
 """
@@ -51,8 +52,13 @@ def flare(dx, dy):
     return core + 0.8 * rays
 
 
+def holo_pixel(dx, dy):
+    edge = max(abs(dx), abs(dy))
+    return 1.0 if edge < 0.55 else max(0.0, 1.0 - (edge - 0.55) / 0.3) ** 2
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    for name, fn in (("glow", glow), ("spark", spark), ("ring", ring), ("flare", flare)):
+    for name, fn in (("glow", glow), ("spark", spark), ("ring", ring), ("flare", flare), ("holo_pixel", holo_pixel)):
         make(name, fn)
     print("wrote", OUT)

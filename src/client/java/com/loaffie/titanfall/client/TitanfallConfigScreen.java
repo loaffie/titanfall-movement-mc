@@ -111,6 +111,10 @@ public class TitanfallConfigScreen extends Screen {
 		slider("Cloak Length", 2.0, 30.0, config.cloakDurationSeconds, value -> config.cloakDurationSeconds = value);
 		slider("Cloak Cooldown", 0.0, 60.0, config.cloakCooldownSeconds, value -> config.cloakCooldownSeconds = value);
 		toggle("Cloak Screen FX", () -> config.cloakScreenEffects, () -> config.cloakScreenEffects = !config.cloakScreenEffects);
+		slider("Holo Length", 2.0, 20.0, config.holoDurationSeconds, value -> config.holoDurationSeconds = value);
+		slider("Holo Charge Time", 0.0, 30.0, config.holoChargeSeconds, value -> config.holoChargeSeconds = value);
+		slider("Holo Health", 2.0, 40.0, config.holoHealth, value -> config.holoHealth = value);
+		toggle("Holo Draws Mobs", () -> config.holoDistractsMobs, () -> config.holoDistractsMobs = !config.holoDistractsMobs);
 		toggle("Sounds", () -> config.soundsEnabled, () -> config.soundsEnabled = !config.soundsEnabled);
 		slider("Volume", 0.0, 1.0, config.movementVolume, value -> config.movementVolume = value);
 

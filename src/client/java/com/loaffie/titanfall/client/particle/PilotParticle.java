@@ -94,6 +94,13 @@ public class PilotParticle extends SpriteBillboardParticle {
 	public static final Style CLOAK_SHIMMER = new Style(Shape.BILLBOARD, 12, 20, 0.05F, 0.18F, 0.0F,
 			rgb(0xF4FBFF), rgb(0x9CC8FF), rgb(0x203A66), 0.4F, 0.9F, -0.005F, false);
 
+	/** Holo Pilot fleck: a small square of hologram, cyan going deep blue, drifting and fading. */
+	public static final Style HOLO_MOTE = new Style(Shape.BILLBOARD, 10, 18, 0.07F, 0.025F, 0.0F,
+			rgb(0xE6FCFF), rgb(0x5FD6FF), rgb(0x1438B8), 0.55F, 0.9F, -0.004F, false);
+	/** Holo Pilot scan ring: a thin cyan ring round a decoy as it is projected. */
+	public static final Style HOLO_RING = new Style(Shape.RING, 7, 8, 0.25F, 1.1F, 0.0F,
+			rgb(0xF0FCFF), rgb(0x6FDCFF), rgb(0x1A48D0), 0.6F, 1.0F, 0.0F, false);
+
 	private final Style style;
 	private final Vector3f ringNormal;
 	private final float spin;

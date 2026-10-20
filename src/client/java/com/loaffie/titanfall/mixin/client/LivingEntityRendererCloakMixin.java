@@ -2,6 +2,7 @@ package com.loaffie.titanfall.mixin.client;
 
 import com.loaffie.titanfall.client.cloak.CloakShimmer;
 import com.loaffie.titanfall.client.cloak.CloakStates;
+import com.loaffie.titanfall.client.holo.HoloLook;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.render.RenderLayer;
@@ -23,7 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * A cloaked pilot is drawn as the cloak's shimmer: the body in a translucent layer at a few percent (vanilla
  * would draw an invisible player not at all), the crawling sheen over it, and nothing else - no armour, held
- * items or gear, which vanilla still draws on invisible players.
+ * items or gear, which vanilla still draws on invisible players. A Holo Pilot decoy's stand-in is drawn
+ * with the hologram's look the same way.
  */
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingEntityRendererCloakMixin<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> {
@@ -47,7 +49,12 @@ public abstract class LivingEntityRendererCloakMixin<T extends LivingEntity, M e
 
 	@Inject(method = "getRenderLayer", at = @At("HEAD"), cancellable = true)
 	private void titanfall$cloakLayer(T entity, boolean showBody, boolean translucent, boolean showOutline, CallbackInfoReturnable<RenderLayer> cir) {
-		if (CloakStates.amount(entity, titanfall$tickDelta) > 0.0F) {
+		HoloLook.Look look = HoloLook.of(entity);
+		if (look != null) {
+			if (HoloLook.seeThrough(look)) {
+				cir.setReturnValue(HoloLook.bodyLayer(this.getTexture(entity)));
+			}
+		} else if (CloakStates.amount(entity, titanfall$tickDelta) > 0.0F) {
 			cir.setReturnValue(CloakShimmer.bodyLayer(this.getTexture(entity)));
 		}
 	}
@@ -57,6 +64,11 @@ public abstract class LivingEntityRendererCloakMixin<T extends LivingEntity, M e
 			index = 4)
 	private int titanfall$cloakColor(int color) {
 		LivingEntity entity = titanfall$drawing;
+		HoloLook.Look look = entity == null ? null : HoloLook.of(entity);
+		if (look != null) {
+			return HoloLook.bodyColor(look);
+		}
+
 		float amount = entity == null ? 0.0F : CloakStates.amount(entity, titanfall$tickDelta);
 		return amount > 0.0F ? CloakShimmer.bodyColor(CloakShimmer.visibility(entity, titanfall$tickDelta), amount) : color;
 	}
@@ -65,16 +77,32 @@ public abstract class LivingEntityRendererCloakMixin<T extends LivingEntity, M e
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/EntityModel;render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumer;III)V",
 					shift = At.Shift.AFTER))
 	private void titanfall$cloakSheen(T entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider consumers, int light, CallbackInfo ci) {
+		HoloLook.Look look = HoloLook.of(entity);
+		if (look != null) {
+			HoloLook.renderScan(this.model, matrices, consumers, light, look, entity.age + tickDelta);
+			return;
+		}
+
 		float amount = CloakStates.amount(entity, tickDelta);
 		if (amount > 0.0F) {
 			CloakShimmer.renderSheen(this.model, matrices, consumers, light, amount, CloakShimmer.visibility(entity, tickDelta), entity.age + tickDelta);
 		}
 	}
 
-	/** Vanilla skips the feature layers for spectators; a cloaked pilot's are skipped too. */
+	/** A decoy's name tag shows only while it is all but solid, not as it projects in out of the pilot or breaks up. */
+	@Inject(method = "hasLabel(Lnet/minecraft/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
+	private void titanfall$holoLabel(T entity, CallbackInfoReturnable<Boolean> cir) {
+		HoloLook.Look look = HoloLook.of(entity);
+		if (look != null && look.hideGear()) {
+			cir.setReturnValue(false);
+		}
+	}
+
+	/** Vanilla skips the feature layers for spectators; a cloaked pilot's are skipped too, and a decoy's while it is faint. */
 	@WrapOperation(method = "render(Lnet/minecraft/entity/LivingEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
 			at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;isSpectator()Z"))
 	private boolean titanfall$cloakHidesGear(LivingEntity entity, Operation<Boolean> original) {
-		return original.call(entity) || CloakStates.amount(entity, titanfall$tickDelta) > 0.0F;
+		HoloLook.Look look = HoloLook.of(entity);
+		return original.call(entity) || CloakStates.amount(entity, titanfall$tickDelta) > 0.0F || (look != null && look.hideGear());
 	}
 }

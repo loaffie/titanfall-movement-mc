@@ -4,6 +4,7 @@ import com.loaffie.titanfall.cloak.CloakServer;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.entity.TitanfallEntities;
 import com.loaffie.titanfall.grapple.GrappleServer;
+import com.loaffie.titanfall.holo.HoloServer;
 import com.loaffie.titanfall.item.TitanfallItems;
 import com.loaffie.titanfall.movement.TitanfallSounds;
 import com.loaffie.titanfall.particle.TitanfallParticles;
@@ -36,6 +37,7 @@ public class TitanfallMovement implements ModInitializer {
 		PhaseServer.register();
 		PulseServer.register();
 		CloakServer.register();
+		HoloServer.register();
 		TitanfallParticles.register();
 		LOGGER.info("Initializing Titanfall Movement");
 	}

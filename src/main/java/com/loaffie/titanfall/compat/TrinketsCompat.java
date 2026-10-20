@@ -2,6 +2,7 @@ package com.loaffie.titanfall.compat;
 
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketComponent;
+import dev.emi.trinkets.api.TrinketInventory;
 import dev.emi.trinkets.api.TrinketItem;
 import dev.emi.trinkets.api.TrinketsApi;
 import net.minecraft.entity.LivingEntity;
@@ -11,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Pair;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -35,6 +37,30 @@ public final class TrinketsCompat {
 
 		List<Pair<SlotReference, ItemStack>> equipped = component.get().getEquipped(item);
 		return equipped.isEmpty() ? null : equipped.get(0).getLeft().inventory().getSlotType().getGroup();
+	}
+
+	/**
+	 * Copies what {@code from} wears in its trinket slots onto {@code to} - for looks only: a Holo Pilot decoy's
+	 * stand-in, which exists on the client alone, wears the pilot's gear.
+	 */
+	public static void copyWorn(LivingEntity from, LivingEntity to) {
+		Optional<TrinketComponent> source = TrinketsApi.getTrinketComponent(from);
+		Optional<TrinketComponent> target = TrinketsApi.getTrinketComponent(to);
+		if (source.isEmpty() || target.isEmpty()) {
+			return;
+		}
+
+		source.get().getInventory().forEach((group, slots) -> slots.forEach((slot, inventory) -> {
+			Map<String, TrinketInventory> targetGroup = target.get().getInventory().get(group);
+			TrinketInventory copy = targetGroup == null ? null : targetGroup.get(slot);
+			if (copy == null) {
+				return;
+			}
+
+			for (int i = 0; i < Math.min(inventory.size(), copy.size()); i++) {
+				copy.setStack(i, inventory.getStack(i).copy());
+			}
+		}));
 	}
 
 	/** Puts the stack into the first free trinket slot that accepts it. */

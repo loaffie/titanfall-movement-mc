@@ -1,0 +1,33 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"pattern": [
+		"GAG",
+		"LDL",
+		"IRI"
+	],
+	"key": {
+		"G": {
+			"item": "minecraft:glass_pane"
+		},
+		"A": {
+			"item": "minecraft:amethyst_shard"
+		},
+		"L": {
+			"item": "minecraft:leather"
+		},
+		"D": {
+			"item": "minecraft:glowstone_dust"
+		},
+		"I": {
+			"item": "minecraft:iron_ingot"
+		},
+		"R": {
+			"item": "minecraft:redstone"
+		}
+	},
+	"result": {
+		"id": "titanfall_movement:pilot_holo",
+		"count": 1
+	}
+}

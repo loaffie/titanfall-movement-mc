@@ -3,6 +3,7 @@ package com.loaffie.titanfall.item;
 import com.loaffie.titanfall.TitanfallMovement;
 import com.loaffie.titanfall.cloak.PilotCloakItem;
 import com.loaffie.titanfall.grapple.PilotGrappleItem;
+import com.loaffie.titanfall.holo.PilotHoloItem;
 import com.loaffie.titanfall.phase.PilotPhaseShiftItem;
 import com.loaffie.titanfall.pulse.PilotPulseBladeItem;
 import com.loaffie.titanfall.stim.PilotStimItem;
@@ -64,6 +65,10 @@ public final class TitanfallItems {
 	public static final Item PILOT_CLOAK = register("pilot_cloak",
 			new PilotCloakItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
 
+	/** The Holo Pilot projector: worn on the chest (Trinkets' necklace slot, in the chest group, or held). */
+	public static final Item PILOT_HOLO = register("pilot_holo",
+			new PilotHoloItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
+
 	private TitanfallItems() {
 	}
 
@@ -97,6 +102,7 @@ public final class TitanfallItems {
 			entries.add(PILOT_PHASE_SHIFT);
 			entries.add(PILOT_PULSE_BLADE);
 			entries.add(PILOT_CLOAK);
+			entries.add(PILOT_HOLO);
 		});
 	}
 }

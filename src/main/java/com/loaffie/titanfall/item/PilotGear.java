@@ -31,6 +31,13 @@ public final class PilotGear {
 		return TRINKETS ? TrinketsCompat.equippedGroup(entity, item) : null;
 	}
 
+	/** Copies the gear {@code from} wears in its Trinkets slots onto {@code to}, for looks (see {@link TrinketsCompat#copyWorn}). */
+	public static void copyTrinkets(LivingEntity from, LivingEntity to) {
+		if (TRINKETS) {
+			TrinketsCompat.copyWorn(from, to);
+		}
+	}
+
 	/** Worn in a Trinkets slot or held in either hand. */
 	public static boolean worn(LivingEntity entity, Item item) {
 		return trinketGroup(entity, item) != null || entity.getOffHandStack().isOf(item) || entity.getMainHandStack().isOf(item);

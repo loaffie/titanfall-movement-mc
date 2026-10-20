@@ -17,6 +17,7 @@
 		"LivingEntityTravelMixin",
 		"MinecraftClientMixin",
 		"ParticleManagerMixin",
+		"PlayerEntityHoloAccessor",
 		"PlayerEntityModelMixin",
 		"PlayerEntityRendererCloakMixin",
 		"PlayerEntityRendererMixin"

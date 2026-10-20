@@ -1,7 +1,9 @@
 package com.loaffie.titanfall.entity;
 
 import com.loaffie.titanfall.TitanfallMovement;
+import com.loaffie.titanfall.holo.HoloDecoyEntity;
 import com.loaffie.titanfall.pulse.PulseBladeEntity;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
@@ -18,10 +20,20 @@ public final class TitanfallEntities {
 			EntityType.Builder.<PulseBladeEntity>create(PulseBladeEntity::new, SpawnGroup.MISC)
 					.dimensions(0.25F, 0.25F).maxTrackingRange(8).trackingTickInterval(2).build());
 
+	/**
+	 * A Holo Pilot decoy: a player-sized hologram, tracked as far off as players are and updated as often, so it
+	 * moves as smoothly as the pilot it copies.
+	 */
+	public static final EntityType<HoloDecoyEntity> HOLO_DECOY = Registry.register(Registries.ENTITY_TYPE,
+			Identifier.of(TitanfallMovement.MOD_ID, "holo_decoy"),
+			EntityType.Builder.<HoloDecoyEntity>create(HoloDecoyEntity::new, SpawnGroup.MISC).disableSaving().disableSummon()
+					.dimensions(0.6F, 1.8F).eyeHeight(1.62F).maxTrackingRange(32).trackingTickInterval(2).build());
+
 	private TitanfallEntities() {
 	}
 
 	/** Forces class loading, and so registration, from the mod initializer. */
 	public static void register() {
+		FabricDefaultAttributeRegistry.register(HOLO_DECOY, HoloDecoyEntity.createAttributes());
 	}
 }

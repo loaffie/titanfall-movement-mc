@@ -142,20 +142,32 @@ public final class PilotAnimations {
 		}
 
 		for (AbstractClientPlayerEntity player : client.world.getPlayers()) {
-			State state = STATES.computeIfAbsent(player, ignored -> new State());
-			if (!Jumpkit.isWorn(player)) {
-				state.wallTarget = false;
-				state.slideTarget = false;
-				state.hopTarget = false;
-				state.lastPosition = player.getPos();
-				continue;
-			}
+			tickPlayer(client, player);
+		}
+	}
 
-			if (player instanceof ClientPlayerEntity local && local == client.player) {
-				tickLocal(local, state);
-			} else {
-				tickRemote(player, state);
-			}
+	/**
+	 * A stand-in player that isn't in the world's player list (a Holo Pilot decoy's look-alike), animated like
+	 * any other pilot from how it moves. Called once a game tick by whoever moves it, after moving it.
+	 */
+	public static void tickStandIn(AbstractClientPlayerEntity player) {
+		tickPlayer(MinecraftClient.getInstance(), player);
+	}
+
+	private static void tickPlayer(MinecraftClient client, AbstractClientPlayerEntity player) {
+		State state = STATES.computeIfAbsent(player, ignored -> new State());
+		if (!Jumpkit.isWorn(player)) {
+			state.wallTarget = false;
+			state.slideTarget = false;
+			state.hopTarget = false;
+			state.lastPosition = player.getPos();
+			return;
+		}
+
+		if (player instanceof ClientPlayerEntity local && local == client.player) {
+			tickLocal(local, state);
+		} else {
+			tickRemote(player, state);
 		}
 	}
 

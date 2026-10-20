@@ -1,3 +1,38 @@
+# 2.6 (Minecraft 1.21.1)
+
+## Holo Pilot
+
+Titanfall 2's Holo Pilot tactical, as a projector rig on the chest.
+
+- **Behaviour from the game's files** (`mp_ability_holopilot.txt` / `.nut`, multiplayer values):
+  - Two charges, each back in 12.5 s. A decoy lasts 10 s and has half a pilot's health.
+  - The decoy carries on with the pilot's last move: it runs if the keys were pushed past 65%, otherwise it
+    stands. It also continues a slide, a wall run or a course through the air.
+  - The pilot's own side can't hurt it, it doesn't break a cloak, and it flickers at most once every two
+    seconds.
+- **Server:**
+  - The decoy is a living entity, moved with the pilot's own physics: run speed and Source ground friction,
+    slide decay, wall-run gravity, and the pilot's gravity and jump.
+  - It hops one-block steps, stands when blocked, and dissolves when shot down or out of time.
+  - Monsters chasing the pilot that can see the new decoy switch to it.
+  - The server keeps its own charge count and refuses a decoy it doesn't think is charged.
+- **Client:**
+  - The decoy is drawn as the pilot through a client-only stand-in player, so it gets their skin, cape,
+    name, skin layers, armour, held items and Trinkets gear.
+  - The mod's run, slide and wall-run poses and thruster effects are read from how it moves.
+  - Hologram look: it projects in and dissolves with scan lines and cyan flecks, and flickers now and then.
+    Friendlies see faint scan lines, a chest trail and a hum.
+  - It fades near the camera, and its gear and name tag only appear once it is nearly solid.
+- **Rig, controls and HUD:**
+  - The rig: a housing with a projector lens and two charge lights, worn in Trinkets' chest/necklace slot
+    or held in the off hand.
+  - Third-person chest tap when you use it.
+  - A split two-charge tactical arc.
+  - Its own unbound key, and config options with sliders.
+- **Sounds and particles:** four synthesized sounds (deploy, loop, hit, end) and two particles (hologram
+  fleck and scan ring).
+- Thruster flames can now follow players that aren't in the world (decoy stand-ins).
+
 # 2.5.2 (Minecraft 1.21.1)
 
 - **Fix: crash on start with Fabric Loader 0.18 and older** ("Mixin transformation of net.minecraft.class_922

@@ -11,6 +11,11 @@ import com.loaffie.titanfall.client.grapple.GrappleItemRenderer;
 import com.loaffie.titanfall.client.grapple.GrappleLines;
 import com.loaffie.titanfall.client.grapple.GrappleModel;
 import com.loaffie.titanfall.client.grapple.GrappleRenderer;
+import com.loaffie.titanfall.client.holo.HoloDecoyRenderer;
+import com.loaffie.titanfall.client.holo.HoloDecoys;
+import com.loaffie.titanfall.client.holo.HoloFeatureRenderer;
+import com.loaffie.titanfall.client.holo.HoloItemRenderer;
+import com.loaffie.titanfall.client.holo.HoloModel;
 import com.loaffie.titanfall.client.particle.PilotParticle;
 import com.loaffie.titanfall.client.phase.PhaseFeatureRenderer;
 import com.loaffie.titanfall.client.phase.PhaseGhost;
@@ -42,9 +47,13 @@ import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.entity.TitanfallEntities;
 import com.loaffie.titanfall.grapple.Grapple;
 import com.loaffie.titanfall.grapple.GrappleSyncPayload;
+import com.loaffie.titanfall.holo.HoloDecoyEntity;
+import com.loaffie.titanfall.holo.HoloPilot;
+import com.loaffie.titanfall.holo.HoloRefusedPayload;
 import com.loaffie.titanfall.item.TitanfallItems;
 import com.loaffie.titanfall.movement.CloakController;
 import com.loaffie.titanfall.movement.GrappleController;
+import com.loaffie.titanfall.movement.HoloController;
 import com.loaffie.titanfall.movement.PhaseController;
 import com.loaffie.titanfall.movement.PulseController;
 import com.loaffie.titanfall.movement.StimController;
@@ -58,6 +67,7 @@ import com.loaffie.titanfall.pulse.PulseSyncPayload;
 import com.loaffie.titanfall.stim.Stim;
 import com.loaffie.titanfall.stim.StimSyncPayload;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -81,7 +91,7 @@ import org.lwjgl.glfw.GLFW;
 public class TitanfallMovementClient implements ClientModInitializer {
 	/**
 	 * Uses the tactical ability, the first one worn of: the Grapple (fire, and let go), the Phase Shift, the
-	 * Cloak, the Pulse Blade (hold to aim, let go to throw) and the Stim. Titanfall's tactical key is Q, which Minecraft
+	 * Cloak, the Holo Pilot, the Pulse Blade (hold to aim, let go to throw) and the Stim. Titanfall's tactical key is Q, which Minecraft
 	 * uses to drop items.
 	 */
 	public static final KeyBinding TACTICAL_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -95,6 +105,9 @@ public class TitanfallMovementClient implements ClientModInitializer {
 	/** The Cloak on its own key, likewise. Unbound by default. */
 	public static final KeyBinding CLOAK_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.titanfall_movement.cloak", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
+	/** The Holo Pilot on its own key, likewise. Unbound by default. */
+	public static final KeyBinding HOLO_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			"key.titanfall_movement.holo", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
 	/** The Pulse Blade on its own key, likewise. Unbound by default. */
 	public static final KeyBinding PULSE_KEY = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.titanfall_movement.pulse_blade", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "key.categories.titanfall_movement"));
@@ -116,6 +129,8 @@ public class TitanfallMovementClient implements ClientModInitializer {
 					PhaseController.onKeyPressed(client);
 				} else if (Cloak.isWorn(client.player)) {
 					CloakController.onKeyPressed(client);
+				} else if (HoloPilot.isWorn(client.player)) {
+					HoloController.onKeyPressed(client);
 				} else if (PulseBlade.isWorn(client.player)) {
 					PulseController.onKeyPressed(client);
 				} else if (Stim.isWorn(client.player)) {
@@ -135,6 +150,10 @@ public class TitanfallMovementClient implements ClientModInitializer {
 				CloakController.onKeyPressed(client);
 			}
 
+			while (HOLO_KEY.wasPressed()) {
+				HoloController.onKeyPressed(client);
+			}
+
 			while (PULSE_KEY.wasPressed()) {
 				PulseController.onKeyPressed(client);
 			}
@@ -148,6 +167,20 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(CloakStates::tick);
 		CloakStates.register();
 		ClientPlayNetworking.registerGlobalReceiver(CloakSyncPayload.ID, (payload, context) -> CloakStates.receive(payload));
+		ClientTickEvents.END_CLIENT_TICK.register(HoloController::clientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(HoloDecoys::tick);
+		ClientPlayNetworking.registerGlobalReceiver(HoloRefusedPayload.ID, (payload, context) -> HoloController.refused());
+		ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+			if (entity instanceof HoloDecoyEntity decoy) {
+				HoloDecoys.loaded(decoy, world);
+			}
+		});
+		ClientEntityEvents.ENTITY_UNLOAD.register((entity, world) -> {
+			if (entity instanceof HoloDecoyEntity decoy) {
+				HoloDecoys.unloaded(decoy);
+			}
+		});
+		EntityRendererRegistry.register(TitanfallEntities.HOLO_DECOY, HoloDecoyRenderer::new);
 		ClientTickEvents.END_CLIENT_TICK.register(PulseController::clientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(PulseStates::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(PulseSonar::tick);
@@ -191,6 +224,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PhaseModel.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PulseModel.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(CloakModel.reloadListener());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(HoloModel.reloadListener());
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(PhaseScreen.reloadListener());
 		ParticleFactoryRegistry particles = ParticleFactoryRegistry.getInstance();
 		particles.register(TitanfallParticles.THRUSTER_JET, sprites -> new PilotParticle.Factory(sprites, PilotParticle.JET));
@@ -213,6 +247,8 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		particles.register(TitanfallParticles.PULSE_SPARK, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PULSE_SPARK));
 		particles.register(TitanfallParticles.PULSE_RING, sprites -> new PilotParticle.Factory(sprites, PilotParticle.PULSE_RING));
 		particles.register(TitanfallParticles.CLOAK_SHIMMER, sprites -> new PilotParticle.Factory(sprites, PilotParticle.CLOAK_SHIMMER));
+		particles.register(TitanfallParticles.HOLO_MOTE, sprites -> new PilotParticle.Factory(sprites, PilotParticle.HOLO_MOTE));
+		particles.register(TitanfallParticles.HOLO_RING, sprites -> new PilotParticle.Factory(sprites, PilotParticle.HOLO_RING));
 
 		// The jumpkit item is drawn with the same OBJ mesh as the worn kit (inventory, hands, ground, frames).
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_JUMPKIT, new JumpkitItemRenderer());
@@ -221,6 +257,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_PHASE_SHIFT, new PhaseItemRenderer());
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_PULSE_BLADE, new PulseItemRenderer());
 		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_CLOAK, new CloakItemRenderer());
+		BuiltinItemRendererRegistry.INSTANCE.register(TitanfallItems.PILOT_HOLO, new HoloItemRenderer());
 
 		EntityModelLayerRegistry.registerModelLayer(JumpkitModel.LAYER, JumpkitModel::getTexturedModelData);
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
@@ -231,6 +268,7 @@ public class TitanfallMovementClient implements ClientModInitializer {
 				registrationHelper.register(new PhaseFeatureRenderer(playerRenderer));
 				registrationHelper.register(new PulseFeatureRenderer(playerRenderer));
 				registrationHelper.register(new CloakFeatureRenderer(playerRenderer));
+				registrationHelper.register(new HoloFeatureRenderer(playerRenderer));
 			}
 		});
 	}

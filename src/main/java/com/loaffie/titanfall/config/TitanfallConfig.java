@@ -303,6 +303,19 @@ public class TitanfallConfig {
 	/** The cloaked pilot's own view: the shimmer at the edges of the screen and on their hands. */
 	public boolean cloakScreenEffects = true;
 
+	// --- holo pilot ---
+	// Titanfall 2's Holo Pilot, from the game's files: mp_ability_holopilot.txt/.nut (multiplayer values).
+	/** Decoys held at full charge ({@code ammo_clip_size} 200 / {@code ammo_per_shot} 100). */
+	public int holoCharges = 2;
+	/** Time for one charge to come back, seconds: 100 ammo at {@code regen_ammo_refill_rate} 8 a second = 12.5. */
+	public double holoChargeSeconds = 12.5;
+	/** How long a decoy lasts before it dissolves, seconds ({@code DECOY_DURATION} 10). */
+	public double holoDurationSeconds = 10.0;
+	/** A decoy's health, half a heart per point: Titanfall's 50, half a pilot's 100, is 10 here. */
+	public double holoHealth = 10.0;
+	/** Hostile mobs chasing the pilot that can see a new decoy go after it instead. */
+	public boolean holoDistractsMobs = true;
+
 	// --- camera ---
 	/**
 	 * Camera roll while wall running, degrees, scaled by how side-on the wall is to the view. Positive banks the
