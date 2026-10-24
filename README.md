@@ -311,12 +311,14 @@ it from behind.
   Leather     Shield         Leather
   Redstone    Blaze Powder   Redstone
   ```
-- **Worn on the upper back**: a compact rack of six emitter discs, two columns of three, each with a cyan
-  light, as on the A-Wall pilot's back in Respawn's art. It sits between the shoulder blades, clear of the
-  jumpkit lower down, on short straps over the shoulders and round the ribs. With Trinkets it goes in the chest
-  group's **back** slot (right-click it to equip); without Trinkets, hold it in the off hand. Over a
-  chestplate it sits out on the armour. Once you've thrown a disc its slot (top, on your left) stands empty,
-  its ring glowing amber brighter as the next one comes.
+- **Worn on the upper back**: the A-Wall pilot's disc rack from Respawn's art. A padded plate holds three rows,
+  each a disc either side of a steel latch, with a cyan light slit down the latch beside each disc. The discs'
+  faces carry six chambers round a hub, and a hose runs from the plate's top corner over the shoulder blade and
+  down your side. It sits between the shoulder blades, clear of the jumpkit lower down, on short straps over
+  the shoulders and round the ribs. With Trinkets it goes in the chest group's **back** slot (right-click it to
+  equip); without Trinkets, hold it in the off hand. Over a chestplate it sits out on the armour. Once you've
+  thrown a disc its slot (top, on your left) stands empty, its socket and slit glowing amber brighter as the
+  next one comes.
 - **Using it.** Press **Tactical Ability** (`G`). If you also wear the Grapple, Phase Shift, Cloak or Holo
   Pilot, they take the key first, and the A-Wall has its own **A-Wall** key (unbound by default) under
   Controls. Your off hand reaches back over your shoulder, pulls the disc from the pack, swings it across your

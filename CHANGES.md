@@ -1,3 +1,16 @@
+# 2.7.2 (Minecraft 1.21.1)
+
+- **The A-Wall pack is remodelled from Respawn's art of the A-Wall pilot**, and is lighter to draw:
+  - A padded plate with cut corners holds three rows, each a disc either side of a steel latch with a clip
+    over it. A cyan light slit runs down the latch beside each disc.
+  - The discs are thick, with six chambers round a hub on their faces, like a revolver's cylinder. The thrown
+    disc wears the same face.
+  - A hose runs from the plate's top corner over the shoulder blade and down the side.
+  - While the next disc is made, the empty slot's contact and the slit beside it glow amber.
+  - 1,584 triangles, down from 2,468: bevels only where they show, disc edges chamfered only at the front, and
+    the chambers painted into the texture rather than modelled. The thrown disc is down from 912 to 692.
+- The A-Wall's item sprite is redrawn by hand to match: six discs, the latches and their cyan slits.
+
 # 2.7.1 (Minecraft 1.21.1)
 
 The A-Wall, checked against the game (its loadout description, gameplay footage and Respawn's character art):

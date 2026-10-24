@@ -16,8 +16,8 @@ import net.minecraft.util.math.RotationAxis;
 
 /**
  * The A-Wall's meshes ({@code tools/generate-awall-model.py}): the pack on the upper back
- * ({@code models/entity/awall.obj}, in the player model's body space) - a rack of six discs, as the A-Wall
- * pilot carries - and the emitter disc ({@code models/entity/awall_disc.obj}, pixels, +Y up). The rack's top
+ * ({@code models/entity/awall.obj}, in the player model's body space) - a plate of six discs in three rows
+ * either side of their latches, as the A-Wall pilot carries - and the emitter disc ({@code models/entity/awall_disc.obj}, pixels, +Y up). The rack's top
  * slot stands empty while the next disc comes; the thrown disc's legs unfold and its mast rises as the wall goes
  * up.
  */
@@ -53,9 +53,9 @@ public final class AWallModel {
 	}
 
 	/**
-	 * The pack in body space: the rack of six discs, each lit cyan. {@code charge} is how far the next disc has
-	 * come, 0..1; until it is there ({@code nextDisc} false) its slot stands empty, the ring inside it glowing amber
-	 * brighter as it comes.
+	 * The pack in body space: the rack of six discs, a cyan slit beside each. {@code charge} is how far the next
+	 * disc has come, 0..1; until it is there ({@code nextDisc} false) its slot stands empty, the contact in its
+	 * socket and its slit glowing amber brighter as it comes.
 	 */
 	public static void renderPack(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay, float charge, boolean nextDisc) {
 		ObjModel mesh = PACK.get();
@@ -66,6 +66,7 @@ public final class AWallModel {
 		MatrixStack.Entry entry = matrices.peek();
 		VertexConsumer base = consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
 		mesh.render("rig", entry, base, light, overlay, WHITE);
+		mesh.render("straps", entry, base, light, overlay, WHITE);
 		mesh.render("discs", entry, base, light, overlay, WHITE);
 		if (nextDisc) {
 			mesh.render("disc0", entry, base, light, overlay, WHITE);
@@ -76,8 +77,10 @@ public final class AWallModel {
 		if (nextDisc) {
 			mesh.render("light0", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, CYAN);
 		} else {
-			mesh.render("socket0", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV,
-					GrappleModel.dim(AMBER, 0.15F + 0.6F * MathHelper.clamp(charge, 0.0F, 1.0F)));
+			// The empty slot: the contact in its socket, and the slit beside it, glow amber brighter as the next disc comes.
+			int charging = GrappleModel.dim(AMBER, 0.15F + 0.6F * MathHelper.clamp(charge, 0.0F, 1.0F));
+			mesh.render("socket0", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, charging);
+			mesh.render("light0", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, charging);
 		}
 	}
 
