@@ -349,8 +349,10 @@ it from behind.
   goes up, and electricity crackles off its foot. It flares and ripples where it stops a shot, reddens and
   gutters as its base is damaged, stutters in its last two seconds, and shrinks back into the disc as it shuts
   down, or breaks apart in a burst of embers if its base was destroyed.
-- Sounds: the disc unclipped and flicked out, a clunk and a rising crackle as the wall goes up, its deep hum,
-  a hard snap for each shot it stops, a zing for each shot it amps, and the field powering down.
+- Sounds, following the game's own set: the pin pull and throw, with the disc arming in flight. Then the slam
+  of the disc and the field igniting in a distorted electrical surge, its low, grainy power buzz while it stands,
+  a dull absorbing thump for each shot it stops, a faint sizzle on each shot it amps, and the field collapsing.
+  All gritty and low, never tuneful.
 
 ## Pulse Blade
 

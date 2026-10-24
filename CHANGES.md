@@ -1,3 +1,22 @@
+# 2.7.3 (Minecraft 1.21.1)
+
+- **The A-Wall's sounds are redone to sound like the game's**, not playful. They follow the game's own A-Wall
+  set (from its weapon script): a pin pull and throw, the disc arming in flight, one shield start sound that
+  carries its hum, a shutdown, and the Vortex shield's absorb sound for stopped shots. There is no amp sound.
+  - Gone: the musical chord as the wall went up, the falling "pew" when it stopped a shot, the rising zing when
+    it amped one, and the stuttering pitch-drop when it shut down.
+  - **Toss:** a hard metal clack as the disc unlatches, the swing of the arm, and a low gritty whir as the disc
+    arms in flight.
+  - **Wall going up:** a heavy thump and clank as the disc bites and locks, then a deep, distorted electrical
+    surge with a burst of static and crackle, settling into the hum.
+  - **Hum:** a low, grainy power buzz over a sub rumble, with fine static, in place of a clean tone.
+  - **A stopped shot:** a dull energy thump, a short hiss of static and a spit of crackle. The shot is soaked
+    up, not ricocheted.
+  - **An amped shot:** just a faint electrical sizzle, and quieter.
+  - **Shutting down:** the buzz collapsing and falling away under a rush of static, then the dull pop of the
+    spent disc.
+  - The buzz is band-limited and unresonant, so it has no stray whistles.
+
 # 2.7.2 (Minecraft 1.21.1)
 
 - **The A-Wall pack is remodelled from Respawn's art of the A-Wall pilot**, and is lighter to draw:

@@ -164,7 +164,7 @@ public final class AWallServer {
 			if (!amped.titanfall$amped()) {
 				amped.titanfall$amp();
 				world.spawnParticles(TitanfallParticles.AWALL_FLASH, at.x, at.y, at.z, 1, 0.0, 0.0, 0.0, 0.0);
-				world.playSound(null, at.x, at.y, at.z, TitanfallSounds.AWALL_AMP, SoundCategory.PLAYERS, 0.6F,
+				world.playSound(null, at.x, at.y, at.z, TitanfallSounds.AWALL_AMP, SoundCategory.PLAYERS, 0.35F,
 						0.9F + world.getRandom().nextFloat() * 0.2F);
 			}
 

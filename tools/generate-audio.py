@@ -15,8 +15,9 @@ deep sonar ping of each pulse, and the alarm a revealed pilot hears. And the Clo
 shut round the pilot, a faint airy hum while it holds, a warning flutter before it fails, and the shimmer
 tearing open again. And the Holo Pilot: the projector's digital chirp and the hologram resolving with a
 bright synthetic tone, its low flickering hum, the crackle of a hit, and the picture breaking up. And the
-A-Wall: the disc unclipped and flicked out, the clunk and rising crackle of the wall going up, its deep hum,
-the snap of a shot it stops, the zing of a shot it amps, and the field powering down.
+A-Wall: the pin pull and throw with the disc arming in flight, the slam of the disc and the field igniting with
+a distorted electrical surge, its grainy power buzz, the dull absorbing thump of a shot it stops, a faint sizzle
+on a shot it amps, and the field collapsing - gritty and low, as Titanfall's tech sounds, never tuneful.
 
 Usage (from the repository root):
 
@@ -862,102 +863,142 @@ def holo_end(seed):
     return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
 
 
+def buzz(rng, seconds, freqs, cutoffs, drive=2.5):
+    """Mains-like electrical buzz: a sawtooth whose pitch wanders a little about ``freqs``, through a low-pass
+    following ``cutoffs`` and driven into saturation - the grainy power hum of the field, not a musical note."""
+    wander = lowpass(noise(rng, seconds), 4.0, order=1)
+    wander *= 0.02 / max(np.std(wander), 1e-9)
+    t = t_axis(seconds)
+    f = np.interp(t / seconds, np.linspace(0, 1, len(freqs)), freqs) * (1.0 + wander)
+    # Band-limited (summed harmonics up to 5 kHz): a naive sawtooth folds its upper harmonics back as whistles.
+    phase = 2 * np.pi * np.cumsum(f) / RATE
+    saw = np.zeros_like(t)
+    for k in range(1, int(5000 / max(np.min(f), 1.0)) + 1):
+        saw += np.where(k * f < 5000, np.sin(k * phase) / k, 0.0)
+    saw *= 2 / np.pi
+    # A plain low-pass, swept a block at a time: a resonant band driven into saturation would whistle.
+    out = np.zeros_like(saw)
+    zi = np.zeros((1, 2))
+    for start in range(0, len(saw), 256):
+        c = float(np.interp(start / max(len(saw) - 1, 1), np.linspace(0, 1, len(cutoffs)), cutoffs))
+        sos = signal.butter(2, c, btype="lowpass", fs=RATE, output="sos")
+        out[start:start + 256], zi = signal.sosfilt(sos, saw[start:start + 256], zi=zi)
+    return soft_clip(out * drive + 0.15 * lowpass(noise(rng, seconds), 200), 1.5)
+
+
+def rumble(rng, seconds, cutoff=140.0):
+    """Sub-bass rumble: low-passed noise, the weight under the field."""
+    x = lowpass(noise(rng, seconds), cutoff, order=2)
+    return x / max(np.std(x), 1e-9) * 0.3
+
+
 def awall_toss(seed):
-    """The disc unclipped from the pack and flicked out: a latch clack, a quick whirr as it spins up, and the
-    whoosh of the throw."""
+    """Pin pull and throw: the disc unlatched from the pack with a hard metal clack, the swing of the arm, and
+    the disc arming in flight with a low, gritty electrical whir rising under it."""
     rng = np.random.default_rng(seed)
-    d = 0.55
+    d = 0.8
     out = np.zeros(int(RATE * d))
     p = rng.uniform(0.96, 1.04)
-    place(out, click(rng, 0.012, 3500) * 0.7, 0.0)
-    place(out, click(rng, 0.01, 6000) * 0.4, 0.035)
-    t = t_axis(0.3)
-    whirr = np.sin(2 * np.pi * np.cumsum(np.linspace(180 * p, 520 * p, len(t))) / RATE)
-    whirr *= (0.6 + 0.4 * np.sign(np.sin(2 * np.pi * np.linspace(30, 70, len(t)) * t))) * env_ad(0.3, 0.02, 0.12)
-    place(out, lowpass(whirr, 2500) * 0.35, 0.06)
-    place(out, jet(rng, 0.32, (900, 2600), q=1.1, decay=0.12) * 0.55, 0.12)
-    return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
+    place(out, click(rng, 0.014, 2400) * 0.8, 0.0)
+    place(out, metal_ring(rng, 0.09, [(1850 * p, 1.0, 1.0), (2930 * p, 0.6, 0.7), (4380 * p, 0.4, 0.5)], 0.02) * 0.3, 0.0)
+    place(out, click(rng, 0.01, 3500) * 0.45, 0.045)
+    place(out, thud(rng, 0.06, 160 * p, 0.3) * 0.3, 0.045)
+    place(out, jet(rng, 0.3, (450, 1300, 650), q=0.9, decay=0.09, attack=0.03) * 0.55, 0.09)
+    t = t_axis(0.55)
+    arm = buzz(rng, 0.55, [70 * p, 120 * p], [400, 1600]) * np.clip(t / 0.35, 0, 1) ** 2 * np.exp(-np.clip(t - 0.4, 0, None) / 0.06)
+    place(out, tail(arm * 0.22, 0.08), 0.18)
+    place(out, tail(electric(rng, 0.5, density=30, bright=3000) * np.clip(t_axis(0.5) / 0.4, 0, 1) * 0.25, 0.08), 0.2)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.72))
 
 
 def awall_deploy(seed):
-    """The disc biting into the ground and the wall going up: a heavy clunk as the legs lock, the mast's servo
-    whine, and the field rising through a crackling, swelling hum to a bright, held energy chord."""
+    """The disc slamming down and the field igniting: a heavy thump and clank as it bites and its legs lock,
+    then a deep, distorted electrical surge with a burst of static and crackle that settles into the field's
+    buzzing hum."""
     rng = np.random.default_rng(seed)
-    d = 1.4
+    d = 1.7
     out = np.zeros(int(RATE * d))
     p = rng.uniform(0.97, 1.03)
-    place(out, thud(rng, 0.2, 75 * p, 1.0) * 0.9, 0.0)
-    place(out, rattle(rng, 0.14, 4) * 0.35, 0.0)
-    place(out, whine(0.22, [700 * p, 1500 * p], 0.3), 0.04)
-    t = t_axis(1.2)
-    swell = np.clip(t / 0.35, 0, 1) ** 1.5 * np.exp(-np.clip(t - 0.45, 0, None) / 0.35)
-    body = (np.sin(2 * np.pi * 98 * p * t) + 0.6 * np.sin(2 * np.pi * 147 * p * t) + 0.35 * np.sin(2 * np.pi * 196.4 * p * t)) / 2
-    place(out, tail(soft_clip(body * 2.0, 1.6) * swell * 0.45, 0.2), 0.1)
-    place(out, tail(electric(rng, 1.0, density=90, bright=3500) * np.exp(-t_axis(1.0) / 0.3) * 0.5, 0.2), 0.1)
-    chord = sum(np.sin(2 * np.pi * f * p * t + rng.uniform(0, 6.28)) for f in (392, 588, 784.6)) / 3
-    place(out, tail(chord * np.clip((t - 0.25) / 0.1, 0, 1) * np.exp(-np.clip(t - 0.35, 0, None) / 0.3) * 0.3, 0.2), 0.1)
-    return fade_edges(normalize(soft_clip(out, 1.2), 0.82))
+    place(out, thud(rng, 0.3, 58 * p, 1.3), 0.0)
+    place(out, metal_ring(rng, 0.25, [(410 * p, 1.0, 1.0), (1130 * p, 0.6, 0.6), (2240 * p, 0.35, 0.4)], 0.06) * 0.3, 0.0)
+    place(out, rattle(rng, 0.16, 5) * 0.3, 0.01)
+    place(out, click(rng, 0.012, 3000) * 0.5, 0.07)
+    place(out, click(rng, 0.012, 3000) * 0.4, 0.1)
+    place(out, tail(sweep_bandpass(noise(rng, 0.14), (700, 1500), q=2.0) * env_ad(0.14, 0.02, 0.05) * 0.25, 0.03), 0.05)
+    s = 1.55
+    t = t_axis(s)
+    surge = np.clip(t / 0.07, 0, 1) * (0.4 + 0.6 * np.exp(-t / 0.3))
+    place(out, tail(buzz(rng, s, [32 * p, 52 * p, 50 * p, 50 * p], [180, 1400, 700, 500]) * surge * 0.6, 0.35), 0.12)
+    place(out, tail(rumble(rng, s) * np.clip(t / 0.05, 0, 1) * np.exp(-t / 0.4) * 1.6, 0.3), 0.12)
+    place(out, tone([75 * p, 38 * p], 0.5) * env_ad(0.5, 0.01, 0.16) * 0.7, 0.12)
+    static = sweep_bandpass(noise(rng, 0.8), (500, 2800, 1500), q=0.8) * env_ad(0.8, 0.025, 0.22)
+    place(out, tail(static * 0.5, 0.2), 0.12)
+    place(out, tail(electric(rng, 1.0, density=170, bright=2200) * np.exp(-t_axis(1.0) / 0.3) * 0.55, 0.2), 0.12)
+    out *= np.minimum(1.0, (d - t_axis(d)) / 0.3)
+    return fade_edges(normalize(soft_clip(out, 1.3), 0.78))
 
 
 def awall_loop(seed=1511):
-    """A standing wall: a deep, steady electrical hum with a slow beat and a faint fizzing crackle over it."""
+    """A standing wall: the field's low, grainy electrical buzz over a sub rumble, with fine static and the odd
+    crackle running through it."""
     rng = np.random.default_rng(seed)
     loop, cross = 3.0, 0.4
     d = loop + cross + 0.4
     t = t_axis(d)
-    hum = (np.sin(2 * np.pi * 98 * t) + 0.55 * np.sin(2 * np.pi * 196.6 * t) + 0.3 * np.sin(2 * np.pi * 294 * t)) * 0.25
-    beat = 0.85 + 0.15 * np.sin(2 * np.pi * 1.0 * t)
-    fizz = electric(rng, d, density=25, bright=5000) * 0.12
-    hiss = bandpass(noise(rng, d), 1800, 5000, order=2) * 0.03
-    return normalize(seamless(soft_clip(hum * beat, 1.3) + fizz + hiss, loop, cross), 0.55)
+    hum = buzz(rng, d, [50, 50], [520, 520], drive=2.0) * (0.9 + 0.1 * np.sin(2 * np.pi * 0.7 * t))
+    grain = bandpass(noise(rng, d), 300, 1400, order=2) * np.abs(np.sin(2 * np.pi * 50 * t)) ** 3
+    sizzle = bandpass(noise(rng, d), 3000, 8000, order=2) * 0.03
+    fizz = electric(rng, d, density=16, bright=3500) * 0.12
+    return normalize(seamless(hum * 0.5 + rumble(rng, d) * 0.6 + grain * 0.12 + sizzle + fizz, loop, cross), 0.55)
 
 
 def awall_block(seed):
-    """A shot stopped by the wall: a hard, bright electric snap that swallows it, ringing off into a short
-    falling zap."""
+    """A shot soaked up by the field: a dull, soft energy thump, a short hiss of static and a spit of crackle -
+    the sound of the shot being absorbed, not ricocheting."""
     rng = np.random.default_rng(seed)
-    d = 0.45
+    d = 0.4
     out = np.zeros(int(RATE * d))
     p = rng.uniform(0.92, 1.08)
-    place(out, click(rng, 0.015, 2500) * 0.9, 0.0)
-    place(out, electric(rng, 0.12, density=400, bright=2500) * np.exp(-t_axis(0.12) / 0.03) * 0.8, 0.0)
-    t = t_axis(0.3)
-    f = np.linspace(1400 * p, 380 * p, len(t))
-    zap = np.sin(2 * np.pi * np.cumsum(f) / RATE) * np.exp(-t / 0.07)
-    place(out, zap * 0.5, 0.005)
-    place(out, thud(rng, 0.1, 120 * p, 0.5) * 0.4, 0.0)
+    place(out, tone([190 * p, 70 * p], 0.14) * env_ad(0.14, 0.002, 0.035) * 0.8, 0.0)
+    place(out, lowpass(noise(rng, 0.06), 1200) * env_ad(0.06, 0.0008, 0.012) * 0.5, 0.0)
+    hiss = sweep_bandpass(noise(rng, 0.25), (2600 * p, 900 * p), q=1.0) * env_ad(0.25, 0.001, 0.05)
+    place(out, tail(hiss * 0.6, 0.05), 0.002)
+    place(out, tail(electric(rng, 0.12, density=450, bright=2000) * np.exp(-t_axis(0.12) / 0.03) * 0.45, 0.03), 0.0)
+    place(out, tail(buzz(rng, 0.2, [70 * p, 55 * p], [900, 300]) * np.exp(-t_axis(0.2) / 0.05) * 0.35, 0.04), 0.0)
     return fade_edges(normalize(soft_clip(out, 1.5), 0.8))
 
 
 def awall_amp(seed):
-    """A shot amped going out through the wall: a quick rising electric zing."""
+    """A shot going out through the wall and picking up its charge: just a quick, faint electrical sizzle on
+    the shot - the game gives it no sound of its own beyond the shot."""
     rng = np.random.default_rng(seed)
-    d = 0.3
+    d = 0.22
     out = np.zeros(int(RATE * d))
     p = rng.uniform(0.94, 1.06)
-    t = t_axis(0.2)
-    f = np.linspace(600 * p, 2200 * p, len(t))
-    zing = (np.sin(2 * np.pi * np.cumsum(f) / RATE) + 0.4 * np.sign(np.sin(2 * np.pi * np.cumsum(f * 0.5) / RATE))) * env_ad(0.2, 0.004, 0.06)
-    place(out, lowpass(zing, 7000) * 0.5, 0.0)
-    place(out, electric(rng, 0.15, density=200, bright=4000) * np.exp(-t_axis(0.15) / 0.04) * 0.4, 0.0)
-    return fade_edges(normalize(soft_clip(out, 1.3), 0.7))
+    sizzle = sweep_bandpass(noise(rng, 0.15), (2500 * p, 5500 * p), q=1.2) * env_ad(0.15, 0.002, 0.035)
+    place(out, tail(sizzle * 0.6, 0.03), 0.0)
+    place(out, tail(electric(rng, 0.08, density=300, bright=3000) * np.exp(-t_axis(0.08) / 0.025) * 0.4, 0.02), 0.0)
+    place(out, tail(buzz(rng, 0.12, [90 * p, 90 * p], [800, 400]) * np.exp(-t_axis(0.12) / 0.03) * 0.2, 0.03), 0.0)
+    return fade_edges(normalize(soft_clip(out, 1.3), 0.6))
 
 
 def awall_end(seed):
-    """The wall powering down: the hum dropping away in pitch through a stutter of crackle, and a last clunk
-    as the mast folds."""
+    """The field shutting off: its buzz collapsing and dropping away in pitch through a falling rush of
+    static and a sputter of crackle, then the dull pop of the spent disc."""
     rng = np.random.default_rng(seed)
-    d = 1.0
+    d = 1.2
     out = np.zeros(int(RATE * d))
     p = rng.uniform(0.97, 1.03)
-    t = t_axis(0.65)
-    f = np.linspace(196 * p, 55 * p, len(t))
-    fall = (np.sin(2 * np.pi * np.cumsum(f) / RATE) + 0.5 * np.sin(2 * np.pi * np.cumsum(f * 2.0) / RATE)) * np.exp(-t / 0.25)
-    gate = 0.55 + 0.45 * np.sign(np.sin(2 * np.pi * np.linspace(10, 30, len(t)) * t))
-    place(out, tail(soft_clip(fall * gate * 1.5, 1.5) * 0.5, 0.15), 0.0)
-    place(out, tail(electric(rng, 0.5, density=120, bright=3000) * np.exp(-t_axis(0.5) / 0.15) * 0.45, 0.1), 0.0)
-    place(out, thud(rng, 0.14, 90 * p, 0.6) * 0.45, 0.55)
-    place(out, click(rng, 0.01, 4000) * 0.35, 0.56)
+    s = 0.75
+    t = t_axis(s)
+    place(out, tail(buzz(rng, s, [52 * p, 40 * p, 22 * p], [900, 400, 120]) * np.exp(-t / 0.28) * 0.7, 0.15), 0.0)
+    place(out, tail(rumble(rng, s) * np.exp(-t / 0.2) * 1.2, 0.15), 0.0)
+    place(out, tail(sweep_bandpass(noise(rng, s), (2600, 900, 300), q=0.9) * env_ad(s, 0.01, 0.2) * 0.45, 0.15), 0.0)
+    sputter = electric(rng, 0.6, density=140, bright=2200) * np.exp(-t_axis(0.6) / 0.18)
+    place(out, tail(sputter * 0.5, 0.1), 0.02)
+    place(out, thud(rng, 0.18, 80 * p, 0.8) * 0.55, 0.62)
+    place(out, tail(lowpass(noise(rng, 0.12), 1800) * env_ad(0.12, 0.001, 0.025) * 0.5, 0.03), 0.62)
+    place(out, click(rng, 0.01, 3000) * 0.3, 0.63)
     return fade_edges(normalize(soft_clip(out, 1.2), 0.78))
 
 
