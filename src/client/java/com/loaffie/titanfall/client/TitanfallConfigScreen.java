@@ -117,7 +117,7 @@ public class TitanfallConfigScreen extends Screen {
 		toggle("Holo Draws Mobs", () -> config.holoDistractsMobs, () -> config.holoDistractsMobs = !config.holoDistractsMobs);
 		slider("A-Wall Length", 3.0, 30.0, config.awallDurationSeconds, value -> config.awallDurationSeconds = value);
 		slider("A-Wall Recharge", 0.0, 40.0, config.awallRechargeSeconds, value -> config.awallRechargeSeconds = value);
-		slider("A-Wall Health", 10.0, 400.0, config.awallHealth, value -> config.awallHealth = value);
+		slider("A-Wall Base Health", 2.0, 100.0, config.awallBaseHealth, value -> config.awallBaseHealth = value);
 		slider("A-Wall Amp", 1.0, 3.0, config.awallDamageAmp, value -> config.awallDamageAmp = value);
 		toggle("A-Wall Stops Blasts", () -> config.awallBlocksExplosions, () -> config.awallBlocksExplosions = !config.awallBlocksExplosions);
 		toggle("Sounds", () -> config.soundsEnabled, () -> config.soundsEnabled = !config.soundsEnabled);

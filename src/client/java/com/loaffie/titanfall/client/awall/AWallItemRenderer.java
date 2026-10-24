@@ -12,14 +12,14 @@ import net.minecraft.util.math.RotationAxis;
  * ({@code models/item/pilot_awall.json}) shrinks it to nothing in the hands, because a held pack is worn - the
  * feature renderer draws it on the back instead.
  *
- * <p>Vanilla hands this renderer a one-block cube (0..1) after the model's display transform. The pack (about
- * 4.8 x 5 px, its straps aside) is centred in it with its back - the cradle and the disc - to the viewer, and
- * scaled to fill most of the block.
+ * <p>Vanilla hands this renderer a one-block cube (0..1) after the model's display transform. The rack (about
+ * 4.9 x 5.3 px, its straps aside) is centred in it with its discs to the viewer, and scaled to fill most of the
+ * block.
  */
 public final class AWallItemRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
 	/** Mesh bounds centre, pixels. */
-	private static final float CENTRE_Y = 3.0F;
-	private static final float CENTRE_Z = 3.2F;
+	private static final float CENTRE_Y = 3.1F;
+	private static final float CENTRE_Z = 2.9F;
 	private static final float SCALE = 0.8F / 6.2F;
 
 	@Override

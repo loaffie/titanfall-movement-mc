@@ -323,10 +323,11 @@ public class TitanfallConfig {
 	/** Time for the charge to come back, seconds: 100 ammo at {@code regen_ammo_refill_rate} 5 a second = 20. */
 	public double awallRechargeSeconds = 20.0;
 	/**
-	 * Damage a wall takes from the shots it stops before it fails, half a heart per point. Titanfall's 1000 is
-	 * forty rifle rounds; 100 here is a dozen or so full-draw arrows.
+	 * The wall itself can't be shot down - it is "destroyable only at its protected base" (the game's own
+	 * description): the disc it stands on, which it shields from the front. This is the disc's health, half a
+	 * heart per point: a few sword hits from someone who walks round or through the wall.
 	 */
-	public double awallHealth = 100.0;
+	public double awallBaseHealth = 20.0;
 	/** Damage multiplier on shots that go out through the wall ({@code pass_through_amps_weapon}: Titanfall's amped rounds, 1.5x). */
 	public double awallDamageAmp = 1.5;
 	/** The wall stops explosions on its far side reaching those behind it, and the other way ({@code SetBlocksRadiusDamage}). */

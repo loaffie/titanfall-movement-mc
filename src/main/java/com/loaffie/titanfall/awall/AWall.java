@@ -11,11 +11,12 @@ import net.minecraft.util.math.Vec3d;
  * A-Wall: Titanfall 2's Amped Wall tactical ({@code mp_weapon_deployable_cover}). The pilot tosses an emitter
  * disc from the pack on their back; where it lands it throws up a curved wall of energy, for fifteen seconds,
  * that stops every shot coming at it from the front and amps the shots going out through it from behind.
- * People walk through it; only shots - and blasts - are stopped. The charge is back twenty seconds after a throw.
+ * People walk through it; only shots - and blasts - are stopped. The wall can't be shot down: it is
+ * "destroyable only at its protected base", the disc behind it. The charge is back twenty seconds after a throw.
  *
  * <p>The wall's shape is the game's: part of a cylinder ({@code CreateShieldWithSettings}, radius 84 and height
- * 89 units, a 150 degree arc) whose axis stands a radius behind the disc, so the wall bows out away from the
- * pilot with the disc at its middle. Titanfall's units are scaled as the movement's are, 72 units of pilot to
+ * 89 units, a 150 degree arc) whose axis stands about a radius behind the disc, so the wall bows out away from
+ * the pilot with the disc just behind its middle. Titanfall's units are scaled as the movement's are, 72 units of pilot to
  * 1.8 blocks: 1 unit = 0.025 blocks.
  */
 public final class AWall {
@@ -25,6 +26,12 @@ public final class AWall {
 	public static final double HEIGHT = 89 * 0.025;
 	/** Half its arc, radians ({@code DEPLOYABLE_SHIELD_FOV} 150). */
 	public static final double HALF_ARC = Math.toRadians(150.0 / 2.0);
+	/**
+	 * How far in front of the disc the wall stands, blocks: the disc - the wall's only weak point - sits behind it,
+	 * so nothing from the front can reach it. Further out than the game's single unit, because Minecraft's arrows
+	 * hit anything within 0.3 blocks of their path: a shot stopped at the wall must not still clip the disc.
+	 */
+	public static final double BASE_SETBACK = 0.6;
 	/** The wall reaches this far down past the disc, blocks, so a shot along uneven ground can't slip under it. */
 	public static final double SKIRT = 0.15;
 	/** Throw speed, blocks/tick: a short, underhand toss that lands a few blocks out. */
@@ -64,8 +71,8 @@ public final class AWall {
 	}
 
 	/**
-	 * Where a straight path {@code from} to {@code to} first meets a wall standing on {@code base} facing
-	 * {@code facing}, or null if it misses. {@link Crossing#outward} tells which way it went through: out from
+	 * Where a straight path {@code from} to {@code to} first meets a wall whose middle stands at {@code base}
+	 * ({@link AWallEntity#wallBase}), facing {@code facing}, or null if it misses. {@link Crossing#outward} tells which way it went through: out from
 	 * the pilot's side (amped) or in from the front (stopped).
 	 */
 	public static Crossing cross(Vec3d base, Vec3d facing, Vec3d from, Vec3d to) {

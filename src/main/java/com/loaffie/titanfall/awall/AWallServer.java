@@ -18,6 +18,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
@@ -35,8 +36,9 @@ import java.util.UUID;
  *   <li>One charge, back twenty seconds after the throw ({@code ammo_per_shot} 100 at {@code regen_ammo_refill_rate}
  *   5 a second). The client runs the meter; the server refuses a throw that comes back much sooner than it
  *   could, or one from a phased pilot ({@code OnWeaponAttemptOffhandSwitch}).</li>
- *   <li>A standing wall stops every shot that meets it from the front, taking the shot's damage off its health
- *   ({@code TRACE_COLLISION_GROUP_BLOCK_WEAPONS_AND_PHYSICS}), and lets through and amps every shot going out
+ *   <li>A standing wall stops every shot that meets it from the front
+ *   ({@code TRACE_COLLISION_GROUP_BLOCK_WEAPONS_AND_PHYSICS}) without harm to itself - only its base can be
+ *   destroyed ({@link AWallEntity#damage}) - and lets through and amps every shot going out
  *   through it from behind ({@code SetPassThroughFlags( PTF_ADDS_MODS )}, {@code pass_through_amps_weapon}) - its
  *   pilot's, their team's, anyone's ({@code TEAM_BOTH}). Amping doesn't stack: a shot is amped once.</li>
  *   <li>It stops blasts across it either way ({@code SetBlocksRadiusDamage}).</li>
@@ -47,9 +49,6 @@ import java.util.UUID;
 public final class AWallServer {
 	/** Ticks of slack on the recharge check, for latency. */
 	private static final int RECHARGE_SLACK_TICKS = 20;
-	/** Wall damage of a stopped shot that isn't an arrow: a fireball's, and anything else's. */
-	private static final double EXPLOSIVE_SHOT_DAMAGE = 6.0;
-	private static final double OTHER_SHOT_DAMAGE = 1.0;
 
 	private static final Map<UUID, Long> LAST_THROW = new HashMap<>();
 	private static final Map<World, List<AWallEntity>> STANDING = new HashMap<>();
@@ -139,19 +138,18 @@ public final class AWallServer {
 			return;
 		}
 
-		// Explosive projectiles add their push after moving; a little extra reach covers it.
+		// Explosive projectiles add their push after moving; a little extra reach covers it. The disc sits behind the
+		// wall, so a shot from the front meets the wall first and never reaches it.
 		Vec3d to = from.add(velocity.multiply(projectile instanceof ExplosiveProjectileEntity ? 1.2 : 1.0));
-		AWallEntity nearest = null;
 		AWall.Crossing first = null;
 		for (AWallEntity wall : walls) {
 			if (!wall.standing() || !wall.wallBox().intersects(from, to)) {
 				continue;
 			}
 
-			AWall.Crossing crossing = AWall.cross(wall.getPos(), wall.facing(), from, to);
+			AWall.Crossing crossing = AWall.cross(wall.wallBase(), wall.facing(), from, to);
 			if (crossing != null && (first == null || crossing.t() < first.t())) {
 				first = crossing;
-				nearest = wall;
 			}
 		}
 
@@ -173,7 +171,6 @@ public final class AWallServer {
 			return;
 		}
 
-		nearest.absorb(wallDamage(projectile, velocity));
 		Vec3d normal = first.normal();
 		// Sparks thrown back off the face, a ripple on it, and the shot is gone.
 		world.spawnParticles(TitanfallParticles.AWALL_RIPPLE, at.x, at.y, at.z, 0, normal.x, normal.y, normal.z, 1.0);
@@ -197,24 +194,21 @@ public final class AWallServer {
 		}
 	}
 
-	/** An amped shot, every tick it flies: a hot trail behind it. */
+	/** An amped shot, every tick it flies: a hot trail behind it, crackling with arcs. */
 	public static void ampedTrail(ProjectileEntity projectile) {
 		Vec3d velocity = projectile.getVelocity();
 		if (velocity.lengthSquared() < 0.01 || !(projectile.getWorld() instanceof ServerWorld world)) {
 			return;
 		}
 
-		world.spawnParticles(TitanfallParticles.AWALL_AMP, projectile.getX(), projectile.getY() + projectile.getHeight() * 0.5, projectile.getZ(),
-				0, velocity.x, velocity.y, velocity.z, 0.15);
-	}
-
-	/** What a stopped shot takes off a wall: what it would have done to someone. */
-	private static double wallDamage(ProjectileEntity projectile, Vec3d velocity) {
-		if (projectile instanceof PersistentProjectileEntity arrow) {
-			return Math.ceil(MathHelper.clamp(velocity.length() * arrow.getDamage(), 0.0, Integer.MAX_VALUE));
+		double y = projectile.getY() + projectile.getHeight() * 0.5;
+		world.spawnParticles(TitanfallParticles.AWALL_AMP, projectile.getX(), y, projectile.getZ(), 0, velocity.x, velocity.y, velocity.z, 0.15);
+		// The amped round crackles as it goes: a spit of arcs off it every other tick.
+		if ((projectile.age & 1) == 0) {
+			Random random = world.getRandom();
+			world.spawnParticles(TitanfallParticles.PHASE_SPARK, projectile.getX(), y, projectile.getZ(), 0,
+					random.nextGaussian(), random.nextGaussian(), random.nextGaussian(), 0.08);
 		}
-
-		return projectile instanceof ExplosiveProjectileEntity ? EXPLOSIVE_SHOT_DAMAGE : OTHER_SHOT_DAMAGE;
 	}
 
 	/** True if a standing wall lies across the line from a blast to {@code entity}, so the blast doesn't reach it. */
@@ -226,7 +220,7 @@ public final class AWallServer {
 
 		Vec3d target = entity.getBoundingBox().getCenter();
 		for (AWallEntity wall : walls) {
-			if (wall.standing() && wall.wallBox().intersects(source, target) && AWall.cross(wall.getPos(), wall.facing(), source, target) != null) {
+			if (wall.standing() && wall.wallBox().intersects(source, target) && AWall.cross(wall.wallBase(), wall.facing(), source, target) != null) {
 				return true;
 			}
 		}

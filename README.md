@@ -1,4 +1,4 @@
-# Titanfall Movement 2.7 (Fabric 1.21.1)
+# Titanfall Movement 2.7.1 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
 powered by a wearable **Pilot Jumpkit**, plus pilot tactical abilities: the **Grapple**, **Stim**,
@@ -311,12 +311,12 @@ it from behind.
   Leather     Shield         Leather
   Redstone    Blaze Powder   Redstone
   ```
-- **Worn on the upper back**: a compact pack between the shoulder blades, clear of the jumpkit lower down.
-  The emitter disc sits clipped into a round cradle on its back, with a column of four amber charge lights
-  down each side, on short straps over the shoulders and round the ribs. With Trinkets it goes in the chest
+- **Worn on the upper back**: a compact rack of six emitter discs, two columns of three, each with a cyan
+  light, as on the A-Wall pilot's back in Respawn's art. It sits between the shoulder blades, clear of the
+  jumpkit lower down, on short straps over the shoulders and round the ribs. With Trinkets it goes in the chest
   group's **back** slot (right-click it to equip); without Trinkets, hold it in the off hand. Over a
-  chestplate it sits out on the armour. Once you've thrown the disc the cradle is empty, and the lights fill
-  bottom to top as the next one comes.
+  chestplate it sits out on the armour. Once you've thrown a disc its slot (top, on your left) stands empty,
+  its ring glowing amber brighter as the next one comes.
 - **Using it.** Press **Tactical Ability** (`G`). If you also wear the Grapple, Phase Shift, Cloak or Holo
   Pilot, they take the key first, and the A-Wall has its own **A-Wall** key (unbound by default) under
   Controls. Your off hand reaches back over your shoulder, pulls the disc from the pack, swings it across your
@@ -330,20 +330,23 @@ it from behind.
     (`awallRechargeSeconds`).
   - **Shots from the front are stopped** at the wall, in a flash of sparks: arrows, tridents, fireballs,
     snowballs, potions, any projectile. Arrows and tridents drop at the foot of the wall, as off a shield, so
-    they can be picked up; everything else is gone. Each shot takes what it would have done to someone off the
-    wall's health (`awallHealth`, 100 by default, a dozen or so full-draw arrows). When that's gone the wall is
-    shot down.
-  - **Shots going out through it are amped**: 1.5 times the damage (`awallDamageAmp`), and they trail hot
-    sparks. Anyone's shots, yours, your team's or an enemy's who walks round behind it, as in the game. Amping
+    they can be picked up; everything else is gone.
+  - **The wall can't be shot down.** As the game puts it, it's "destroyable only at its protected base": the
+    disc it stands on, just behind it, where shots from the front can't reach. Walk round it, or through it,
+    and hit the disc (`awallBaseHealth`, 20 by default: a few sword hits), or shoot it from behind or the side,
+    or blow it up from your own side, and the wall comes down. You and your team can't hurt your own.
+  - **Shots going out through it are amped**: 1.5 times the damage (`awallDamageAmp`), and they leave a hot
+    trail, crackling with arcs. Anyone's shots, yours, your team's or an enemy's who walks round behind it, as in the game. Amping
     doesn't stack: a shot is amped once.
   - **It stops blasts** across it either way (`awallBlocksExplosions`): a creeper or TNT on the far side
     doesn't hurt or push those behind it.
   - People and mobs walk straight through it; only shots and blasts are stopped. Melee isn't affected.
   - It can't be thrown while phased.
-- **Look:** a sheet of amber hexagonal cells drifting slowly upward, brightest along its top and ends, rising
-  out of the disc as it goes up. It flares and ripples where it stops a shot, reddens and gutters as its
-  health runs down, stutters in its last two seconds, and shrinks back into the disc as it shuts down, or
-  breaks apart in a burst of embers if it was shot down.
+- **Look**, after the game's: mostly clear, a faint amber tint crossed by fine hatching, inside a bright amber
+  rim that follows its stepped top edge, its cut-away corners and its foot. It rises out of the disc as it
+  goes up, and electricity crackles off its foot. It flares and ripples where it stops a shot, reddens and
+  gutters as its base is damaged, stutters in its last two seconds, and shrinks back into the disc as it shuts
+  down, or breaks apart in a burst of embers if its base was destroyed.
 - Sounds: the disc unclipped and flicked out, a clunk and a rising crackle as the wall goes up, its deep hum,
   a hard snap for each shot it stops, a zing for each shot it amps, and the field powering down.
 

@@ -1,3 +1,23 @@
+# 2.7.1 (Minecraft 1.21.1)
+
+The A-Wall, checked against the game (its loadout description, gameplay footage and Respawn's character art):
+
+- **Rules: "destroyable only at its protected base"** (the game's own description). The wall itself no longer
+  takes damage from the shots it stops. Its base, the disc, sits just behind the wall where shots from the front
+  can't reach it. It can be hit by a blow from someone who walks round or through the wall, by a shot from behind
+  or the side, or by a blast from the wall's own side, and the wall comes down when it is destroyed. Its pilot
+  and their team can't hurt it. `awallHealth` is replaced by `awallBaseHealth` (20).
+- **The wall looks like the game's:**
+  - It is mostly clear: a faint amber tint crossed by fine hatching, blended over what is behind it, so it stays
+    amber against a bright sky instead of washing out.
+  - A bright amber rim follows its outline: the stepped top edge, the cut-away corners and the foot.
+  - Electricity crackles off its foot.
+- **Amped shots crackle with arcs** along their hot trail.
+- **The pack is a rack of six discs**, two columns of three with cyan lights, as the A-Wall pilot carries them.
+  The top-left slot stands empty, its ring glowing amber, while the next disc comes.
+- Shots stopped at the wall can no longer clip the disc behind it: Minecraft arrows hit anything within 0.3
+  blocks of their path, so the disc sits further back.
+
 # 2.7 (Minecraft 1.21.1)
 
 ## A-Wall

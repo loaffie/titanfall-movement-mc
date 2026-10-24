@@ -3,6 +3,10 @@ package com.loaffie.titanfall.awall;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.movement.TitanfallSounds;
 import net.minecraft.entity.Entity;
+import com.loaffie.titanfall.particle.TitanfallParticles;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.registry.tag.DamageTypeTags;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -23,9 +27,9 @@ import net.minecraft.world.World;
  *
  * <p>In flight it is a heavy spinning disc ({@link AWall#GRAVITY}) that glances off walls and ceilings and
  * plants itself on the first floor it meets ({@code OnDeployableCoverPlanted} keeps a wall upright the same
- * way). Planted, it stands a wall ({@link AWall#cross}) facing the way it was thrown, for
- * {@link AWall#durationTicks} or until the shots it has stopped use up its health, then shuts it down over
- * {@link AWall#COLLAPSE_TICKS} and is gone.
+ * way). Planted, it stands a wall ({@link AWall#cross}) facing the way it was thrown, just in front of itself,
+ * for {@link AWall#durationTicks} or until the disc - the wall's base, its one weak point - is destroyed, then
+ * shuts it down over {@link AWall#COLLAPSE_TICKS} and is gone.
  *
  * <p>The wall's work - stopping and amping shots, blocking blasts - is the server's ({@link AWallServer}); the
  * client draws it from the tracked state.
@@ -38,7 +42,7 @@ public class AWallEntity extends ProjectileEntity {
 	private static final TrackedData<Byte> STATE = DataTracker.registerData(AWallEntity.class, TrackedDataHandlerRegistry.BYTE);
 	/** The way the wall faces, as a yaw (fixed at the throw). */
 	private static final TrackedData<Float> WALL_YAW = DataTracker.registerData(AWallEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	/** Health left, 0..1 of the full. */
+	/** The base's health left, 0..1 of the full. */
 	private static final TrackedData<Float> HEALTH = DataTracker.registerData(AWallEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	/** Longest the disc may fly before it is given up on, ticks. */
 	private static final int MAX_FLIGHT_TICKS = 100;
@@ -65,7 +69,7 @@ public class AWallEntity extends ProjectileEntity {
 	/** Called by the server as the disc leaves the hand. */
 	public void thrown(float yaw) {
 		this.dataTracker.set(WALL_YAW, MathHelper.wrapDegrees(yaw));
-		this.health = TitanfallConfig.get().awallHealth;
+		this.health = TitanfallConfig.get().awallBaseHealth;
 	}
 
 	public byte state() {
@@ -96,7 +100,7 @@ public class AWallEntity extends ProjectileEntity {
 
 	/** The space the wall stands in. */
 	public Box wallBox() {
-		Vec3d base = this.getPos();
+		Vec3d base = wallBase();
 		return new Box(base.x - AWall.RADIUS * 2.0, base.y - AWall.SKIRT, base.z - AWall.RADIUS * 2.0,
 				base.x + AWall.RADIUS * 2.0, base.y + AWall.HEIGHT, base.z + AWall.RADIUS * 2.0);
 	}
@@ -180,7 +184,7 @@ public class AWallEntity extends ProjectileEntity {
 		}
 	}
 
-	/** Shuts the wall down: out of time, or shot down. */
+	/** Shuts the wall down: out of time, or its base destroyed. */
 	private void collapse() {
 		this.dataTracker.set(STATE, COLLAPSING);
 		collapseTicks = 0;
@@ -189,18 +193,49 @@ public class AWallEntity extends ProjectileEntity {
 				0.95F + this.random.nextFloat() * 0.1F);
 	}
 
-	/** A shot it stopped: takes it off the wall's health, and brings the wall down when that is gone. */
-	void absorb(double damage) {
-		if (!standing()) {
-			return;
+	/**
+	 * A hit on the disc - the wall's base, and its only weak point. Anyone but its pilot and their team can hurt
+	 * it: a blow from someone who walked round or through the wall, a shot from behind or the side, a blast that
+	 * isn't across the wall. When its health is gone, the wall comes down.
+	 */
+	@Override
+	public boolean damage(DamageSource source, float amount) {
+		if (this.getWorld().isClient() || !standing() || this.isInvulnerableTo(source)
+				|| (source.getAttacker() == null && !source.isIn(DamageTypeTags.IS_EXPLOSION))) {
+			return false;
 		}
 
-		double full = Math.max(1.0, TitanfallConfig.get().awallHealth);
-		health -= damage;
+		Entity attacker = source.getAttacker();
+		Entity owner = this.getOwner();
+		if (attacker != null && owner != null && (attacker == owner || attacker.isTeammate(owner))) {
+			return false;
+		}
+
+		double full = Math.max(1.0, TitanfallConfig.get().awallBaseHealth);
+		health -= amount;
 		this.dataTracker.set(HEALTH, (float) MathHelper.clamp(health / full, 0.0, 1.0));
+		this.getWorld().playSound(null, this.getX(), this.getY() + 0.2, this.getZ(), TitanfallSounds.AWALL_BLOCK, SoundCategory.PLAYERS, 0.7F,
+				0.55F + this.random.nextFloat() * 0.1F);
+		if (this.getWorld() instanceof ServerWorld world) {
+			world.spawnParticles(TitanfallParticles.AWALL_SPARK, this.getX(), this.getY() + 0.15, this.getZ(), 6, 0.1, 0.05, 0.1, 0.12);
+		}
+
 		if (health <= 0.0) {
 			collapse();
 		}
+
+		return true;
+	}
+
+	/** The middle of the wall, at its foot: a little in front of the disc. */
+	public Vec3d wallBase() {
+		return this.getPos().add(facing().multiply(AWall.BASE_SETBACK));
+	}
+
+	/** The disc can be hit - by a blow or a shot - while its wall stands. */
+	@Override
+	public boolean canHit() {
+		return standing();
 	}
 
 	@Override
@@ -210,11 +245,6 @@ public class AWallEntity extends ProjectileEntity {
 		}
 
 		super.remove(reason);
-	}
-
-	@Override
-	public boolean canHit() {
-		return false;
 	}
 
 	@Override

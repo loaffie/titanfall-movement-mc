@@ -18,9 +18,9 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.math.RotationAxis;
 
 /**
- * Draws the A-Wall pack on the upper back of every player in view who wears it - out over a chestplate if they
- * wear one - and, through a toss, the disc in their off hand. The local pilot's pack shows their charge; for
- * everyone else the cradle is full except while their disc is out.
+ * Draws the A-Wall rack on the upper back of every player in view who wears it - out over a chestplate if they
+ * wear one - and, through a toss, the disc in their off hand. The local pilot's rack shows their charge; for
+ * everyone else the top slot is full except while their disc is out.
  */
 public class AWallFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEntity, PlayerEntityModel<AbstractClientPlayerEntity>> {
 	/** The disc in the hand: its centre this far down the arm from the shoulder joint, pixels (the hand is at 10), and its size. */

@@ -16,10 +16,10 @@ import net.minecraft.util.math.RotationAxis;
 
 /**
  * The A-Wall's meshes ({@code tools/generate-awall-model.py}): the pack on the upper back
- * ({@code models/entity/awall.obj}, in the player model's body space) and the emitter disc
- * ({@code models/entity/awall_disc.obj}, pixels, +Y up). The pack's four pairs of lights fill bottom to top as
- * the next disc comes, and its cradle holds a disc only while one is ready; the disc's legs unfold and its mast
- * rises as the wall goes up.
+ * ({@code models/entity/awall.obj}, in the player model's body space) - a rack of six discs, as the A-Wall
+ * pilot carries - and the emitter disc ({@code models/entity/awall_disc.obj}, pixels, +Y up). The rack's top
+ * slot stands empty while the next disc comes; the thrown disc's legs unfold and its mast rises as the wall goes
+ * up.
  */
 public final class AWallModel {
 	public static final Identifier TEXTURE = Identifier.of(TitanfallMovement.MOD_ID, "textures/entity/awall.png");
@@ -29,8 +29,8 @@ public final class AWallModel {
 	private static final int WHITE = 0xFFFFFFFF;
 	/** The wall's amber, and the lights' when the disc is ready. */
 	public static final int AMBER = 0xFFFF9A2E;
-	private static final int PIP_OFF = 0xFF20160E;
-	private static final int PIPS = 4;
+	/** The suit's cyan, on the discs in the rack. */
+	public static final int CYAN = 0xFF96E8FF;
 	/** Over a chestplate the pack sits this much further out, pixels (the armour's inflation). */
 	private static final float OVER_ARMOR = 1.05F;
 	/** The disc's leg hinges and the mast's foot, disc pixels (the generator's LEG_HINGE_R/Y, MAST_BASE). */
@@ -53,10 +53,11 @@ public final class AWallModel {
 	}
 
 	/**
-	 * The pack in body space. {@code charge} is how far the next disc has come, 0..1 (1: one is in the cradle);
-	 * the lights fill with it, glowing faintly amber while it comes and full amber when it is there.
+	 * The pack in body space: the rack of six discs, each lit cyan. {@code charge} is how far the next disc has
+	 * come, 0..1; until it is there ({@code nextDisc} false) its slot stands empty, the ring inside it glowing amber
+	 * brighter as it comes.
 	 */
-	public static void renderPack(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay, float charge, boolean discInCradle) {
+	public static void renderPack(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay, float charge, boolean nextDisc) {
 		ObjModel mesh = PACK.get();
 		if (mesh == null) {
 			return;
@@ -65,20 +66,18 @@ public final class AWallModel {
 		MatrixStack.Entry entry = matrices.peek();
 		VertexConsumer base = consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
 		mesh.render("rig", entry, base, light, overlay, WHITE);
-		if (discInCradle) {
-			mesh.render("disc", entry, base, light, overlay, WHITE);
+		mesh.render("discs", entry, base, light, overlay, WHITE);
+		if (nextDisc) {
+			mesh.render("disc0", entry, base, light, overlay, WHITE);
 		}
 
 		VertexConsumer emissive = consumers.getBuffer(RenderLayer.getEyes(TEXTURE));
-		boolean ready = charge >= 1.0F;
-		if (discInCradle) {
-			mesh.render("disc_light", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, ready ? AMBER : GrappleModel.dim(AMBER, 0.35F));
-		}
-
-		for (int i = 0; i < PIPS; i++) {
-			float fill = MathHelper.clamp(charge * PIPS - i, 0.0F, 1.0F);
-			int color = ready ? AMBER : fill >= 1.0F ? GrappleModel.dim(AMBER, 0.6F) : fill > 0.0F ? GrappleModel.dim(AMBER, 0.12F + 0.3F * fill) : PIP_OFF;
-			mesh.render("pip" + i, entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, color);
+		mesh.render("lights", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, CYAN);
+		if (nextDisc) {
+			mesh.render("light0", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, CYAN);
+		} else {
+			mesh.render("socket0", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV,
+					GrappleModel.dim(AMBER, 0.15F + 0.6F * MathHelper.clamp(charge, 0.0F, 1.0F)));
 		}
 	}
 

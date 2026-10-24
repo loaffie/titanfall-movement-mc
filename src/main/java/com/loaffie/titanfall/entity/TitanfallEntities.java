@@ -37,7 +37,7 @@ public final class TitanfallEntities {
 	public static final EntityType<AWallEntity> AWALL = Registry.register(Registries.ENTITY_TYPE,
 			Identifier.of(TitanfallMovement.MOD_ID, "awall"),
 			EntityType.Builder.<AWallEntity>create(AWallEntity::new, SpawnGroup.MISC).disableSaving().disableSummon()
-					.dimensions(0.35F, 0.12F).maxTrackingRange(8).trackingTickInterval(1).build());
+					.dimensions(0.4F, 0.35F).maxTrackingRange(8).trackingTickInterval(1).build());
 
 	private TitanfallEntities() {
 	}
