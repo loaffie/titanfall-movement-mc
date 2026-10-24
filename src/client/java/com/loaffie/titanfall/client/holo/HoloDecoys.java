@@ -63,6 +63,8 @@ public final class HoloDecoys {
 		int nextPulse;
 		int pulseAge = -1;
 		boolean dissolveSeen;
+		/** The decoy's hurt time last tick, to catch each new hit. */
+		int lastHurtTime;
 
 		State(HoloDecoyEntity decoy, Random random) {
 			this.decoy = decoy;
@@ -209,6 +211,16 @@ public final class HoloDecoys {
 			if (state.friendly && !state.decoy.dissolving()) {
 				HoloEffects.trail(state.decoy, state.age);
 			}
+
+			// A hit sounds like a hit pilot to everyone (the server plays the player's hurt sound); its own side
+			// also hears the projection crackle, so they know their decoy is drawing fire.
+			if (state.friendly && state.decoy.hurtTime > state.lastHurtTime && TitanfallConfig.get().soundsEnabled) {
+				HoloDecoyEntity decoy = state.decoy;
+				decoy.getWorld().playSound(decoy.getX(), decoy.getY() + 1.0, decoy.getZ(), TitanfallSounds.HOLO_HIT, SoundCategory.PLAYERS,
+						0.8F * (float) TitanfallConfig.get().movementVolume, 0.95F + random.nextFloat() * 0.1F, false);
+			}
+
+			state.lastHurtTime = state.decoy.hurtTime;
 		}
 	}
 

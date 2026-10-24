@@ -1,11 +1,13 @@
 package com.loaffie.titanfall.client;
 
-import com.loaffie.titanfall.client.phase.PhaseStates;
+import com.loaffie.titanfall.awall.AWall;
 import com.loaffie.titanfall.client.cloak.CloakStates;
+import com.loaffie.titanfall.client.phase.PhaseStates;
 import com.loaffie.titanfall.cloak.Cloak;
 import com.loaffie.titanfall.config.TitanfallConfig;
 import com.loaffie.titanfall.grapple.Grapple;
 import com.loaffie.titanfall.holo.HoloPilot;
+import com.loaffie.titanfall.movement.AWallController;
 import com.loaffie.titanfall.movement.CloakController;
 import com.loaffie.titanfall.movement.GrappleController;
 import com.loaffie.titanfall.movement.HoloController;
@@ -23,7 +25,7 @@ import net.minecraft.util.math.MathHelper;
 /**
  * The tactical abilities' crosshair readout, after Titanfall 2's tactical ring: a short arc round the
  * crosshair per ability that fills as its charge comes back (amber while refilling, cyan when ready) - the
- * first ability worn (Grapple, Phase Shift, Cloak, Holo Pilot, Pulse Blade, Stim) under the crosshair, a second over
+ * first ability worn (Grapple, Phase Shift, Cloak, Holo Pilot, A-Wall, Pulse Blade, Stim) under the crosshair, a second over
  * it - the Holo Pilot's split in two, one half per charge - and for
  * the Grapple two brackets either side of the crosshair that light up when something the hook could bite is
  * under it and in range. While phased, the Phase Shift's arc counts the phase down in white.
@@ -57,9 +59,10 @@ public final class TacticalHud {
 		boolean phase = PhaseShift.isWorn(client.player);
 		boolean cloak = Cloak.isWorn(client.player);
 		boolean holo = HoloPilot.isWorn(client.player);
+		boolean awall = AWall.isWorn(client.player);
 		boolean pulse = PulseBlade.isWorn(client.player);
 		boolean stim = Stim.isWorn(client.player);
-		if (!grapple && !phase && !cloak && !holo && !pulse && !stim) {
+		if (!grapple && !phase && !cloak && !holo && !awall && !pulse && !stim) {
 			return;
 		}
 
@@ -103,6 +106,11 @@ public final class TacticalHud {
 		if (holo) {
 			int charges = HoloPilot.charges(TitanfallConfig.get());
 			arc(context, cx, cy, HoloController.meter() / charges, HoloController.ready() ? READY : CHARGING, side, charges);
+			side = -side;
+		}
+
+		if (awall) {
+			arc(context, cx, cy, AWallController.meter(), AWallController.ready() ? READY : CHARGING, side);
 			side = -side;
 		}
 

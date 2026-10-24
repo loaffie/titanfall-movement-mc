@@ -1,0 +1,43 @@
+{
+	"parent": "minecraft:recipes/root",
+	"criteria": {
+		"has_shield": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": "minecraft:shield"
+					}
+				]
+			}
+		},
+		"has_blaze_powder": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"items": "minecraft:blaze_powder"
+					}
+				]
+			}
+		},
+		"has_the_recipe": {
+			"trigger": "minecraft:recipe_unlocked",
+			"conditions": {
+				"recipe": "titanfall_movement:pilot_awall"
+			}
+		}
+	},
+	"requirements": [
+		[
+			"has_shield",
+			"has_blaze_powder",
+			"has_the_recipe"
+		]
+	],
+	"rewards": {
+		"recipes": [
+			"titanfall_movement:pilot_awall"
+		]
+	}
+}

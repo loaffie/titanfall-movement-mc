@@ -24,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Arm;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
@@ -424,9 +425,13 @@ public class HoloDecoyEntity extends LivingEntity {
 		return owner != null && (other == owner || owner.isTeammate(other)) || super.isTeammate(other);
 	}
 
+	/**
+	 * A hit decoy sounds like a hit player, so the shooter can't tell by ear; the crackle of its projection is
+	 * played to its own side by the client ({@code HoloDecoys}).
+	 */
 	@Override
 	protected SoundEvent getHurtSound(DamageSource source) {
-		return TitanfallSounds.HOLO_HIT;
+		return SoundEvents.ENTITY_PLAYER_HURT;
 	}
 
 	@Override

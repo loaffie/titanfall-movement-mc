@@ -3,6 +3,7 @@ package com.loaffie.titanfall.item;
 import com.loaffie.titanfall.TitanfallMovement;
 import com.loaffie.titanfall.cloak.PilotCloakItem;
 import com.loaffie.titanfall.grapple.PilotGrappleItem;
+import com.loaffie.titanfall.awall.PilotAWallItem;
 import com.loaffie.titanfall.holo.PilotHoloItem;
 import com.loaffie.titanfall.phase.PilotPhaseShiftItem;
 import com.loaffie.titanfall.pulse.PilotPulseBladeItem;
@@ -69,6 +70,10 @@ public final class TitanfallItems {
 	public static final Item PILOT_HOLO = register("pilot_holo",
 			new PilotHoloItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
 
+	/** The A-Wall pack: a compact pack on the upper back holding the wall's emitter disc (Trinkets' back slot, or held). */
+	public static final Item PILOT_AWALL = register("pilot_awall",
+			new PilotAWallItem(new Item.Settings().maxCount(1).rarity(Rarity.RARE).fireproof()));
+
 	private TitanfallItems() {
 	}
 
@@ -103,6 +108,7 @@ public final class TitanfallItems {
 			entries.add(PILOT_PULSE_BLADE);
 			entries.add(PILOT_CLOAK);
 			entries.add(PILOT_HOLO);
+			entries.add(PILOT_AWALL);
 		});
 	}
 }

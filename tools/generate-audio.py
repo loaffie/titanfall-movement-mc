@@ -14,7 +14,9 @@ the Pulse Blade: the kunai sliding out of its sheath, the whip of the throw, the
 deep sonar ping of each pulse, and the alarm a revealed pilot hears. And the Cloak: a glassy shimmer bending
 shut round the pilot, a faint airy hum while it holds, a warning flutter before it fails, and the shimmer
 tearing open again. And the Holo Pilot: the projector's digital chirp and the hologram resolving with a
-bright synthetic tone, its low flickering hum, the crackle of a hit, and the picture breaking up.
+bright synthetic tone, its low flickering hum, the crackle of a hit, and the picture breaking up. And the
+A-Wall: the disc unclipped and flicked out, the clunk and rising crackle of the wall going up, its deep hum,
+the snap of a shot it stops, the zing of a shot it amps, and the field powering down.
 
 Usage (from the repository root):
 
@@ -30,6 +32,7 @@ Requires numpy, scipy and ffmpeg (with libvorbis) on the PATH. Output, as mono 4
     src/main/resources/assets/titanfall_movement/sounds/pulse/<name>.ogg     (the pulse_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/cloak/<name>.ogg     (the cloak_* sounds)
     src/main/resources/assets/titanfall_movement/sounds/holo/<name>.ogg      (the holo_* sounds)
+    src/main/resources/assets/titanfall_movement/sounds/awall/<name>.ogg     (the awall_* sounds)
 
 The one-shots come in variants (jump_1..3, double_jump_1..3, walljump_1..3, land_1..3) that
 sounds.json picks between at random, so repeated moves do not sound like a loop of one sample. The
@@ -859,6 +862,105 @@ def holo_end(seed):
     return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
 
 
+def awall_toss(seed):
+    """The disc unclipped from the pack and flicked out: a latch clack, a quick whirr as it spins up, and the
+    whoosh of the throw."""
+    rng = np.random.default_rng(seed)
+    d = 0.55
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.96, 1.04)
+    place(out, click(rng, 0.012, 3500) * 0.7, 0.0)
+    place(out, click(rng, 0.01, 6000) * 0.4, 0.035)
+    t = t_axis(0.3)
+    whirr = np.sin(2 * np.pi * np.cumsum(np.linspace(180 * p, 520 * p, len(t))) / RATE)
+    whirr *= (0.6 + 0.4 * np.sign(np.sin(2 * np.pi * np.linspace(30, 70, len(t)) * t))) * env_ad(0.3, 0.02, 0.12)
+    place(out, lowpass(whirr, 2500) * 0.35, 0.06)
+    place(out, jet(rng, 0.32, (900, 2600), q=1.1, decay=0.12) * 0.55, 0.12)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.75))
+
+
+def awall_deploy(seed):
+    """The disc biting into the ground and the wall going up: a heavy clunk as the legs lock, the mast's servo
+    whine, and the field rising through a crackling, swelling hum to a bright, held energy chord."""
+    rng = np.random.default_rng(seed)
+    d = 1.4
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    place(out, thud(rng, 0.2, 75 * p, 1.0) * 0.9, 0.0)
+    place(out, rattle(rng, 0.14, 4) * 0.35, 0.0)
+    place(out, whine(0.22, [700 * p, 1500 * p], 0.3), 0.04)
+    t = t_axis(1.2)
+    swell = np.clip(t / 0.35, 0, 1) ** 1.5 * np.exp(-np.clip(t - 0.45, 0, None) / 0.35)
+    body = (np.sin(2 * np.pi * 98 * p * t) + 0.6 * np.sin(2 * np.pi * 147 * p * t) + 0.35 * np.sin(2 * np.pi * 196.4 * p * t)) / 2
+    place(out, tail(soft_clip(body * 2.0, 1.6) * swell * 0.45, 0.2), 0.1)
+    place(out, tail(electric(rng, 1.0, density=90, bright=3500) * np.exp(-t_axis(1.0) / 0.3) * 0.5, 0.2), 0.1)
+    chord = sum(np.sin(2 * np.pi * f * p * t + rng.uniform(0, 6.28)) for f in (392, 588, 784.6)) / 3
+    place(out, tail(chord * np.clip((t - 0.25) / 0.1, 0, 1) * np.exp(-np.clip(t - 0.35, 0, None) / 0.3) * 0.3, 0.2), 0.1)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.82))
+
+
+def awall_loop(seed=1511):
+    """A standing wall: a deep, steady electrical hum with a slow beat and a faint fizzing crackle over it."""
+    rng = np.random.default_rng(seed)
+    loop, cross = 3.0, 0.4
+    d = loop + cross + 0.4
+    t = t_axis(d)
+    hum = (np.sin(2 * np.pi * 98 * t) + 0.55 * np.sin(2 * np.pi * 196.6 * t) + 0.3 * np.sin(2 * np.pi * 294 * t)) * 0.25
+    beat = 0.85 + 0.15 * np.sin(2 * np.pi * 1.0 * t)
+    fizz = electric(rng, d, density=25, bright=5000) * 0.12
+    hiss = bandpass(noise(rng, d), 1800, 5000, order=2) * 0.03
+    return normalize(seamless(soft_clip(hum * beat, 1.3) + fizz + hiss, loop, cross), 0.55)
+
+
+def awall_block(seed):
+    """A shot stopped by the wall: a hard, bright electric snap that swallows it, ringing off into a short
+    falling zap."""
+    rng = np.random.default_rng(seed)
+    d = 0.45
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.92, 1.08)
+    place(out, click(rng, 0.015, 2500) * 0.9, 0.0)
+    place(out, electric(rng, 0.12, density=400, bright=2500) * np.exp(-t_axis(0.12) / 0.03) * 0.8, 0.0)
+    t = t_axis(0.3)
+    f = np.linspace(1400 * p, 380 * p, len(t))
+    zap = np.sin(2 * np.pi * np.cumsum(f) / RATE) * np.exp(-t / 0.07)
+    place(out, zap * 0.5, 0.005)
+    place(out, thud(rng, 0.1, 120 * p, 0.5) * 0.4, 0.0)
+    return fade_edges(normalize(soft_clip(out, 1.5), 0.8))
+
+
+def awall_amp(seed):
+    """A shot amped going out through the wall: a quick rising electric zing."""
+    rng = np.random.default_rng(seed)
+    d = 0.3
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.94, 1.06)
+    t = t_axis(0.2)
+    f = np.linspace(600 * p, 2200 * p, len(t))
+    zing = (np.sin(2 * np.pi * np.cumsum(f) / RATE) + 0.4 * np.sign(np.sin(2 * np.pi * np.cumsum(f * 0.5) / RATE))) * env_ad(0.2, 0.004, 0.06)
+    place(out, lowpass(zing, 7000) * 0.5, 0.0)
+    place(out, electric(rng, 0.15, density=200, bright=4000) * np.exp(-t_axis(0.15) / 0.04) * 0.4, 0.0)
+    return fade_edges(normalize(soft_clip(out, 1.3), 0.7))
+
+
+def awall_end(seed):
+    """The wall powering down: the hum dropping away in pitch through a stutter of crackle, and a last clunk
+    as the mast folds."""
+    rng = np.random.default_rng(seed)
+    d = 1.0
+    out = np.zeros(int(RATE * d))
+    p = rng.uniform(0.97, 1.03)
+    t = t_axis(0.65)
+    f = np.linspace(196 * p, 55 * p, len(t))
+    fall = (np.sin(2 * np.pi * np.cumsum(f) / RATE) + 0.5 * np.sin(2 * np.pi * np.cumsum(f * 2.0) / RATE)) * np.exp(-t / 0.25)
+    gate = 0.55 + 0.45 * np.sign(np.sin(2 * np.pi * np.linspace(10, 30, len(t)) * t))
+    place(out, tail(soft_clip(fall * gate * 1.5, 1.5) * 0.5, 0.15), 0.0)
+    place(out, tail(electric(rng, 0.5, density=120, bright=3000) * np.exp(-t_axis(0.5) / 0.15) * 0.45, 0.1), 0.0)
+    place(out, thud(rng, 0.14, 90 * p, 0.6) * 0.45, 0.55)
+    place(out, click(rng, 0.01, 4000) * 0.35, 0.56)
+    return fade_edges(normalize(soft_clip(out, 1.2), 0.78))
+
+
 SOUNDS = {
     "double_jump_1": lambda: double_jump(101),
     "double_jump_2": lambda: double_jump(102),
@@ -920,12 +1022,24 @@ SOUNDS = {
     "holo_hit_3": lambda: holo_hit(1423),
     "holo_end_1": lambda: holo_end(1431),
     "holo_end_2": lambda: holo_end(1432),
+    "awall_toss_1": lambda: awall_toss(1501),
+    "awall_toss_2": lambda: awall_toss(1502),
+    "awall_deploy_1": lambda: awall_deploy(1503),
+    "awall_deploy_2": lambda: awall_deploy(1504),
+    "awall_loop": awall_loop,
+    "awall_block_1": lambda: awall_block(1521),
+    "awall_block_2": lambda: awall_block(1522),
+    "awall_block_3": lambda: awall_block(1523),
+    "awall_amp_1": lambda: awall_amp(1531),
+    "awall_amp_2": lambda: awall_amp(1532),
+    "awall_end_1": lambda: awall_end(1541),
+    "awall_end_2": lambda: awall_end(1542),
 }
 
 
 def write_ogg(name, samples):
-    # grapple_*, stim_*, phase_*, pulse_*, cloak_* and holo_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
-    group = next((g for g in ("grapple", "stim", "phase", "pulse", "cloak", "holo") if name.startswith(g + "_")), None)
+    # grapple_*, stim_*, phase_*, pulse_*, cloak_*, holo_* and awall_* sounds go to their own folders without the prefix: grapple_fire_1 -> grapple/fire_1.ogg.
+    group = next((g for g in ("grapple", "stim", "phase", "pulse", "cloak", "holo", "awall") if name.startswith(g + "_")), None)
     out_dir = SOUNDS_DIR / group if group else OUT
     file = name[len(group) + 1:] if group else name
     out_dir.mkdir(parents=True, exist_ok=True)

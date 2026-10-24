@@ -210,5 +210,46 @@
 			"titanfall_movement:holo/end_2"
 		],
 		"subtitle": "subtitles.titanfall_movement.holo_end"
+	},
+	"awall_toss": {
+		"sounds": [
+			"titanfall_movement:awall/toss_1",
+			"titanfall_movement:awall/toss_2"
+		],
+		"subtitle": "subtitles.titanfall_movement.awall_toss"
+	},
+	"awall_deploy": {
+		"sounds": [
+			"titanfall_movement:awall/deploy_1",
+			"titanfall_movement:awall/deploy_2"
+		],
+		"subtitle": "subtitles.titanfall_movement.awall_deploy"
+	},
+	"awall_loop": {
+		"sounds": [
+			"titanfall_movement:awall/loop"
+		]
+	},
+	"awall_block": {
+		"sounds": [
+			"titanfall_movement:awall/block_1",
+			"titanfall_movement:awall/block_2",
+			"titanfall_movement:awall/block_3"
+		],
+		"subtitle": "subtitles.titanfall_movement.awall_block"
+	},
+	"awall_amp": {
+		"sounds": [
+			"titanfall_movement:awall/amp_1",
+			"titanfall_movement:awall/amp_2"
+		],
+		"subtitle": "subtitles.titanfall_movement.awall_amp"
+	},
+	"awall_end": {
+		"sounds": [
+			"titanfall_movement:awall/end_1",
+			"titanfall_movement:awall/end_2"
+		],
+		"subtitle": "subtitles.titanfall_movement.awall_end"
 	}
 }

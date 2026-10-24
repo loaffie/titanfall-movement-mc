@@ -1,3 +1,46 @@
+# 2.7 (Minecraft 1.21.1)
+
+## A-Wall
+
+Titanfall 2's A-Wall (Amped Wall) tactical, as an emitter disc tossed from a pack on the upper back.
+
+- **Behaviour from the game's files** (`mp_weapon_deployable_cover.txt` / `.nut`, multiplayer values):
+  - The wall stands 15 s; the charge is back 20 s after the toss.
+  - Its shape is the game's: a 150 degree arc of a cylinder 84 units in radius and 89 tall (2.1 by 2.2
+    blocks), its axis a radius behind the disc, so it bows out away from the pilot.
+  - Shots from the front are stopped and taken off its health (1000 in the game, 100 here by default).
+    Arrows and tridents drop at its foot so they can be picked up.
+    Shots going out through it are amped, 1.5x, whoever fires them, and amping doesn't stack.
+  - It blocks blasts (`SetBlocksRadiusDamage`). People walk through it. It can't be thrown while phased.
+- **Server:**
+  - The disc is a heavy thrown projectile that carries the pilot's momentum, glances off walls and ceilings
+    and plants on the first floor it lands on.
+  - Every projectile checks the standing walls at the start of its tick, before it moves, so a shot can't
+    cross a wall and hit someone behind it in the same tick. With no wall up the check costs nothing.
+  - Amped shots are marked and hit 1.5x harder; explosions treat a wall between the blast and an entity as
+    full cover.
+  - The server times the recharge and refuses a throw that comes back too soon.
+- **Client:**
+  - The wall is a curved sheet of amber hexagonal cells, drawn additively without writing depth so it never
+    hides particles behind it. All walls share one render layer. It rises out of the disc, flares and ripples where it stops a shot, reddens
+    and gutters as it weakens, stutters in its last two seconds, and shrinks away or bursts apart when it
+    comes down.
+  - The disc spins in flight; planted, its three legs fold out and its mast telescopes up.
+- **Pack, controls and HUD:**
+  - A compact pack between the shoulder blades, clear of the jumpkit, worn in Trinkets' chest/back slot or
+    held in the off hand. The disc sits in a cradle on its back; four pairs of lights fill as the next one
+    comes.
+  - The toss is animated in first and third person: the off hand reaches back to the pack, swings the disc
+    across the chest and flicks it out. Other players see your toss from the moment the disc leaves your hand.
+  - A tactical arc, its own unbound key, and config options with sliders.
+- **Sounds and particles:** six synthesized sounds (toss, deploy, loop, block, amp, end) and five particles
+  (sparks, ripple, flash, amp trail and embers).
+
+## Holo Pilot
+
+- **A hit decoy now sounds like a hit player** to whoever shot it. The digital crackle is only heard by the
+  decoy's own side, so enemies can't tell a decoy by ear.
+
 # 2.6 (Minecraft 1.21.1)
 
 ## Holo Pilot

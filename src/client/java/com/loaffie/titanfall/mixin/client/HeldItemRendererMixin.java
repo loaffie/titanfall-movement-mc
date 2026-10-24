@@ -1,13 +1,14 @@
 package com.loaffie.titanfall.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.loaffie.titanfall.client.awall.AWallFirstPerson;
 import com.loaffie.titanfall.client.cloak.CloakStates;
 import com.loaffie.titanfall.client.grapple.GrappleFirstPerson;
 import com.loaffie.titanfall.client.phase.PhaseFirstPerson;
 import com.loaffie.titanfall.client.pulse.PulseFirstPerson;
 import com.loaffie.titanfall.client.stim.StimFirstPerson;
 import com.loaffie.titanfall.pulse.PulseBlade;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -57,9 +58,10 @@ public abstract class HeldItemRendererMixin {
 		StimFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 		PhaseFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 		PulseFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
+		AWallFirstPerson.render(matrices, vertexConsumers, player, tickDelta, light);
 	}
 
-	/** Vanilla's main-hand draw: lowered out of view while the hand is busy injecting a Stim or throwing a Pulse Blade. */
+	/** Vanilla's main-hand draw: lowered out of view while the hand is busy injecting a Stim or throwing a Pulse Blade (the off hand, tossing an A-Wall). */
 	@ModifyArg(method = "renderItem(FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider$Immediate;Lnet/minecraft/client/network/ClientPlayerEntity;I)V",
 			at = @At(value = "INVOKE", target = RENDER_FIRST_PERSON_ITEM, ordinal = 0), index = 6)
 	private float titanfall$lowerMainHand(float equipProgress) {
@@ -87,6 +89,10 @@ public abstract class HeldItemRendererMixin {
 
 		if (arm == PulseBlade.throwingArm(player)) {
 			lowered = Math.max(lowered, PulseFirstPerson.lowerMainHand(player, tickDelta));
+		}
+
+		if (!mainHand) {
+			lowered = Math.max(lowered, AWallFirstPerson.lowerOffHand(player, tickDelta));
 		}
 
 		return lowered;

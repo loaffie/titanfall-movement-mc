@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.mixin.client;
 
 import com.loaffie.titanfall.client.anim.PilotPoses;
+import com.loaffie.titanfall.client.awall.AWallPoses;
 import com.loaffie.titanfall.client.grapple.GrapplePoses;
 import com.loaffie.titanfall.client.holo.HoloPoses;
 import com.loaffie.titanfall.client.phase.PhasePoses;
@@ -45,5 +46,6 @@ public abstract class PlayerEntityModelMixin {
 		PhasePoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
 		PulsePoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
 		HoloPoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
+		AWallPoses.apply(entity, (PlayerEntityModel<?>) (Object) this);
 	}
 }

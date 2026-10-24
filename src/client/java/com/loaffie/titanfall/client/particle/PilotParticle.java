@@ -101,6 +101,22 @@ public class PilotParticle extends SpriteBillboardParticle {
 	public static final Style HOLO_RING = new Style(Shape.RING, 7, 8, 0.25F, 1.1F, 0.0F,
 			rgb(0xF0FCFF), rgb(0x6FDCFF), rgb(0x1A48D0), 0.6F, 1.0F, 0.0F, false);
 
+	/** A-Wall spark: hot orange-white flecks thrown back off the wall by a stopped shot, falling and bouncing. */
+	public static final Style AWALL_SPARK = new Style(Shape.STREAK, 7, 14, 0.032F, 0.012F, 3.4F,
+			rgb(0xFFF4E0), rgb(0xFFA040), rgb(0xFF4A12), 1.0F, 0.88F, 0.7F, true);
+	/** A-Wall ripple: an amber ring spreading on the wall where a shot hit it (or on the ground as the disc plants). */
+	public static final Style AWALL_RIPPLE = new Style(Shape.RING, 7, 8, 0.08F, 0.75F, 0.0F,
+			rgb(0xFFF0D0), rgb(0xFFA24A), rgb(0xC0360C), 0.85F, 1.0F, 0.0F, false);
+	/** A-Wall flash: a quick hot bloom where a shot meets the wall. */
+	public static final Style AWALL_FLASH = new Style(Shape.BILLBOARD, 3, 4, 0.36F, 0.1F, 0.0F,
+			rgb(0xFFFFFF), rgb(0xFFC27A), rgb(0xFF6A1E), 0.9F, 1.0F, 0.0F, false);
+	/** A-Wall amp trail: the hot red-orange streak an amped shot leaves behind it. */
+	public static final Style AWALL_AMP = new Style(Shape.STREAK, 5, 8, 0.05F, 0.015F, 2.2F,
+			rgb(0xFFE6C0), rgb(0xFF7A2A), rgb(0xB0200A), 0.75F, 0.5F, 0.0F, false);
+	/** A-Wall ember: a small square of the wall's light drifting off it, or a piece of it as it comes down. */
+	public static final Style AWALL_SHARD = new Style(Shape.BILLBOARD, 12, 22, 0.06F, 0.02F, 0.0F,
+			rgb(0xFFE8C8), rgb(0xFF9A3A), rgb(0x7A1C06), 0.6F, 0.92F, 0.0F, false);
+
 	private final Style style;
 	private final Vector3f ringNormal;
 	private final float spin;

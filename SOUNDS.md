@@ -39,8 +39,14 @@ envelopes. Nothing is sampled from Titanfall 2 or any other game.
 | `cloak_end` | `cloak/end_1..2.ogg` | the shimmer falling apart downward, a short static tear and the air rushing back |
 | `holo_deploy` | `holo/deploy_1..2.ogg` | a rising digital chirp and bit-clicks resolving into a bright, detuned synthetic chord |
 | `holo_loop` | `holo/loop.ogg` | while a decoy runs, heard by its pilot's side only: a low synthetic hum with a faint digital flutter (seamless loop) |
-| `holo_hit` | `holo/hit_1..3.ogg` | a decoy hit: a crushed square burst falling in pitch, and crackle |
+| `holo_hit` | `holo/hit_1..3.ogg` | a decoy hit, heard by its pilot's side only (whoever shot it hears a player's hurt sound): a crushed square burst falling in pitch, and crackle |
 | `holo_end` | `holo/end_1..2.ogg` | a decoy dissolving: the tone breaking up and falling away under digital crackle |
+| `awall_toss` | `awall/toss_1..2.ogg` | the disc unclipped from the pack and flicked out: a latch clack, a whirr as it spins up, and the whoosh of the throw |
+| `awall_deploy` | `awall/deploy_1..2.ogg` | the disc's legs locking with a heavy clunk, the mast's servo whine, and the field rising through a crackling, swelling hum to a bright energy chord |
+| `awall_loop` | `awall/loop.ogg` | while a wall stands: a deep, steady electrical hum with a slow beat and a faint fizz (seamless loop) |
+| `awall_block` | `awall/block_1..3.ogg` | a shot stopped by the wall: a hard, bright electric snap ringing off into a short falling zap |
+| `awall_amp` | `awall/amp_1..2.ogg` | a shot amped going out through the wall: a quick rising electric zing |
+| `awall_end` | `awall/end_1..2.ogg` | the wall powering down: the hum dropping away through a stutter of crackle, and a last clunk |
 
 Most one-shots have two or three variants that `sounds.json` picks between at random, and the game adds a ±4%
 pitch variation on top, so repeated moves don't sound canned.
@@ -53,12 +59,12 @@ python3 tools/generate-audio.py grapple_   # only the Grapple's
 ```
 
 Requires numpy, scipy and ffmpeg with libvorbis. It writes mono 44.1 kHz Ogg Vorbis into
-`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/`, `.../sounds/stim/`, `.../sounds/phase/`, `.../sounds/pulse/`, `.../sounds/cloak/` and `.../sounds/holo/`.
+`src/main/resources/assets/titanfall_movement/sounds/movement/`, `.../sounds/grapple/`, `.../sounds/stim/`, `.../sounds/phase/`, `.../sounds/pulse/`, `.../sounds/cloak/`, `.../sounds/holo/` and `.../sounds/awall/`.
 
 ## Using other audio
 
 Any resource pack can replace the files under `assets/titanfall_movement/sounds/movement/` and
-`sounds/grapple/`, `sounds/stim/`, `sounds/phase/`, `sounds/pulse/`, `sounds/cloak/` and `sounds/holo/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
+`sounds/grapple/`, `sounds/stim/`, `sounds/phase/`, `sounds/pulse/`, `sounds/cloak/`, `sounds/holo/` and `sounds/awall/` with the same names. If you use audio from your own copy of a game, keep it in a local resource pack and don't
 redistribute it.
 
 ## Adjusting

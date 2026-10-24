@@ -1,9 +1,10 @@
-# Titanfall Movement 2.6 (Fabric 1.21.1)
+# Titanfall Movement 2.7 (Fabric 1.21.1)
 
 Titanfall 2 pilot movement for Minecraft Java 1.21.1, built on Source-engine movement math and
-powered by a wearable **Pilot Jumpkit**, plus two pilot tactical abilities: the **Grapple** and the
-**Stim**. Install it on **both client and server**: the jumpkit, Grapple and Stim are registered items,
-so a server without the mod would reject them.
+powered by a wearable **Pilot Jumpkit**, plus pilot tactical abilities: the **Grapple**, **Stim**,
+**Phase Shift**, **Cloak**, **Holo Pilot**, **A-Wall** and **Pulse Blade**. Install it on **both client
+and server**: the jumpkit and the tacticals are registered items, so a server without the mod would reject
+them.
 
 ## Pilot Jumpkit
 
@@ -291,8 +292,60 @@ with your last move, to draw fire and fool whoever is watching.
 - **What your side sees:** faint scan lines over it all the time, a trail of flecks off its chest, and a low
   flickering hum while it runs. In first person it fades in as it pulls away from you, so you never see the
   inside of its head.
-- Sounds: a digital chirp resolving into a bright synthetic chord, the hum, a crackle when it's hit, and the
+- **Hit**, it sounds like a hit player to whoever shot it, so they can't tell by ear. You and your team also
+  hear a crackle of the projection, so you know it's drawing fire.
+- Sounds: a digital chirp resolving into a bright synthetic chord, the hum, the crackle when it's hit, and the
   tone breaking up as it dissolves.
+
+## A-Wall
+
+Titanfall 2's A-Wall (Amped Wall) tactical: a disc you toss from a pack on your back that throws up a curved
+wall of amber energy. It stops every shot coming at it from the front, and amps every shot fired out through
+it from behind.
+
+- Item id `titanfall_movement:pilot_awall`, in the Combat creative tab. Craftable; the recipe unlocks once
+  you pick up a shield or blaze powder.
+
+  ```
+  Iron Ingot  Nether Quartz  Iron Ingot
+  Leather     Shield         Leather
+  Redstone    Blaze Powder   Redstone
+  ```
+- **Worn on the upper back**: a compact pack between the shoulder blades, clear of the jumpkit lower down.
+  The emitter disc sits clipped into a round cradle on its back, with a column of four amber charge lights
+  down each side, on short straps over the shoulders and round the ribs. With Trinkets it goes in the chest
+  group's **back** slot (right-click it to equip); without Trinkets, hold it in the off hand. Over a
+  chestplate it sits out on the armour. Once you've thrown the disc the cradle is empty, and the lights fill
+  bottom to top as the next one comes.
+- **Using it.** Press **Tactical Ability** (`G`). If you also wear the Grapple, Phase Shift, Cloak or Holo
+  Pilot, they take the key first, and the A-Wall has its own **A-Wall** key (unbound by default) under
+  Controls. Your off hand reaches back over your shoulder, pulls the disc from the pack, swings it across your
+  chest and flicks it out ahead, in first and third person.
+- **Works like Titanfall 2's** (values from the game's `mp_weapon_deployable_cover.txt` / `.nut`, multiplayer):
+  - The disc is a short, heavy toss that carries your own momentum. It glances off walls and ceilings and
+    plants on the first floor it lands on: its legs fold out, its mast rises, and the wall goes up.
+  - **The wall:** part of a cylinder 2.1 blocks in radius and 2.2 blocks tall, spanning 150 degrees, bowed out
+    away from you with the disc at its middle (the game's 84 by 89 units).
+  - **It stands for 15 seconds** (`awallDurationSeconds`); the charge is back **20 seconds** after the toss
+    (`awallRechargeSeconds`).
+  - **Shots from the front are stopped** at the wall, in a flash of sparks: arrows, tridents, fireballs,
+    snowballs, potions, any projectile. Arrows and tridents drop at the foot of the wall, as off a shield, so
+    they can be picked up; everything else is gone. Each shot takes what it would have done to someone off the
+    wall's health (`awallHealth`, 100 by default, a dozen or so full-draw arrows). When that's gone the wall is
+    shot down.
+  - **Shots going out through it are amped**: 1.5 times the damage (`awallDamageAmp`), and they trail hot
+    sparks. Anyone's shots, yours, your team's or an enemy's who walks round behind it, as in the game. Amping
+    doesn't stack: a shot is amped once.
+  - **It stops blasts** across it either way (`awallBlocksExplosions`): a creeper or TNT on the far side
+    doesn't hurt or push those behind it.
+  - People and mobs walk straight through it; only shots and blasts are stopped. Melee isn't affected.
+  - It can't be thrown while phased.
+- **Look:** a sheet of amber hexagonal cells drifting slowly upward, brightest along its top and ends, rising
+  out of the disc as it goes up. It flares and ripples where it stops a shot, reddens and gutters as its
+  health runs down, stutters in its last two seconds, and shrinks back into the disc as it shuts down, or
+  breaks apart in a burst of embers if it was shot down.
+- Sounds: the disc unclipped and flicked out, a clunk and a rising crackle as the wall goes up, its deep hum,
+  a hard snap for each shot it stops, a zing for each shot it amps, and the field powering down.
 
 ## Pulse Blade
 

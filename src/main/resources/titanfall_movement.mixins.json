@@ -3,12 +3,15 @@
 	"package": "com.loaffie.titanfall.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
+		"ExplosionAWallMixin",
+		"LivingEntityAWallMixin",
 		"LivingEntityCloakMixin",
 		"LivingEntityPhaseMixin",
 		"PlayerEntityFallDamageMixin",
 		"PlayerEntityLedgeMixin",
 		"PlayerEntityPhaseMixin",
-		"PlayerEntitySlidePoseMixin"
+		"PlayerEntitySlidePoseMixin",
+		"ProjectileEntityAWallMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

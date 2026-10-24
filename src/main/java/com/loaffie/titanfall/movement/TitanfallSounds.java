@@ -42,6 +42,12 @@ public final class TitanfallSounds {
 	public static final SoundEvent HOLO_LOOP = register("holo_loop");
 	public static final SoundEvent HOLO_HIT = register("holo_hit");
 	public static final SoundEvent HOLO_END = register("holo_end");
+	public static final SoundEvent AWALL_TOSS = register("awall_toss");
+	public static final SoundEvent AWALL_DEPLOY = register("awall_deploy");
+	public static final SoundEvent AWALL_LOOP = register("awall_loop");
+	public static final SoundEvent AWALL_BLOCK = register("awall_block");
+	public static final SoundEvent AWALL_AMP = register("awall_amp");
+	public static final SoundEvent AWALL_END = register("awall_end");
 
 	private TitanfallSounds() {
 	}

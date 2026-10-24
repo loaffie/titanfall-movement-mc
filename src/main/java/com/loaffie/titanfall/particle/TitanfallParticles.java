@@ -59,6 +59,16 @@ public final class TitanfallParticles {
 	public static final SimpleParticleType HOLO_MOTE = register("holo_mote");
 	/** Holo Pilot: the scan ring that sweeps up a decoy as it is projected; the spawn velocity is its normal. */
 	public static final SimpleParticleType HOLO_RING = register("holo_ring");
+	/** A-Wall: hot orange sparks thrown back off the wall by a shot it stopped, and off the disc as it plants. */
+	public static final SimpleParticleType AWALL_SPARK = register("awall_spark");
+	/** A-Wall: a ripple on the wall where a shot hit it; the spawn velocity is the wall's normal there. */
+	public static final SimpleParticleType AWALL_RIPPLE = register("awall_ripple");
+	/** A-Wall: a quick orange flash where a shot meets the wall, either way through. */
+	public static final SimpleParticleType AWALL_FLASH = register("awall_flash");
+	/** A-Wall: the hot streak an amped shot leaves behind it. */
+	public static final SimpleParticleType AWALL_AMP = register("awall_amp");
+	/** A-Wall: the glowing flecks the wall breaks into as it shuts down. */
+	public static final SimpleParticleType AWALL_SHARD = register("awall_shard");
 
 	private TitanfallParticles() {
 	}

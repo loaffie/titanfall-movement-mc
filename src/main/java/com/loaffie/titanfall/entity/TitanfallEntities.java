@@ -1,6 +1,7 @@
 package com.loaffie.titanfall.entity;
 
 import com.loaffie.titanfall.TitanfallMovement;
+import com.loaffie.titanfall.awall.AWallEntity;
 import com.loaffie.titanfall.holo.HoloDecoyEntity;
 import com.loaffie.titanfall.pulse.PulseBladeEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -28,6 +29,15 @@ public final class TitanfallEntities {
 			Identifier.of(TitanfallMovement.MOD_ID, "holo_decoy"),
 			EntityType.Builder.<HoloDecoyEntity>create(HoloDecoyEntity::new, SpawnGroup.MISC).disableSaving().disableSummon()
 					.dimensions(0.6F, 1.8F).eyeHeight(1.62F).maxTrackingRange(32).trackingTickInterval(2).build());
+
+	/**
+	 * The A-Wall's emitter disc, and the wall it holds up once planted: seen from as far off as a pilot's
+	 * fight, its flight updated every tick.
+	 */
+	public static final EntityType<AWallEntity> AWALL = Registry.register(Registries.ENTITY_TYPE,
+			Identifier.of(TitanfallMovement.MOD_ID, "awall"),
+			EntityType.Builder.<AWallEntity>create(AWallEntity::new, SpawnGroup.MISC).disableSaving().disableSummon()
+					.dimensions(0.35F, 0.12F).maxTrackingRange(8).trackingTickInterval(1).build());
 
 	private TitanfallEntities() {
 	}

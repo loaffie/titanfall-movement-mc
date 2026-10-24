@@ -316,6 +316,22 @@ public class TitanfallConfig {
 	/** Hostile mobs chasing the pilot that can see a new decoy go after it instead. */
 	public boolean holoDistractsMobs = true;
 
+	// --- a-wall ---
+	// Titanfall 2's A-Wall, from the game's files: mp_weapon_deployable_cover.txt/.nut (multiplayer values).
+	/** How long a wall stands, seconds ({@code DEPLOYABLE_SHIELD_DURATION} 15). */
+	public double awallDurationSeconds = 15.0;
+	/** Time for the charge to come back, seconds: 100 ammo at {@code regen_ammo_refill_rate} 5 a second = 20. */
+	public double awallRechargeSeconds = 20.0;
+	/**
+	 * Damage a wall takes from the shots it stops before it fails, half a heart per point. Titanfall's 1000 is
+	 * forty rifle rounds; 100 here is a dozen or so full-draw arrows.
+	 */
+	public double awallHealth = 100.0;
+	/** Damage multiplier on shots that go out through the wall ({@code pass_through_amps_weapon}: Titanfall's amped rounds, 1.5x). */
+	public double awallDamageAmp = 1.5;
+	/** The wall stops explosions on its far side reaching those behind it, and the other way ({@code SetBlocksRadiusDamage}). */
+	public boolean awallBlocksExplosions = true;
+
 	// --- camera ---
 	/**
 	 * Camera roll while wall running, degrees, scaled by how side-on the wall is to the view. Positive banks the
