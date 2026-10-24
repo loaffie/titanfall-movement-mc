@@ -35,8 +35,8 @@ public class CloakFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEn
 		ModelPart part = arm == Arm.LEFT ? this.getContextModel().leftArm : this.getContextModel().rightArm;
 		matrices.push();
 		part.rotate(matrices);
-		GrappleModel.onArm(matrices, arm, player.getSkinTextures().model() == SkinTextures.Model.SLIM);
-		CloakModel.render(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, lightColor(player));
+		boolean mirrored = GrappleModel.onArm(matrices, arm, player.getSkinTextures().model() == SkinTextures.Model.SLIM);
+		CloakModel.render(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, lightColor(player), mirrored);
 		matrices.pop();
 	}
 

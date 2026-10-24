@@ -88,9 +88,9 @@ public final class PhaseFirstPerson {
 		matrices.translate(elbow.x, elbow.y, elbow.z);
 		matrices.multiply(frame);
 		renderForearm(matrices, consumers, player, arm, light);
-		GrappleModel.onArm(matrices, arm, slim);
+		boolean mirrored = GrappleModel.onArm(matrices, arm, slim);
 		float glow = state.glow(tickDelta) * PhaseAnimation.ignition(t);
-		PhaseModel.render(matrices, consumers, light, OverlayTexture.DEFAULT_UV, glow, player.age + tickDelta, player.getId());
+		PhaseModel.render(matrices, consumers, light, OverlayTexture.DEFAULT_UV, glow, player.age + tickDelta, player.getId(), mirrored);
 		matrices.pop();
 	}
 

@@ -61,8 +61,8 @@ public class PhaseFeatureRenderer extends FeatureRenderer<AbstractClientPlayerEn
 		float glow = state == null ? 0.0F : state.glow(tickDelta);
 		matrices.push();
 		part.rotate(matrices);
-		GrappleModel.onArm(matrices, arm, slim);
-		PhaseModel.render(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, glow, animationProgress, player.getId());
+		boolean mirrored = GrappleModel.onArm(matrices, arm, slim);
+		PhaseModel.render(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, glow, animationProgress, player.getId(), mirrored);
 		if (glow > 0.0F) {
 			recordCoil(player, matrices.peek().getPositionMatrix().transformPosition(new Vector3f(PhaseModel.COIL)));
 		}

@@ -27,18 +27,20 @@ public final class CloakModel {
 	private CloakModel() {
 	}
 
-	/** The bracer in mesh space, its lights in {@code light}. */
-	public static void render(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay, int lightColor) {
+	/** The bracer in mesh space, its lights in {@code lightColor}; {@code mirrored} as
+	 * {@link com.loaffie.titanfall.client.grapple.GrappleModel#onArm} returned.
+	 */
+	public static void render(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay, int lightColor, boolean mirrored) {
 		ObjModel mesh = MESH.get();
 		if (mesh == null) {
 			return;
 		}
 
 		MatrixStack.Entry entry = matrices.peek();
-		mesh.render("bracer", entry, consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE)), light, overlay, WHITE);
+		mesh.render("bracer", entry, consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE)), light, overlay, WHITE, mirrored);
 		VertexConsumer emissive = consumers.getBuffer(RenderLayer.getEyes(TEXTURE));
-		mesh.render("lens", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, lightColor);
-		mesh.render("strip", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, lightColor);
+		mesh.render("lens", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, lightColor, mirrored);
+		mesh.render("strip", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, lightColor, mirrored);
 	}
 
 	public static SimpleSynchronousResourceReloadListener reloadListener() {

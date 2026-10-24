@@ -53,6 +53,24 @@ def bevel_box(x0, y0, z0, x1, y1, z1, bevel):
     return np.array(pts, dtype=float)
 
 
+def box(x0, y0, z0, x1, y1, z1):
+    """A plain box: eight corners, twelve triangles."""
+    return np.array([(x, y, z) for x in (x0, x1) for y in (y0, y1) for z in (z0, z1)], dtype=float)
+
+
+def oriented_box(centre, u, v, half):
+    """A box at ``centre`` turned so its first two axes lie along ``u`` and ``v`` (the third completes them),
+    ``half`` its half-extents along each."""
+    u = np.asarray(u, dtype=float) / np.linalg.norm(u)
+    v = np.asarray(v, dtype=float)
+    v = v - u * np.dot(u, v)
+    v /= np.linalg.norm(v)
+    w = np.cross(u, v)
+    c = np.asarray(centre, dtype=float)
+    return np.array([c + su * half[0] * u + sv * half[1] * v + sw * half[2] * w
+                     for su in (-1, 1) for sv in (-1, 1) for sw in (-1, 1)], dtype=float)
+
+
 def ring(axis, centre, radius, at, segments):
     """Points of a circle of ``radius`` round the ``axis`` line through ``centre``, at ``at`` along it."""
     pts = []
@@ -111,6 +129,21 @@ def capsule_segment(a, b, thickness):
 class Mesh:
     def __init__(self):
         self.objects = {}
+        # Each solid part's hull planes (outward normal n and offset d: inside where n.x + d <= 0), for cull().
+        self.parts = []
+
+    def _triangle(self, obj, a, b, c, n, lo, span, material, part):
+        """One triangle with planar UVs on the face's dominant axis, the part's extent spread across the swatch
+        (with a one-texel margin so the filter never reads the neighbouring swatch)."""
+        ox, oy = swatch_origin(MATERIALS[material][1])
+        axis = int(np.argmax(np.abs(n)))
+        u_axis, v_axis = [(1, 2), (0, 2), (0, 1)][axis]
+        corners = []
+        for p in (a, b, c):
+            u = ox + 1 + (p[u_axis] - lo[u_axis]) / span[u_axis] * (SWATCH - 2)
+            v = oy + 1 + (p[v_axis] - lo[v_axis]) / span[v_axis] * (SWATCH - 2)
+            corners.append((p, (u / ATLAS, v / ATLAS)))
+        self.objects.setdefault(obj, []).append((corners, n, part))
 
     def add(self, obj, points, material):
         """Adds the convex hull of ``points`` to ``obj``, with flat normals and atlas UVs from ``material``."""
@@ -118,8 +151,8 @@ class Mesh:
         centre = points.mean(axis=0)
         lo, hi = points.min(axis=0), points.max(axis=0)
         span = np.maximum(hi - lo, 1e-6)
-        ox, oy = swatch_origin(MATERIALS[material][1])
-        tris = self.objects.setdefault(obj, [])
+        part = len(self.parts)
+        self.parts.append((obj, hull.equations))
         for simplex in hull.simplices:
             a, b, c = (points[i] for i in simplex)
             n = np.cross(b - a, c - a)
@@ -130,16 +163,47 @@ class Mesh:
             if np.dot(n, a - centre) < 0:
                 b, c = c, b
                 n = -n
-            # Planar UVs on the face's dominant axis, the part's extent spread across the swatch (with a
-            # one-texel margin so the filter never reads the neighbouring swatch).
-            axis = int(np.argmax(np.abs(n)))
-            u_axis, v_axis = [(1, 2), (0, 2), (0, 1)][axis]
-            corners = []
-            for p in (a, b, c):
-                u = ox + 1 + (p[u_axis] - lo[u_axis]) / span[u_axis] * (SWATCH - 2)
-                v = oy + 1 + (p[v_axis] - lo[v_axis]) / span[v_axis] * (SWATCH - 2)
-                corners.append((p, (u / ATLAS, v / ATLAS)))
-            tris.append((corners, n))
+            self._triangle(obj, a, b, c, n, lo, span, material, part)
+
+    def add_face(self, obj, points, material, facing):
+        """Adds a flat convex polygon (its corners in order round it), facing the ``facing`` direction: a decal,
+        a light or a read-out laid on a solid, two triangles for a quad instead of a slab's twelve."""
+        pts = np.asarray(points, dtype=float)
+        n = np.cross(pts[1] - pts[0], pts[2] - pts[0])
+        n /= np.linalg.norm(n)
+        if np.dot(n, facing) < 0:
+            pts = pts[::-1]
+            n = -n
+        lo, hi = pts.min(axis=0), pts.max(axis=0)
+        span = np.maximum(hi - lo, 1e-6)
+        for k in range(1, len(pts) - 1):
+            self._triangle(obj, pts[0], pts[k], pts[k + 1], n, lo, span, material, None)
+
+    def cull(self, occluders, eps=1e-3):
+        """Drops the triangles no one can see: those lying wholly inside, or flat against, another solid part of
+        an ``occluders`` object (objects always drawn). A face flush with an occluder's face that points the
+        same way is kept, so two flush parts never cancel each other's outside. Returns how many went."""
+        dropped = 0
+        for obj, tris in self.objects.items():
+            kept = []
+            for corners, n, part in tris:
+                pts = np.array([c[0] for c in corners] + [np.mean([c[0] for c in corners], axis=0)])
+                hidden = False
+                for other, (other_obj, planes) in enumerate(self.parts):
+                    if other == part or other_obj not in occluders:
+                        continue
+                    dist = pts @ planes[:, :3].T + planes[:, 3]
+                    if np.all(dist <= eps):
+                        on = np.all(np.abs(dist) <= eps, axis=0)
+                        if not np.any(planes[on, :3] @ n > 0.99):
+                            hidden = True
+                            break
+                if hidden:
+                    dropped += 1
+                else:
+                    kept.append((corners, n, part))
+            self.objects[obj] = kept
+        return dropped
 
     def write(self, path, header):
         """Writes the mesh as an OBJ, one object per part group, with ``header`` as its leading comments."""
@@ -147,7 +211,7 @@ class Mesh:
         vi = vt = vn = 0
         for name, tris in self.objects.items():
             lines.append(f"o {name}")
-            for corners, n in tris:
+            for corners, n, _ in tris:
                 face = []
                 lines.append(f"vn {n[0]:.4f} {n[1]:.4f} {n[2]:.4f}")
                 vn += 1
@@ -210,7 +274,7 @@ def icon(mesh, atlas_path, path, parts, view, size=16, supersample=8):
     n = size * supersample
     tris = []
     for name, offset, glow in parts:
-        for corners, normal in mesh.objects.get(name, []):
+        for corners, normal, _ in mesh.objects.get(name, []):
             pts = np.array([c[0] for c in corners]) + np.array(offset)
             uv = np.mean([c[1] for c in corners], axis=0)
             colour = atlas[min(int(uv[1] * ATLAS), ATLAS - 1), min(int(uv[0] * ATLAS), ATLAS - 1)]

@@ -1,3 +1,21 @@
+# 2.7.4 (Minecraft 1.21.1)
+
+- **The Phase Shift gauntlet is remodelled from Respawn's render of the shifting gauntlet**, and is much
+  lighter to draw: 503 triangles, down from 1,616.
+  - The housing on the back of the hand now matches the game's: a ring of eight segments between radial
+    ribs, a raised lip round a recessed well, and a hub split by a bar. The ring and the hub light up blue
+    when you phase.
+  - The red read-out moves to the housing's thumb-side rim, on a slanted face, showing dot-matrix digits.
+    A capacitor canister sits below it, and three clamps stand on the rim.
+  - The power pack on the wrist has a grille face and feeds the housing through two leads. The glove has a
+    padded cuff, a knuckle band and a knuckle pad.
+  - Why it's lighter: plain boxes and few-sided cylinders, lights laid on as flat faces instead of slabs, and
+    every face hidden inside or against another part left out.
+- **Fixed: gear worn on the right arm lost its lights.** Moving gear onto the right arm mirrors it, and the
+  full-bright layer then dropped the lights' faces as back faces. This hit the Phase Shift's ring, hub and
+  read-out, and the Grapple's and the Cloak's lights, for anyone wearing them on the right arm (a
+  left-handed main hand, or a main-hand slot). Mirrored gear now keeps its faces the right way round.
+
 # 2.7.3 (Minecraft 1.21.1)
 
 - **The A-Wall's sounds are redone to sound like the game's**, not playful. They follow the game's own A-Wall

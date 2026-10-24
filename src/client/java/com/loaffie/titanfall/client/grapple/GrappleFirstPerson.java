@@ -83,9 +83,9 @@ public final class GrappleFirstPerson {
 		PlayerEntityModel<?> model = renderer.getModel();
 		ModelPart part = arm == Arm.LEFT ? model.leftArm : model.rightArm;
 		part.rotate(matrices);
-		GrappleModel.onArm(matrices, arm, player.getSkinTextures().model() == SkinTextures.Model.SLIM);
+		boolean mirrored = GrappleModel.onArm(matrices, arm, player.getSkinTextures().model() == SkinTextures.Model.SLIM);
 		GrappleModel.renderGauntlet(matrices, consumers, light, OverlayTexture.DEFAULT_UV, line == null,
-				GrappleFeatureRenderer.statusLight(player, line));
+				GrappleFeatureRenderer.statusLight(player, line), mirrored);
 		muzzleView = matrices.peek().getPositionMatrix().transformPosition(new Vector3f(GrappleModel.MUZZLE));
 		matrices.pop();
 	}

@@ -44,8 +44,8 @@ public class GrappleFeatureRenderer extends FeatureRenderer<AbstractClientPlayer
 
 		matrices.push();
 		part.rotate(matrices);
-		GrappleModel.onArm(matrices, arm, slim);
-		GrappleModel.renderGauntlet(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, line == null, statusLight(player, line));
+		boolean mirrored = GrappleModel.onArm(matrices, arm, slim);
+		GrappleModel.renderGauntlet(matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV, line == null, statusLight(player, line), mirrored);
 		recordMuzzle(player, line, matrices.peek().getPositionMatrix().transformPosition(new Vector3f(GrappleModel.MUZZLE)));
 		matrices.pop();
 	}

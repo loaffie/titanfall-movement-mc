@@ -37,7 +37,7 @@ public final class GrappleItemRenderer implements BuiltinItemRendererRegistry.Dy
 		matrices.scale(SCALE, SCALE, SCALE);
 		matrices.multiply(LAY_FLAT);
 		matrices.translate(-CENTRE_X, -CENTRE_Y, -CENTRE_Z);
-		GrappleModel.renderGauntlet(matrices, vertexConsumers, light, overlay, true, GrappleModel.LIGHT_READY);
+		GrappleModel.renderGauntlet(matrices, vertexConsumers, light, overlay, true, GrappleModel.LIGHT_READY, false);
 		matrices.pop();
 	}
 }

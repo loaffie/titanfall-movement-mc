@@ -36,7 +36,7 @@ public final class CloakItemRenderer implements BuiltinItemRendererRegistry.Dyna
 		matrices.scale(SCALE, SCALE, SCALE);
 		matrices.multiply(LAY_FLAT);
 		matrices.translate(0.0F, -CENTRE_Y, -CENTRE_Z);
-		CloakModel.render(matrices, vertexConsumers, light, overlay, CloakModel.READY);
+		CloakModel.render(matrices, vertexConsumers, light, overlay, CloakModel.READY, false);
 		matrices.pop();
 	}
 }

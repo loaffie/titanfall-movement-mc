@@ -113,16 +113,28 @@ public final class ObjModel {
 
 	/** Draws one object; {@code color} is ARGB and tints the texture (white = unchanged). */
 	public void render(String group, MatrixStack.Entry entry, VertexConsumer consumer, int light, int overlay, int color) {
+		render(group, entry, consumer, light, overlay, color, false);
+	}
+
+	/**
+	 * Draws one object under a transform that may mirror it ({@code mirrored}: gear moved onto a right arm).
+	 * Mirrored, the corners go out in reverse, so the faces still wind toward the viewer and layers that cull
+	 * back faces (the full-bright lights) keep their front faces.
+	 */
+	public void render(String group, MatrixStack.Entry entry, VertexConsumer consumer, int light, int overlay, int color, boolean mirrored) {
 		float[] d = groups.get(group);
 		if (d == null) {
 			return;
 		}
 
+		int second = mirrored ? STRIDE * 2 : STRIDE;
+		int third = mirrored ? STRIDE : STRIDE * 2;
+
 		for (int tri = 0; tri < d.length; tri += STRIDE * 3) {
 			emit(entry, consumer, d, tri, light, overlay, color);
-			emit(entry, consumer, d, tri + STRIDE, light, overlay, color);
-			emit(entry, consumer, d, tri + STRIDE * 2, light, overlay, color);
-			emit(entry, consumer, d, tri + STRIDE * 2, light, overlay, color);
+			emit(entry, consumer, d, tri + second, light, overlay, color);
+			emit(entry, consumer, d, tri + third, light, overlay, color);
+			emit(entry, consumer, d, tri + third, light, overlay, color);
 		}
 	}
 

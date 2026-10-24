@@ -27,8 +27,8 @@ public final class PhaseModel {
 	public static final Identifier TEXTURE = Identifier.of(TitanfallMovement.MOD_ID, "textures/entity/phase_shift.png");
 	private static final ObjModel.Handle MESH = new ObjModel.Handle(Identifier.of(TitanfallMovement.MOD_ID, "models/entity/phase_shift.obj"));
 
-	/** The coil's centre on its face, mesh pixels (the generator's COIL_Y and COIL_FACE_Z). */
-	public static final Vector3f COIL = new Vector3f(0.0F, 8.0F, -3.25F);
+	/** The ring's centre on its face, mesh pixels (the generator's COIL_Y and COIL_FACE_Z). */
+	public static final Vector3f COIL = new Vector3f(0.0F, 7.95F, -3.05F);
 	private static final int FULL_BRIGHT = 0xF000F0;
 	private static final int WHITE = 0xFFFFFFFF;
 	private static final int CORE_IDLE = 0xFF1E5A86;
@@ -52,9 +52,11 @@ public final class PhaseModel {
 
 	/**
 	 * Draws the gauntlet in mesh space. {@code glow} 0..1 lights the coil (0 at rest); {@code time} (ticks)
-	 * animates the flicker and the arcs, and {@code seed} keeps different pilots' arcs apart.
+	 * animates the flicker and the arcs, and {@code seed} keeps different pilots' arcs apart; {@code mirrored}
+	 * as {@link GrappleModel#onArm} returned.
 	 */
-	public static void render(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay, float glow, float time, int seed) {
+	public static void render(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay, float glow, float time, int seed,
+			boolean mirrored) {
 		ObjModel mesh = mesh();
 		if (mesh == null) {
 			return;
@@ -62,16 +64,17 @@ public final class PhaseModel {
 
 		MatrixStack.Entry entry = matrices.peek();
 		VertexConsumer solid = consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
-		mesh.render("gauntlet", entry, solid, light, overlay, WHITE);
-		mesh.render("coil", entry, solid, light, overlay, WHITE);
+		mesh.render("gauntlet", entry, solid, light, overlay, WHITE, mirrored);
+		mesh.render("coil", entry, solid, light, overlay, WHITE, mirrored);
 
 		VertexConsumer emissive = consumers.getBuffer(RenderLayer.getEyes(TEXTURE));
-		mesh.render("led", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, GrappleModel.dim(LED, 0.8F + 0.2F * MathHelper.sin(time * 0.3F)));
-		mesh.render("core", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, mix(CORE_IDLE, CORE_ACTIVE, glow));
+		mesh.render("led", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, GrappleModel.dim(LED, 0.8F + 0.2F * MathHelper.sin(time * 0.3F)),
+				mirrored);
+		mesh.render("core", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, mix(CORE_IDLE, CORE_ACTIVE, glow), mirrored);
 		if (glow > 0.01F) {
 			// A ragged electric flicker on top of the glow.
 			float flicker = 0.78F + 0.22F * MathHelper.sin(time * 2.7F) * MathHelper.sin(time * 1.3F + 1.0F);
-			mesh.render("coil_glow", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, GrappleModel.dim(COIL_ACTIVE, glow * flicker));
+			mesh.render("coil_glow", entry, emissive, FULL_BRIGHT, OverlayTexture.DEFAULT_UV, GrappleModel.dim(COIL_ACTIVE, glow * flicker), mirrored);
 			if (glow > 0.2F) {
 				renderArcs(entry, emissive, glow, (int) (time / 2.0F) * 31 + seed);
 			}

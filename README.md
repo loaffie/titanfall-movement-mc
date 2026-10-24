@@ -194,9 +194,11 @@ of movement, but the world can't touch you and you can't touch it.
   were heading. When you come back there's a white-blue flash, a ring at your feet and a spray of sparks,
   and they hear it. While you're phased, anyone close hears a low hum.
 - **Looks.**
-  - **Model:** a fingerless glove with a round coil housing over the back of the hand. It has a ring of
-    twelve coil segments round a glowing hub, a wrist pack with a small red read-out, cables into the coil,
-    and straps over the knuckles and forearm.
+  - **Model:** after Respawn's render of the shifting gauntlet. A fingerless glove with a padded cuff, and
+    a round housing on the back of the hand: a ring of eight segments between ribs, a raised lip round a
+    recessed well, and a glowing hub split by a bar. A slanted red read-out sits on the thumb-side rim with
+    a capacitor canister below it, three clamps stand on the rim, and a grille-faced power pack on the
+    wrist feeds the housing through two leads. 503 triangles.
   - **Active:** the coil burns blue and electric arcs crawl over it and leap off its rim. Sparks fly off it
     and it cools for a moment after.
   - **First person:** one-handed. The gauntlet hand comes up into the bottom corner of the screen on its own

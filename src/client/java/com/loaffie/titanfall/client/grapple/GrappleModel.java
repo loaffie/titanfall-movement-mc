@@ -42,41 +42,43 @@ public final class GrappleModel {
 
 	/**
 	 * From the arm part's own space (after {@code arm.rotate}, in blocks) to mesh pixels on that arm. Wide arm
-	 * centres sit at x = +-1 px from the joint, slim ones at +-0.5.
+	 * centres sit at x = +-1 px from the joint, slim ones at +-0.5. Returns true when it mirrors the mesh (on a
+	 * right arm), to pass on to the render call.
 	 */
-	public static void onArm(MatrixStack matrices, Arm arm, boolean slim) {
+	public static boolean onArm(MatrixStack matrices, Arm arm, boolean slim) {
 		float side = arm == Arm.LEFT ? 1.0F : -1.0F;
 		matrices.scale(1.0F / 16.0F, 1.0F / 16.0F, 1.0F / 16.0F);
 		matrices.translate(side * (slim ? 0.5F : 1.0F), 0.0F, 0.0F);
 		matrices.scale(side * (slim ? 0.8F : 1.0F), 1.0F, 1.0F);
+		return arm == Arm.RIGHT;
 	}
 
 	/**
 	 * Draws the gauntlet in mesh space: the lit body, the status light tinted {@code lightColor}, and - when
-	 * {@code loaded} - the hook seated in the muzzle.
+	 * {@code loaded} - the hook seated in the muzzle. {@code mirrored} as {@link #onArm} returned.
 	 */
 	public static void renderGauntlet(MatrixStack matrices, VertexConsumerProvider consumers, int light, int overlay,
-			boolean loaded, int lightColor) {
+			boolean loaded, int lightColor, boolean mirrored) {
 		ObjModel mesh = mesh();
 		if (mesh == null) {
 			return;
 		}
 
 		MatrixStack.Entry entry = matrices.peek();
-		mesh.render("gauntlet", entry, consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE)), light, overlay, WHITE);
+		mesh.render("gauntlet", entry, consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE)), light, overlay, WHITE, mirrored);
 		if (loaded) {
 			matrices.push();
 			matrices.translate(MUZZLE.x, MUZZLE.y - 0.9F, MUZZLE.z);
-			mesh.render("hook", matrices.peek(), consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE)), light, overlay, WHITE);
+			mesh.render("hook", matrices.peek(), consumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE)), light, overlay, WHITE, mirrored);
 			matrices.pop();
 		}
 
-		mesh.render("glow", entry, consumers.getBuffer(RenderLayer.getEyes(TEXTURE)), FULL_BRIGHT, OverlayTexture.DEFAULT_UV, lightColor);
+		mesh.render("glow", entry, consumers.getBuffer(RenderLayer.getEyes(TEXTURE)), FULL_BRIGHT, OverlayTexture.DEFAULT_UV, lightColor, mirrored);
 		if (loaded) {
 			matrices.push();
 			matrices.translate(MUZZLE.x, MUZZLE.y - 0.9F, MUZZLE.z);
 			mesh.render("hook_glow", matrices.peek(), consumers.getBuffer(RenderLayer.getEyes(TEXTURE)), FULL_BRIGHT, OverlayTexture.DEFAULT_UV,
-					dim(lightColor, 0.6F));
+					dim(lightColor, 0.6F), mirrored);
 			matrices.pop();
 		}
 	}
